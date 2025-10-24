@@ -13,7 +13,7 @@ add_compile_options(-Wall -Wextra -pedantic)
 # Debug symbols
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 
-# Source files (update as you add more)
+# Source files
 set(SOURCES
     src/main.cpp
     src/frontend/lexer.cpp
