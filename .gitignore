@@ -51,3 +51,6 @@ adequatec
 
 # debug information files
 *.dwo
+
+# valgrind
+vgcore.*
