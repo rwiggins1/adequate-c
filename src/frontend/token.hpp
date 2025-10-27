@@ -1,10 +1,8 @@
-#ifndef TOKEN_HPP
-#define TOKEN_HPP
+#pragma once
 
 #include <string>
 
-namespace adequatec {
-
+namespace frontend {
 enum class TokenType {
     // Keywords
     FUNC, INFER, IF, ELSE, WHILE, RETURN,
@@ -41,8 +39,5 @@ struct Token {
     Token(TokenType t, const std::string& lex, int ln, int col)
         : type(t), lexeme(lex), line(ln), column(col) {}
 };
-
-
 }
 
-#endif
