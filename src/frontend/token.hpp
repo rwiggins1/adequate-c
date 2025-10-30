@@ -20,7 +20,7 @@ enum class TokenType {
     
     // Delimiters
     COLON, SEMICOLON, COMMA,
-    LBRACE, RBRACE, LPAREN, RPAREN,
+    LBRACE, RBRACE, LPAREN, RPAREN, RSQRBRACKET, LSQRBRACKET,
     
     // Literals
     NUMBER, STRING_LIT, IDENT,

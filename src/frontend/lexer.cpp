@@ -115,13 +115,56 @@ Token Lexer::tokenize() {
 			return makeToken(TokenType::MULTIPLY, "*");
 		case '/':
 			return makeToken(TokenType::DIVIDE, "/");
+		case '%':
+			return makeToken(TokenType::MODULO, "%");
 		case '=':
 			advance();
 			if (current == '=') {
 				return makeToken(TokenType::EQUAL, "==");
 			}
 			return Token(TokenType::ASSIGN, "=", line, column);
-		default:
+		case '!':
+			advance();
+			if (current == '=') {
+				return makeToken(TokenType::NOT_EQUAL, "!=");
+			}
+			return Token(TokenType::NOT, "!", line, column);
+		case '>':
+			advance();
+			if (current == '=') {
+				return makeToken(TokenType::GREATER_EQUAL, ">=");
+			}
+			return Token(TokenType::GREATER, ">", line, column);
+		case '<':
+			advance();
+			if (current == '=') {
+				return makeToken(TokenType::LESS_EQUAL, "<");
+			}
+			return Token(TokenType::LESS, "<", line, column);
+		case '&':
+			return makeToken(TokenType::AND, "&");
+		case '|':
+			return makeToken(TokenType::OR, "|");
+		// Delimiters
+		case ':':
+			return makeToken(TokenType::COLON, ":");
+		case ';':
+			return makeToken(TokenType::SEMICOLON, ";");
+		case ',':
+			return makeToken(TokenType::COMMA, ",");
+		case '[':
+			return makeToken(TokenType::LSQRBRACKET, "[");
+		case ']':
+			return makeToken(TokenType::RSQRBRACKET, "]");
+		case '(':
+			return makeToken(TokenType::LPAREN, "(");
+		case ')':
+			return makeToken(TokenType::RPAREN, ")");
+		case '{':
+			return makeToken(TokenType::LBRACE, "{");
+		case '}':
+			return makeToken(TokenType::RBRACE, "}");
+		default:	
 			return makeToken(TokenType::INVALID, std::string(1, current));
 	}
 }
