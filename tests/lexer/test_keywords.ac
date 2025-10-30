@@ -1,3 +1,5 @@
-func name(int x, int y) -> exit {
+func name(int x, int y) -> int {
 	return x - y;
 }
+
+string hello = "Hello, world!";

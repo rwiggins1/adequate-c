@@ -79,6 +79,24 @@ Token Lexer::number() {
 	return Token(TokenType::NUMBER, text, startLine, startColumn);
 }
 
+// Determine string literal
+Token Lexer::string_lit() {
+	int startLine = line;
+	int startColumn = column;
+
+	std::string text;
+	text += current; // add open qoutes
+	advance();
+
+	while (current != '"' && position < source.length()) {
+		text+=current;
+		advance();
+	}
+	text+=current; // add closing qoutes
+	advance();
+	return Token(TokenType::STRING_LIT, text, startLine, startColumn);
+}
+
 Token Lexer::makeToken(TokenType type, const std::string lexme) {
 	Token token(type, lexme, line, column);
 	advance();
@@ -99,6 +117,10 @@ Token Lexer::tokenize() {
 
 	if (std::isdigit(current)) {
 		return number();
+	}
+
+	if (current == '"') {
+		return string_lit();
 	}
 
 	switch (current) {

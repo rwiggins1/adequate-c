@@ -21,6 +21,8 @@ private:
 
 	Token identifier();
 	Token number();
+	Token string_lit();
+
 	Token makeToken(TokenType, const std::string);
 	Token tokenize();
 
