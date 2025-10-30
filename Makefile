@@ -1,7 +1,9 @@
 # Configuration
 BUILD_DIR := build
 EXECUTABLE := adequatec
+TEST_LEXER := test_lexer
 SRC_DIR := src
+TEST_DIR := tests
 
 .PHONY: all build clean format run help
 
@@ -33,6 +35,17 @@ run: build
 	@echo "Running $(EXECUTABLE):"
 	@echo "----------------------------"
 	@./$(BUILD_DIR)/$(EXECUTABLE)
+
+# Test lexer
+test-lexer: build
+	@echo ""
+	@echo "Testing Lexer:"
+	@echo "=============="
+	@./$(BUILD_DIR)/$(TEST_LEXER) $(TEST_DIR)/lexer/test_keywords.ac
+
+test-all: test-lexer
+	@echo ""
+	@echo "All tests complete!"
 
 # Show help
 help:

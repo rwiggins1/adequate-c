@@ -26,7 +26,12 @@ add_executable(adequatec ${SOURCES})
 # Allow #include "frontend/lexer.hpp" instead of #include "src/frontend/lexer.hpp"
 target_include_directories(adequatec PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
-
+# Test executable for lexer
+add_executable(test_lexer
+    tests/test_lexer.cpp
+    src/frontend/lexer.cpp
+)
+target_include_directories(test_lexer PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # print useful info
 message(STATUS "Building Adequate-C compiler")

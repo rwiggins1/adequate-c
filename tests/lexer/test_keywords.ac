@@ -1,0 +1,3 @@
+func name(int x, int y) -> exit {
+	return x - y;
+}
