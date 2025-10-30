@@ -8,7 +8,7 @@ enum class TokenType {
     FUNC, INFER, IF, ELSE, WHILE, RETURN,
     
     // Types
-    INT, FLOAT, CHAR, BOOL, VOID, STRING,
+    INT, FLOAT, DOUBLE, CHAR, BOOL, VOID, STRING,
     
     // Operators
     PLUS, MINUS, MULTIPLY, DIVIDE, MODULO,

@@ -2,7 +2,6 @@
 #include "token.hpp"
 #include <cctype>
 #include <string>
-#include <iostream>
 
 namespace frontend {
 Lexer::Lexer(const std::string& src )
@@ -16,6 +15,7 @@ Lexer::Lexer(const std::string& src )
         keywords["return"] = TokenType::RETURN;
         keywords["int"] = TokenType::INT;
         keywords["float"] = TokenType::FLOAT;
+        keywords["double"] = TokenType::DOUBLE;
         keywords["bool"] = TokenType::BOOL;
         keywords["void"] = TokenType::VOID;
         keywords["string"] = TokenType::STRING;
@@ -40,7 +40,7 @@ void Lexer::advance() noexcept {
 }
 
 char Lexer::peekNext() noexcept {
-	return (position < source.length()) ? source[position] : '\0';
+	return (position < source.length()) ? source[position+1] : '\0';
 }
 
 void Lexer::skipWhitespace() noexcept {
@@ -58,7 +58,7 @@ Token Lexer::identifier() {
 	text+=current;
 	advance();
 
-	while(std::isalnum(current)) {
+	while(std::isalnum(current) || current == '_') {
 		text+=current;
 		advance();
 	}
@@ -84,6 +84,17 @@ Token Lexer::number() {
 		text+=current;
 		advance();
 	}
+
+	// check for float or double
+	if (current == '.' && std::isdigit(peekNext())) {
+		text+=current;
+		advance();
+		while (std::isdigit(current)) {
+			text+=current;
+			advance();
+		}
+	}
+
 	return Token(TokenType::NUMBER, text, startLine, startColumn);
 }
 
@@ -204,8 +215,7 @@ Token Lexer::tokenize() {
 }
 
 Token Lexer::get() {
-	Token token = tokenize();
-	return token;
+	return tokenize();
 }
 
 }

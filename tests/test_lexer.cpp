@@ -17,6 +17,7 @@ const char* tokenTypeToString(TokenType type) {
 	case TokenType::RETURN: return "RETURN";
 	case TokenType::INT: return "INT";
 	case TokenType::FLOAT: return "FLOAT";
+	case TokenType::DOUBLE: return "DOUBLE";
 	case TokenType::BOOL: return "BOOL";
 	case TokenType::VOID: return "VOID";
 	case TokenType::STRING: return "STRING";

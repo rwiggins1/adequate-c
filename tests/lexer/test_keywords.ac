@@ -5,3 +5,5 @@ func name(int x, int y) -> int {
 name(1, 2);
 
 string hello = "Hello, world!";
+
+float ff = 1.2;
