@@ -2,6 +2,7 @@
 #include "token.hpp"
 #include <cctype>
 #include <string>
+#include <iostream>
 
 namespace frontend {
 Lexer::Lexer(const std::string& src )
@@ -54,6 +55,9 @@ Token Lexer::identifier() {
 	int startColumn = column;
 
 	std::string text;
+	text+=current;
+	advance();
+
 	while(std::isalnum(current)) {
 		text+=current;
 		advance();
@@ -71,7 +75,11 @@ Token Lexer::number() {
 	int startLine = line;
 	int startColumn = column;
 
+
 	std::string text;
+	text+= current;
+	advance();
+
 	while(std::isdigit(current)) {
 		text+=current;
 		advance();
@@ -97,12 +105,14 @@ Token Lexer::string_lit() {
 	return Token(TokenType::STRING_LIT, text, startLine, startColumn);
 }
 
+// Constructs token
 Token Lexer::makeToken(TokenType type, const std::string lexme) {
 	Token token(type, lexme, line, column);
 	advance();
 	return token;
 }
 
+// Tokenizer
 Token Lexer::tokenize() {
 	//EOF
 	if (position >= source.length()) {
