@@ -19,11 +19,16 @@ private:
 	char peekNext() noexcept;
 	void skipWhitespace() noexcept;
 
+	Token identifier();
+	Token number();
+	Token makeToken(TokenType, const std::string);
+	Token tokenize();
+
 public:
 	Lexer(const std::string& src);
-
-	Token getToken();
+	
 	Token peek();
+	Token get();
 };
 
 }

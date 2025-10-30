@@ -1,4 +1,7 @@
 #include "lexer.hpp"
+#include "token.hpp"
+#include <cctype>
+#include <string>
 
 namespace frontend {
 Lexer::Lexer(const std::string& src )
@@ -40,9 +43,92 @@ char Lexer::peekNext() noexcept {
 }
 
 void Lexer::skipWhitespace() noexcept {
-	while (position < source.length() && isspace(static_cast<unsigned char>(source[position]))) {
+	while (position < source.length() && isspace(current)) {
 		advance();
 	}
+}
+
+// Determines identifier
+Token Lexer::identifier() {
+	int startLine = line;
+	int startColumn = column;
+
+	std::string text;
+	while(std::isalnum(current)) {
+		text+=current;
+		advance();
+	}
+	
+	auto it = keywords.find(text);
+	if (it != keywords.end()) {
+		return Token(it->second, text, startLine, startColumn);
+	}
+	return Token(TokenType::IDENT, text, startLine, startColumn);
+}
+
+// Determines number
+Token Lexer::number() {
+	int startLine = line;
+	int startColumn = column;
+
+	std::string text;
+	while(std::isdigit(current)) {
+		text+=current;
+		advance();
+	}
+	return Token(TokenType::NUMBER, text, startLine, startColumn);
+}
+
+Token Lexer::makeToken(TokenType type, const std::string lexme) {
+	Token token(type, lexme, line, column);
+	advance();
+	return token;
+}
+
+Token Lexer::tokenize() {
+	//EOF
+	if (position >= source.length()) {
+		return Token(TokenType::T_EOF, "\0", line, column);
+	}
+	
+	skipWhitespace();
+
+	if (std::isalpha(current)) {
+		return identifier();
+	}
+
+	if (std::isdigit(current)) {
+		return number();
+	}
+
+	switch (current) {
+		// Operators
+		case '+':
+			return makeToken(TokenType::PLUS, "+");
+		case '-':
+			advance();
+			if (current == '>') {
+				return makeToken(TokenType::ARROW,"->");
+			}	
+			return Token(TokenType::MINUS, "-", line, column);
+		case '*':
+			return makeToken(TokenType::MULTIPLY, "*");
+		case '/':
+			return makeToken(TokenType::DIVIDE, "/");
+		case '=':
+			advance();
+			if (current == '=') {
+				return makeToken(TokenType::EQUAL, "==");
+			}
+			return Token(TokenType::ASSIGN, "=", line, column);
+		default:
+			return makeToken(TokenType::INVALID, std::string(1, current));
+	}
+}
+
+Token Lexer::get() {
+	Token token = tokenize();
+	return token;
 }
 
 }
