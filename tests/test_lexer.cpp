@@ -38,6 +38,7 @@ const char* tokenTypeToString(TokenType type) {
 	case TokenType::OR: return "OR";
 	case TokenType::NOT: return "NOT";
 	case TokenType::ARROW: return "ARROW";
+	case TokenType::REFERENCE: return "REF";
 	case TokenType::COLON: return "COLON";
 	case TokenType::SEMICOLON: return "SEMICOLON";
 	case TokenType::COMMA: return "COMMA";
@@ -45,6 +46,8 @@ const char* tokenTypeToString(TokenType type) {
 	case TokenType::RBRACE: return "RBRACE";
 	case TokenType::LPAREN: return "LPAREN";
 	case TokenType::RPAREN: return "RPAREN";
+	case TokenType::LSQRBRACKET: return "LSQRBRACKET";
+	case TokenType::RSQRBRACKET: return "RSQRBRACKET";
 	case TokenType::NUMBER: return "NUMBER";
 	case TokenType::STRING_LIT: return "STRING_LIT";
 	case TokenType::IDENT: return "IDENT";
