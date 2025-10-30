@@ -16,7 +16,7 @@ enum class TokenType {
     GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
     ASSIGN,
     AND, OR, NOT,
-    ARROW,
+    ARROW, REFERENCE,
     
     // Delimiters
     COLON, SEMICOLON, COMMA,

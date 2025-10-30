@@ -145,6 +145,8 @@ Token Lexer::tokenize() {
 			return makeToken(TokenType::AND, "&");
 		case '|':
 			return makeToken(TokenType::OR, "|");
+		case '@':
+			return makeToken(TokenType::REFERENCE, "@");
 		// Delimiters
 		case ':':
 			return makeToken(TokenType::COLON, ":");
