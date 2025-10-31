@@ -1,5 +1,5 @@
 # Adequate-C
-A statically-typed C-inspired language with modern features - adequately good.
+A statically-typed C/C++ inspired language with modern features - adequately good.
 
 ## Building
 
