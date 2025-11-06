@@ -13,7 +13,23 @@ private:
 	size_t column;
 	char current;
 
-	std::unordered_map<std::string, TokenType> keywords;
+	// Initialize keyword map
+	static inline const std::unordered_map<std::string, TokenType> keywords = {
+		{"func", TokenType::FUNC},
+		{"infer", TokenType::INFER},
+		{"if", TokenType::IF},
+		{"else", TokenType::ELSE},
+		{"while", TokenType::WHILE},
+		{"return", TokenType::RETURN},
+		{"int", TokenType::INT},
+		{"float", TokenType::FLOAT},
+		{"double", TokenType::DOUBLE},
+		{"bool", TokenType::BOOL},
+		{"void", TokenType::VOID},
+		{"string", TokenType::STRING},
+		{"true", TokenType::TRUE},
+		{"false", TokenType::FALSE}
+	};
 
 	void advance() noexcept;
 	char peekNext() noexcept;

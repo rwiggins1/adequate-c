@@ -6,21 +6,6 @@
 namespace frontend {
 Lexer::Lexer(const std::string& src )
 	: source(src), position(0), line(1), column(1) {
-	// Initialize keyword map
-        keywords["func"] = TokenType::FUNC;
-        keywords["infer"] = TokenType::INFER;
-        keywords["if"] = TokenType::IF;
-        keywords["else"] = TokenType::ELSE;
-        keywords["while"] = TokenType::WHILE;
-        keywords["return"] = TokenType::RETURN;
-        keywords["int"] = TokenType::INT;
-        keywords["float"] = TokenType::FLOAT;
-        keywords["double"] = TokenType::DOUBLE;
-        keywords["bool"] = TokenType::BOOL;
-        keywords["void"] = TokenType::VOID;
-        keywords["string"] = TokenType::STRING;
-        keywords["true"] = TokenType::TRUE;
-        keywords["false"] = TokenType::FALSE;
 	
 	// Set current to first character
 	current = source.empty() ? '\0' : source[0];
