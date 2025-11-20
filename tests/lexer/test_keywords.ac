@@ -1,7 +1,11 @@
+/*
+Function
+*/
 func name(int x, int y) -> int {
 	return x - y;
 }
 
+// function call
 name(1, 2);
 
 string hello = "Hello, world!";

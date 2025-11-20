@@ -34,6 +34,24 @@ void Lexer::skipWhitespace() noexcept {
 	}
 }
 
+void Lexer::skipSingleLineComment() noexcept {
+	advance(); advance();
+
+	while (current != '\n') {
+		advance();
+	}
+	advance();
+}
+
+void Lexer::skipMultiLineComment() noexcept {
+	advance(); advance();
+
+	while (current != '*' && peekNext() != '/') {
+		advance();
+	}
+	advance(); advance(); advance();
+}
+
 // Determines identifier
 Token Lexer::identifier() {
 	int startLine = line;
@@ -116,6 +134,13 @@ Token Lexer::tokenize() {
 	}
 	
 	skipWhitespace();
+
+	if (current == '/' && peekNext() == '/') {
+		Lexer::skipSingleLineComment();
+	} 
+	else if (current == '/' && peekNext() == '*') {
+		Lexer::skipMultiLineComment();
+	}
 
 	if (std::isalpha(current)) {
 		return identifier();

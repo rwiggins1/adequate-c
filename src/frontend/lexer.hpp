@@ -34,6 +34,8 @@ private:
 	void advance() noexcept;
 	char peekNext() noexcept;
 	void skipWhitespace() noexcept;
+	void skipSingleLineComment() noexcept;
+	void skipMultiLineComment() noexcept;
 
 	Token identifier();
 	Token number();

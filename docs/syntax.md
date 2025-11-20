@@ -59,6 +59,28 @@ bool flag = true;
 char c = 'a';
 string s = "hello";
 ```
+## Comments
+
+### Single-line Comments
+```cpp
+// This is a single-line comment
+int x = 5;  // Comment after code
+```
+
+### Multi-line Comments
+```cpp
+/* This is a multi-line comment
+   spanning multiple lines */
+int y = 10;
+
+/* Can also be on one line */
+```
+
+### Rules
+- Comments are ignored by the compiler
+- Single-line comments start with `//` and continue to end of line
+- Multi-line comments start with `/*` and end with `*/`
+- Multi-line comments cannot be nested
 
 ## OOP (Future)
 ### Classes
