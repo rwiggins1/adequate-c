@@ -6,10 +6,8 @@
 
 namespace frontend {
 Lexer::Lexer(std::string src )
-	: source(std::move(src)), position(0), line(1), column(1) {
-	
-	// Set current to first character
-	current = source.empty() ? '\0' : source[0];
+	: source(std::move(src)), position(0), line(1), column(1),
+	current(source.empty() ? '\0' : source[0]) {
 } 
 
 void Lexer::advance() noexcept {
@@ -30,7 +28,7 @@ char Lexer::peekNext() noexcept {
 }
 
 void Lexer::skipWhitespace() noexcept {
-	while (position < src_length && isspace(current)) {
+	while (position < src_length && isspace(static_cast<unsigned char>(current)) != 0) {
 		advance();
 	}
 }
@@ -62,7 +60,7 @@ Token Lexer::identifier() {
 	text+=current;
 	advance();
 
-	while(std::isalnum(current) || current == '_') {
+	while(std::isalnum(static_cast<unsigned char>(current)) != 0 || current == '_') {
 		text+=current;
 		advance();
 	}
@@ -84,16 +82,16 @@ Token Lexer::number() {
 	text+= current;
 	advance();
 
-	while(std::isdigit(current)) {
+	while(std::isdigit(static_cast<unsigned char>(current)) != 0) {
 		text+=current;
 		advance();
 	}
 
 	// check for float or double
-	if (current == '.' && std::isdigit(peekNext())) {
+	if (current == '.' && std::isdigit(static_cast<unsigned char>(peekNext())) != 0) {
 		text+=current;
 		advance();
-		while (std::isdigit(current)) {
+		while (std::isdigit(static_cast<unsigned char>(current)) != 0) {
 			text+=current;
 			advance();
 		}
@@ -121,7 +119,7 @@ Token Lexer::string_lit() {
 }
 
 // Constructs token
-Token Lexer::makeToken(TokenType type, const std::string lexme) {
+Token Lexer::makeToken(TokenType type, const std::string& lexme) {
 	Token token(type, lexme, line, column);
 	advance();
 	return token;
@@ -143,11 +141,11 @@ Token Lexer::tokenize() {
 		Lexer::skipMultiLineComment();
 	}
 
-	if (std::isalpha(current)) {
+	if (std::isalpha(static_cast<unsigned char>(current)) != 0) {
 		return identifier();
 	}
 
-	if (std::isdigit(current)) {
+	if (std::isdigit(static_cast<unsigned char>(current)) != 0) {
 		return number();
 	}
 

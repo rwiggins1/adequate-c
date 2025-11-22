@@ -42,7 +42,7 @@ private:
 	Token number();
 	Token string_lit();
 
-	Token makeToken(TokenType, const std::string);
+	Token makeToken(TokenType type, const std::string& lexme);
 	Token tokenize();
 
 public:
