@@ -36,6 +36,12 @@ run: build
 	@echo "----------------------------"
 	@./$(BUILD_DIR)/$(EXECUTABLE)
 
+# Lint code with clang-tidy
+lint:
+	@echo "Running clang-tidy on source files..."
+	@find $(SRC_DIR) -name "*.cpp" -o -name "*.hpp" | xargs clang-tidy -p $(BUILD_DIR)
+	@echo "Lint complete!"
+
 # Test lexer
 test-lexer: build
 	@echo ""
@@ -56,6 +62,7 @@ help:
 	@echo "  make clean   - Remove $(BUILD_DIR) directory"
 	@echo "  make format  - Format all source code"
 	@echo "  make run     - Build and run $(EXECUTABLE)"
+	@echo "  make lint      - Run clang-tidy checks"
 	@echo "  make help    - Show this help message"
 
 .DEFAULT_GOAL := build
