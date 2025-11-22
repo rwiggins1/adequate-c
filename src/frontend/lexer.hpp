@@ -8,6 +8,7 @@ namespace frontend {
 class Lexer {
 private:
 	std::string source; // source code
+	size_t src_length = source.length();
 	size_t position;
 	size_t line;
 	size_t column;
@@ -45,7 +46,7 @@ private:
 	Token tokenize();
 
 public:
-	Lexer(const std::string& src);
+	Lexer(std::string src);
 	
 	Token peek();
 	Token get();

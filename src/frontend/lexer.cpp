@@ -5,8 +5,8 @@
 #include <string>
 
 namespace frontend {
-Lexer::Lexer(const std::string& src )
-	: source(src), position(0), line(1), column(1) {
+Lexer::Lexer(std::string src )
+	: source(std::move(src)), position(0), line(1), column(1) {
 	
 	// Set current to first character
 	current = source.empty() ? '\0' : source[0];
@@ -22,15 +22,15 @@ void Lexer::advance() noexcept {
 	}
 
 	position++;
-	current = (position < source.length()) ? source[position] : '\0';
+	current = (position < src_length)  ? source[position] : '\0';
 }
 
 char Lexer::peekNext() noexcept {
-	return (position < source.length()) ? source[position+1] : '\0';
+	return (position < src_length) ? source[position+1] : '\0';
 }
 
 void Lexer::skipWhitespace() noexcept {
-	while (position < source.length() && isspace(current)) {
+	while (position < src_length && isspace(current)) {
 		advance();
 	}
 }
@@ -111,7 +111,7 @@ Token Lexer::string_lit() {
 	text += current; // add open qoutes
 	advance();
 
-	while (current != '"' && position < source.length()) {
+	while (current != '"' && position < src_length) {
 		text+=current;
 		advance();
 	}
@@ -130,7 +130,7 @@ Token Lexer::makeToken(TokenType type, const std::string lexme) {
 // Tokenizer
 Token Lexer::tokenize() {
 	//EOF
-	if (position >= source.length()) {
+	if (position >= src_length){
 		return {TokenType::T_EOF, "\0", line, column};
 	}
 	

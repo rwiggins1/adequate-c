@@ -1,9 +1,10 @@
 #pragma once
 
+#include <cstdint>
 #include <string>
 
 namespace frontend {
-enum class TokenType {
+enum class TokenType : std::uint8_t {
     // Keywords
     FUNC, INFER, IF, ELSE, WHILE, RETURN,
     
@@ -37,8 +38,8 @@ struct Token {
     int line;
     int column;
     
-    Token(TokenType t, const std::string& lex, size_t ln, size_t col)
-        : type(t), lexeme(lex), line(ln), column(col) {}
+    Token(TokenType t, std::string lex, size_t ln, size_t col)
+        : type(t), lexeme(std::move(lex)), line(ln), column(col) {}
 };
 }
 
