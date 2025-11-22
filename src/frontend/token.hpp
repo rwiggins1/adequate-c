@@ -35,8 +35,8 @@ enum class TokenType : std::uint8_t {
 struct Token {
     TokenType type;
     std::string lexeme;
-    int line;
-    int column;
+    size_t line;
+    size_t column;
     
     Token(TokenType t, std::string lex, size_t ln, size_t col)
         : type(t), lexeme(std::move(lex)), line(ln), column(col) {}
