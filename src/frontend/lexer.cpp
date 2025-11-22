@@ -1,6 +1,7 @@
 #include "lexer.hpp"
 #include "token.hpp"
 #include <cctype>
+#include <cstddef>
 #include <string>
 
 namespace frontend {
@@ -54,8 +55,8 @@ void Lexer::skipMultiLineComment() noexcept {
 
 // Determines identifier
 Token Lexer::identifier() {
-	int startLine = line;
-	int startColumn = column;
+	size_t startLine = line;
+	size_t startColumn = column;
 
 	std::string text;
 	text+=current;
@@ -68,15 +69,15 @@ Token Lexer::identifier() {
 	
 	auto it = keywords.find(text);
 	if (it != keywords.end()) {
-		return Token(it->second, text, startLine, startColumn);
+		return {it->second, text, startLine, startColumn};
 	}
-	return Token(TokenType::IDENT, text, startLine, startColumn);
+	return {TokenType::IDENT, text, startLine, startColumn};
 }
 
 // Determines number
 Token Lexer::number() {
-	int startLine = line;
-	int startColumn = column;
+	size_t startLine = line;
+	size_t startColumn = column;
 
 
 	std::string text;
@@ -98,13 +99,13 @@ Token Lexer::number() {
 		}
 	}
 
-	return Token(TokenType::NUMBER, text, startLine, startColumn);
+	return {TokenType::NUMBER, text, startLine, startColumn};
 }
 
 // Determine string literal
 Token Lexer::string_lit() {
-	int startLine = line;
-	int startColumn = column;
+	size_t startLine = line;
+	size_t startColumn = column;
 
 	std::string text;
 	text += current; // add open qoutes
@@ -116,7 +117,7 @@ Token Lexer::string_lit() {
 	}
 	text+=current; // add closing qoutes
 	advance();
-	return Token(TokenType::STRING_LIT, text, startLine, startColumn);
+	return {TokenType::STRING_LIT, text, startLine, startColumn};
 }
 
 // Constructs token
@@ -130,7 +131,7 @@ Token Lexer::makeToken(TokenType type, const std::string lexme) {
 Token Lexer::tokenize() {
 	//EOF
 	if (position >= source.length()) {
-		return Token(TokenType::T_EOF, "\0", line, column);
+		return {TokenType::T_EOF, "\0", line, column};
 	}
 	
 	skipWhitespace();
@@ -163,7 +164,7 @@ Token Lexer::tokenize() {
 			if (current == '>') {
 				return makeToken(TokenType::ARROW,"->");
 			}	
-			return Token(TokenType::MINUS, "-", line, column);
+			return {TokenType::MINUS, "-", line, column};
 		case '*':
 			return makeToken(TokenType::MULTIPLY, "*");
 		case '/':
@@ -175,25 +176,25 @@ Token Lexer::tokenize() {
 			if (current == '=') {
 				return makeToken(TokenType::EQUAL, "==");
 			}
-			return Token(TokenType::ASSIGN, "=", line, column);
+			return {TokenType::ASSIGN, "=", line, column};
 		case '!':
 			advance();
 			if (current == '=') {
 				return makeToken(TokenType::NOT_EQUAL, "!=");
 			}
-			return Token(TokenType::NOT, "!", line, column);
+			return {TokenType::NOT, "!", line, column};
 		case '>':
 			advance();
 			if (current == '=') {
 				return makeToken(TokenType::GREATER_EQUAL, ">=");
 			}
-			return Token(TokenType::GREATER, ">", line, column);
+			return {TokenType::GREATER, ">", line, column};
 		case '<':
 			advance();
 			if (current == '=') {
 				return makeToken(TokenType::LESS_EQUAL, "<");
 			}
-			return Token(TokenType::LESS, "<", line, column);
+			return {TokenType::LESS, "<", line, column};
 		case '&':
 			return makeToken(TokenType::AND, "&");
 		case '|':
