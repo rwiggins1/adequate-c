@@ -65,8 +65,8 @@ Token Lexer::identifier() {
 		advance();
 	}
 	
-	auto it = keywords.find(text);
-	if (it != keywords.end()) {
+	auto it = KEYWORDS.find(text);
+	if (it != KEYWORDS.end()) {
 		return {it->second, text, startLine, startColumn};
 	}
 	return {TokenType::IDENT, text, startLine, startColumn};

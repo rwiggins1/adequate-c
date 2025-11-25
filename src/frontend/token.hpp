@@ -6,7 +6,8 @@
 namespace frontend {
 enum class TokenType : std::uint8_t {
     // Keywords
-    FUNC, INFER, IF, ELSE, WHILE, RETURN,
+    FUNC, INFER, IF, ELSE, FOR, DO, WHILE, RETURN, BREAK,
+    STRUCT,
     
     // Types
     INT, FLOAT, DOUBLE, CHAR, BOOL, VOID, STRING,

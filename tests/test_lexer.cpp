@@ -13,8 +13,12 @@ const char* tokenTypeToString(TokenType type) {
 	case TokenType::INFER: return "INFER";
 	case TokenType::IF: return "IF";
 	case TokenType::ELSE: return "ELSE";
+	case TokenType::FOR: return "FOR";
+	case TokenType::DO: return "DO";
 	case TokenType::WHILE: return "WHILE";
 	case TokenType::RETURN: return "RETURN";
+	case TokenType::BREAK: return "BREAK";
+	case TokenType::STRUCT: return "STRUCT";
 	case TokenType::INT: return "INT";
 	case TokenType::FLOAT: return "FLOAT";
 	case TokenType::DOUBLE: return "DOUBLE";

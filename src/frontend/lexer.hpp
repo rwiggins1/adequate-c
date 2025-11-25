@@ -15,13 +15,17 @@ private:
 	char current;
 
 	// Initialize keyword map
-	static inline const std::unordered_map<std::string, TokenType> keywords = {
+	static inline const std::unordered_map<std::string, TokenType> KEYWORDS = {
 		{"func", TokenType::FUNC},
 		{"infer", TokenType::INFER},
 		{"if", TokenType::IF},
 		{"else", TokenType::ELSE},
+		{"for", TokenType::FOR},
+		{"do", TokenType::DO},
 		{"while", TokenType::WHILE},
 		{"return", TokenType::RETURN},
+		{"break", TokenType::BREAK},
+		{"struct", TokenType::STRUCT},
 		{"int", TokenType::INT},
 		{"float", TokenType::FLOAT},
 		{"double", TokenType::DOUBLE},
