@@ -6,7 +6,7 @@
 
 namespace frontend {
 Lexer::Lexer(std::string src )
-	: source(std::move(src)), position(0), line(1), column(1),
+	: source(std::move(src)), src_length(source.length()), position(0), line(1), column(1),
 	current(source.empty() ? '\0' : source[0]) {
 } 
 
