@@ -25,7 +25,27 @@ private:
 		{"while", TokenType::WHILE},
 		{"return", TokenType::RETURN},
 		{"break", TokenType::BREAK},
+
+		{"switch", TokenType::SWITCH},
+		{"case", TokenType::CASE},
+		{"default", TokenType::DEFAULT},
+
 		{"struct", TokenType::STRUCT},
+		{"class", TokenType::CLASS},
+		{"enum", TokenType::ENUM},
+
+		{"static", TokenType::STATIC},
+		{"public", TokenType::PUBLIC},
+		{"private", TokenType::PRIVATE},
+
+		{"try", TokenType::TRY},
+		{"catch", TokenType::CATCH},
+		{"throw", TokenType::THROW},
+
+		{"namespace", TokenType::NAMESPACE},
+		{"operator", TokenType::OPERATOR},
+		{"import", TokenType::IMPORT},
+
 		{"int", TokenType::INT},
 		{"float", TokenType::FLOAT},
 		{"double", TokenType::DOUBLE},
