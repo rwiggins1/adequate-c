@@ -156,17 +156,38 @@ Token Lexer::tokenize() {
 	switch (current) {
 		// Operators
 		case '+':
-			return makeToken(TokenType::PLUS, "+");
+			advance();
+			if (current == '+') {
+				return makeToken(TokenType::PLUS_PLUS, "++");
+			}
+			if (current == '=') {
+				return makeToken(TokenType::PLUS_ASSIGN, "+=");
+			}
+			return {TokenType::PLUS, "+", line, column};
 		case '-':
 			advance();
+			if (current == '-') {
+				return makeToken(TokenType::MINUS_MINUS, "--");
+			}
+			if (current == '=') {
+				return makeToken(TokenType::MINUS_ASSIGN, "-=");
+			}
 			if (current == '>') {
 				return makeToken(TokenType::ARROW,"->");
 			}	
 			return {TokenType::MINUS, "-", line, column};
 		case '*':
-			return makeToken(TokenType::MULTIPLY, "*");
+			advance();
+			if (current == '=') {
+				return makeToken(TokenType::MULTIPLY_ASSIGN, "*=");
+			}
+			return {TokenType::MULTIPLY, "*", line, column};
 		case '/':
-			return makeToken(TokenType::DIVIDE, "/");
+			advance();
+			if (current == '=') {
+				return makeToken(TokenType::DIVIDE_ASSIGN, "/=");
+			}
+			return {TokenType::DIVIDE, "/", line, column};
 		case '%':
 			return makeToken(TokenType::MODULO, "%");
 		case '=':
@@ -194,9 +215,19 @@ Token Lexer::tokenize() {
 			}
 			return {TokenType::LESS, "<", line, column};
 		case '&':
-			return makeToken(TokenType::AND, "&");
+			advance();
+			if (current == '&') {
+				return makeToken(TokenType::AND, "&&");
+			}
+			return makeToken(TokenType::BIT_AND, "&");
 		case '|':
-			return makeToken(TokenType::OR, "|");
+			advance();
+			if (current == '|') {
+				return makeToken(TokenType::OR, "||");
+			}
+			return makeToken(TokenType::BIT_OR, "|");
+		case '^':
+			return makeToken(TokenType::BIT_XOR, "^");
 		case '@':
 			return makeToken(TokenType::REFERENCE, "@");
 		// Delimiters
@@ -211,9 +242,9 @@ Token Lexer::tokenize() {
 		case ']':
 			return makeToken(TokenType::RSQRBRACKET, "]");
 		case '(':
-			return makeToken(TokenType::LPAREN, "(");
+			return makeToken(TokenType::OPAREN, "(");
 		case ')':
-			return makeToken(TokenType::RPAREN, ")");
+			return makeToken(TokenType::CPAREN, ")");
 		case '{':
 			return makeToken(TokenType::LBRACE, "{");
 		case '}':

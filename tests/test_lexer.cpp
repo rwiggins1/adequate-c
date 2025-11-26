@@ -49,8 +49,8 @@ const char* tokenTypeToString(TokenType type) {
 	case TokenType::COMMA: return "COMMA";
 	case TokenType::LBRACE: return "LBRACE";
 	case TokenType::RBRACE: return "RBRACE";
-	case TokenType::LPAREN: return "LPAREN";
-	case TokenType::RPAREN: return "RPAREN";
+	case TokenType::OPAREN: return "LPAREN";
+	case TokenType::CPAREN: return "RPAREN";
 	case TokenType::LSQRBRACKET: return "LSQRBRACKET";
 	case TokenType::RSQRBRACKET: return "RSQRBRACKET";
 	case TokenType::NUMBER: return "NUMBER";
