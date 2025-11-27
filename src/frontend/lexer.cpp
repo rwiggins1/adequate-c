@@ -207,11 +207,17 @@ Token Lexer::tokenize() {
 			if (current == '=') {
 				return makeToken(TokenType::GREATER_EQUAL, ">=");
 			}
+			if (current == '>') {
+				return makeToken(TokenType::RIGHT_SHIFT, ">>");
+			}
 			return {TokenType::GREATER, ">", line, column};
 		case '<':
 			advance();
 			if (current == '=') {
 				return makeToken(TokenType::LESS_EQUAL, "<");
+			}
+			if (current == '<') {
+				return makeToken(TokenType::LEFT_SHIFT, "<<");
 			}
 			return {TokenType::LESS, "<", line, column};
 		case '&':
@@ -230,6 +236,10 @@ Token Lexer::tokenize() {
 			return makeToken(TokenType::BIT_XOR, "^");
 		case '@':
 			return makeToken(TokenType::REFERENCE, "@");
+		case '.':
+			return makeToken(TokenType::DOT, ".");
+		case '?':
+			return makeToken(TokenType::QUESTION, "?");
 		// Delimiters
 		case ':':
 			return makeToken(TokenType::COLON, ":");
