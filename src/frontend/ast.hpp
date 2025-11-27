@@ -7,6 +7,12 @@
 class ASTNode {
 public:
 	virtual ~ASTNode() = default;
+
+	ASTNode(const ASTNode&) = delete;
+	ASTNode& operator=(const ASTNode&) = delete;
+
+	ASTNode(ASTNode&&) = default;
+	ASTNode& operator=(ASTNode&&) = default;
 };
 
 // Expressions
@@ -16,6 +22,25 @@ class NumberExprAST: public ExprAST {
 	double value;
 public:
 	NumberExprAST(double val);
+};
+
+class StringLiteral: public ExprAST {
+	std::string value;
+public:
+	StringLiteral(const std::string& value);
+};
+
+class BoolLiteralAST : public ExprAST {
+	bool value;
+public:
+	BoolLiteralAST(bool value);
+};
+
+class UnaryExprAST: public ExprAST {
+	char op;
+	std::unique_ptr<ExprAST> operand;
+public:
+	UnaryExprAST(char op, std::unique_ptr<ExprAST> operand);
 };
 
 class BinaryExprAST: public ExprAST {
@@ -55,13 +80,28 @@ public:
 	ReturnStmtAST(std::unique_ptr<ExprAST> value);
 };
 
+class BreakStmtAST : public StmtAST {
+	std::unique_ptr<ExprAST> value;
+public:
+	BreakStmtAST(std::unique_ptr<ExprAST> value);
+};
+
+class AsignmentStmtAST: public StmtAST {
+	std::string varName;
+	std::unique_ptr<ExprAST> value;
+public:
+	AsignmentStmtAST(std::string varName, std::unique_ptr<ExprAST>value);
+};
+
+
 // Variable Declaration
 class VariableDeclarationAST : public StmtAST {
 	std::string type;
 	std::string name;
 	std::unique_ptr<ExprAST> initializer;
 public:
-	VariableDeclarationAST(std::string type, std::string name, std::unique_ptr<ExprAST> initializer);
+	VariableDeclarationAST(std::string type, std::string name, 
+		std::unique_ptr<ExprAST> initializer);
 };
 
 class IfStmtAST : public StmtAST {
@@ -70,7 +110,8 @@ class IfStmtAST : public StmtAST {
 	std::unique_ptr<BlockStmtAST> elseBranch;
 public:
 	IfStmtAST(std::unique_ptr<ExprAST> condition, 
-	       std::unique_ptr<BlockStmtAST> thenBranch, std::unique_ptr<BlockStmtAST> elseBranch);
+	       std::unique_ptr<BlockStmtAST> thenBranch,
+	       std::unique_ptr<BlockStmtAST> elseBranch = nullptr);
 };
 
 class ForStmtAST : public StmtAST {
