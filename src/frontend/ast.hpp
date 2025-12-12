@@ -1,9 +1,9 @@
-#include <map>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
+namespace frontend {
 // Base Class
 class ASTNode {
 public:
@@ -206,4 +206,5 @@ class ClassAST : public ASTNode{
 		std::vector<std::unique_ptr<VariableDeclarationAST>> fields,
 		std::vector<std::unique_ptr<FunctionAST>> methods);
 };
+}
 
