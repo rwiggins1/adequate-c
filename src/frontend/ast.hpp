@@ -14,10 +14,15 @@ public:
 
 	ASTNode(ASTNode&&) = default;
 	ASTNode& operator=(ASTNode&&) = default;
+protected:
+	ASTNode() = default;
 };
 
 // Expressions
-class ExprAST: public ASTNode {};
+class ExprAST: public ASTNode {
+protected:
+	ExprAST() = default;
+};
 
 class NumberExprAST: public ExprAST {
 	double value;

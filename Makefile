@@ -2,6 +2,7 @@
 BUILD_DIR := build
 EXECUTABLE := adequatec
 TEST_LEXER := test_lexer
+TEST_AST := test_ast
 SRC_DIR := src
 TEST_DIR := tests
 
@@ -48,6 +49,13 @@ test-lexer: build
 	@echo "Testing Lexer:"
 	@echo "=============="
 	@./$(BUILD_DIR)/$(TEST_LEXER) $(TEST_DIR)/lexer/test_keywords.ac
+
+# Test lexer
+test-ast: build
+	@echo ""
+	@echo "Testing Abstract Syntax Tree:"
+	@echo "=============="
+	@./$(BUILD_DIR)/$(TEST_AST) $(TEST_DIR)/ast/variableDec.ac
 
 test-all: test-lexer
 	@echo ""

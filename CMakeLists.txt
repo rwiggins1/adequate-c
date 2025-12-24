@@ -20,6 +20,7 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(SOURCES
     src/main.cpp
     src/frontend/lexer.cpp
+    src/frontend/ast.cpp
     src/frontend/parser.cpp
 )
 
@@ -35,6 +36,15 @@ add_executable(test_lexer
     src/frontend/lexer.cpp
 )
 target_include_directories(test_lexer PRIVATE ${CMAKE_SOURCE_DIR}/src)
+
+# Test executable for ast
+add_executable(test_ast
+    tests/test_ast.cpp
+    src/frontend/lexer.cpp
+    src/frontend/ast.cpp
+    src/frontend/parser.cpp
+)
+target_include_directories(test_ast PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # print useful info
 message(STATUS "Building Adequate-C compiler")
