@@ -1,5 +1,7 @@
 #include "parser.hpp"
+#include "frontend/token.hpp"
 #include <iostream>
+#include <memory>
 
 namespace frontend {
 
@@ -8,6 +10,23 @@ Parser::Parser(Lexer &lex) : lexer(lex), current(lexer.get()) {}
 void Parser::advance() { current = lexer.get(); }
 
 bool Parser::match(TokenType type) { return current.type == type; }
+
+bool Parser::isType(TokenType type) {
+	return type == TokenType::INT ||
+	       type == TokenType::FLOAT ||
+	       type == TokenType::DOUBLE ||
+	       type == TokenType::BOOL ||
+	       type == TokenType::CHAR ||
+	       type == TokenType::STRING ||
+	       type == TokenType::VOID ||
+	       type == TokenType::INFER;
+}
+
+bool Parser::isLiteral(TokenType type) {
+	return type == TokenType::NUMBER ||
+		type == TokenType::STRING_LIT ||
+		type == TokenType::CHAR_LIT;
+}
 
 bool Parser::expect(TokenType type) {
 	if (!match(type)) {
@@ -25,10 +44,23 @@ std::unique_ptr<ExprAST> Parser::parseNumberExpr() {
 	return std::make_unique<NumberExprAST>(value);
 }
 
+std::unique_ptr<ExprAST> Parser::parseStringLiteral() {
+	std::string value = current.lexeme;
+	advance();
+	return std::make_unique<StringLiteralAST>(value);
+}
+
+std::unique_ptr<ExprAST> Parser::parseCharacterLiteral() {
+	std::string str = current.lexeme;
+	char *value = str.data();
+	advance();
+	return std::make_unique<CharLiteralAST>(*value);
+}
+
 std::unique_ptr<VariableDeclarationAST> Parser::parseVarDecl() {
 	// int test = 3;
 
-	if (!match(TokenType::INT)) {
+	if (!isType(current.type)) {
 		return nullptr;
 	}
 	std::string type = current.lexeme;
@@ -47,6 +79,12 @@ std::unique_ptr<VariableDeclarationAST> Parser::parseVarDecl() {
 
 		if (match(TokenType::NUMBER)) {
 			initializer = parseNumberExpr();
+		}
+		else if (match(TokenType::STRING_LIT)) {
+			initializer = parseStringLiteral();
+		}
+		else if (match(TokenType::CHAR_LIT)) {
+			initializer = parseCharacterLiteral();
 		}
 		else {
 			std::cerr << "Expected expression after '='\n";

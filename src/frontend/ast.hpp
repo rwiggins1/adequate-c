@@ -30,10 +30,16 @@ public:
 	NumberExprAST(double val);
 };
 
-class StringLiteral: public ExprAST {
+class StringLiteralAST: public ExprAST {
 	std::string value;
 public:
-	StringLiteral(const std::string& value);
+	StringLiteralAST(const std::string& value);
+};
+
+class CharLiteralAST: public ExprAST {
+	char value;
+public:
+	CharLiteralAST(const char& value);
 };
 
 class BoolLiteralAST : public ExprAST {
