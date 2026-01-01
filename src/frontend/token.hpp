@@ -39,7 +39,7 @@ enum class TokenType : std::uint8_t {
 	LBRACE, RBRACE, OPAREN, CPAREN, RSQRBRACKET, LSQRBRACKET,
     
 	// Literals
-	NUMBER, STRING_LIT, IDENT,
+	NUMBER, STRING_LIT, CHAR_LIT, IDENT,
 	TRUE, FALSE,
     
 	// Special
