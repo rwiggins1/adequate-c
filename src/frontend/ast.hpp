@@ -33,7 +33,7 @@ public:
 class StringLiteralAST: public ExprAST {
 	std::string value;
 public:
-	StringLiteralAST(const std::string& value);
+	StringLiteralAST(std::string value);
 };
 
 class CharLiteralAST: public ExprAST {

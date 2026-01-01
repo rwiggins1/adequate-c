@@ -25,7 +25,9 @@ bool Parser::isType(TokenType type) {
 bool Parser::isLiteral(TokenType type) {
 	return type == TokenType::NUMBER ||
 		type == TokenType::STRING_LIT ||
-		type == TokenType::CHAR_LIT;
+		type == TokenType::CHAR_LIT ||
+		type == TokenType::TRUE ||
+		type == TokenType::FALSE;
 }
 
 bool Parser::expect(TokenType type) {
@@ -52,9 +54,15 @@ std::unique_ptr<ExprAST> Parser::parseStringLiteral() {
 
 std::unique_ptr<ExprAST> Parser::parseCharacterLiteral() {
 	std::string str = current.lexeme;
-	char *value = str.data();
+	const char *value = str.c_str();
 	advance();
 	return std::make_unique<CharLiteralAST>(*value);
+}
+
+std::unique_ptr<ExprAST> Parser::parseBooleanLiteral() {
+	bool value = current.type == TokenType::TRUE;
+	advance();
+	return std::make_unique<BoolLiteralAST>(value);
 }
 
 std::unique_ptr<VariableDeclarationAST> Parser::parseVarDecl() {
@@ -85,6 +93,9 @@ std::unique_ptr<VariableDeclarationAST> Parser::parseVarDecl() {
 		}
 		else if (match(TokenType::CHAR_LIT)) {
 			initializer = parseCharacterLiteral();
+		}
+		else if (match(TokenType::TRUE) || match(TokenType::FALSE)) {
+			initializer = parseBooleanLiteral();
 		}
 		else {
 			std::cerr << "Expected expression after '='\n";

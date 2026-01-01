@@ -21,6 +21,7 @@ private:
 	std::unique_ptr<ExprAST> parseNumberExpr();
 	std::unique_ptr<ExprAST> parseStringLiteral();
 	std::unique_ptr<ExprAST> parseCharacterLiteral();
+	std::unique_ptr<ExprAST> parseBooleanLiteral();
 	std::unique_ptr<VariableDeclarationAST> parseVariableDeclaration();
 
 public:
