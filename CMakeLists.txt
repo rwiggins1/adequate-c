@@ -32,14 +32,14 @@ target_include_directories(adequatec PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # Test executable for lexer
 add_executable(test_lexer
-    tests/test_lexer.cpp
+    tests/manual/test_lexer.cpp
     src/frontend/lexer.cpp
 )
 target_include_directories(test_lexer PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # Test executable for ast
 add_executable(test_ast
-    tests/test_ast.cpp
+    tests/manual/test_ast.cpp
     src/frontend/lexer.cpp
     src/frontend/ast.cpp
     src/frontend/parser.cpp
