@@ -28,24 +28,28 @@ class NumberExprAST: public ExprAST {
 	double value;
 public:
 	NumberExprAST(double val);
+	[[nodiscard]] double getValue() const noexcept { return value; }
 };
 
 class StringLiteralAST: public ExprAST {
 	std::string value;
 public:
 	StringLiteralAST(std::string value);
+	[[nodiscard]] std::string getValue() const { return value; };
 };
 
 class CharLiteralAST: public ExprAST {
 	char value;
 public:
 	CharLiteralAST(const char& value);
+	[[nodiscard]] char getValue() const noexcept { return value; }
 };
 
 class BoolLiteralAST : public ExprAST {
 	bool value;
 public:
 	BoolLiteralAST(bool value);
+	[[nodiscard]] bool getValue() const noexcept { return value; }
 };
 
 class UnaryExprAST: public ExprAST {
@@ -114,6 +118,11 @@ class VariableDeclarationAST : public StmtAST {
 public:
 	VariableDeclarationAST(std::string type, std::string name, 
 		std::unique_ptr<ExprAST> initializer);
+
+	[[nodiscard]] std::string getType() const noexcept { return type; }
+	[[nodiscard]] std::string getName() const noexcept { return name; }
+	[[nodiscard]] ExprAST* getInit() const { return initializer.get(); }
+	[[nodiscard]] bool hasInit() const noexcept { return initializer != nullptr; }
 };
 
 class IfStmtAST : public StmtAST {

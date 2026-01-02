@@ -48,14 +48,21 @@ test-lexer: build
 	@echo ""
 	@echo "Testing Lexer:"
 	@echo "=============="
-	@./$(BUILD_DIR)/$(TEST_LEXER) $(TEST_DIR)/lexer/test_keywords.ac
+	@./$(BUILD_DIR)/$(TEST_LEXER) $(TEST_DIR)/input/lexer/test_keywords.ac
 
 # Test lexer
 test-ast: build
 	@echo ""
 	@echo "Testing Abstract Syntax Tree:"
 	@echo "=============="
-	@./$(BUILD_DIR)/$(TEST_AST) $(TEST_DIR)/ast/variableDec.ac
+	@./$(BUILD_DIR)/$(TEST_AST) $(TEST_DIR)/input/ast/variableDec.ac
+
+# Google Tests
+test-gtest: build
+	@echo ""
+	@echo "Running Google Tests:"
+	@echo "===================="
+	@cd $(BUILD_DIR) && ctest --output-on-failure
 
 test-all: test-lexer
 	@echo ""
