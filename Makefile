@@ -57,6 +57,13 @@ test-ast: build
 	@echo "=============="
 	@./$(BUILD_DIR)/$(TEST_AST) $(TEST_DIR)/input/ast/variableDec.ac
 
+# Google Tests
+test-gtest: build
+	@echo ""
+	@echo "Running Google Tests:"
+	@echo "===================="
+	@cd $(BUILD_DIR) && ctest --output-on-failure
+
 test-all: test-lexer
 	@echo ""
 	@echo "All tests complete!"
