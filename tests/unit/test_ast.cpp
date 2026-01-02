@@ -31,4 +31,10 @@ TEST(astTest, BoolLiteral) {
 TEST(astTest, VarDec) {
 	auto expr = std::make_unique<NumberExprAST>(42.0);
 	auto var_dec = std::make_unique<VariableDeclarationAST>("int", "x", std::move(expr));
+	ASSERT_NE(var_dec, nullptr);
+	ASSERT_EQ(var_dec->getType(), "int");
+	ASSERT_EQ(var_dec->getName(), "x");
+	ASSERT_NE(var_dec->getInit(), nullptr);
+	ASSERT_EQ(var_dec->hasInit(), true);
 }
+

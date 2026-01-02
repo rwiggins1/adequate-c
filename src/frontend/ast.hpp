@@ -118,6 +118,11 @@ class VariableDeclarationAST : public StmtAST {
 public:
 	VariableDeclarationAST(std::string type, std::string name, 
 		std::unique_ptr<ExprAST> initializer);
+
+	[[nodiscard]] std::string getType() const noexcept { return type; }
+	[[nodiscard]] std::string getName() const noexcept { return name; }
+	[[nodiscard]] ExprAST* getInit() const { return initializer.get(); }
+	[[nodiscard]] bool hasInit() const noexcept { return initializer != nullptr; }
 };
 
 class IfStmtAST : public StmtAST {
