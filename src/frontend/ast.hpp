@@ -28,28 +28,28 @@ class NumberExprAST: public ExprAST {
 	double value;
 public:
 	NumberExprAST(double val);
-	double getValue();
+	[[nodiscard]] double getValue() const noexcept { return value; }
 };
 
 class StringLiteralAST: public ExprAST {
 	std::string value;
 public:
 	StringLiteralAST(std::string value);
-	std::string getValue();
+	[[nodiscard]] std::string getValue() const { return value; };
 };
 
 class CharLiteralAST: public ExprAST {
 	char value;
 public:
 	CharLiteralAST(const char& value);
-	char getValue();
+	[[nodiscard]] char getValue() const noexcept { return value; }
 };
 
 class BoolLiteralAST : public ExprAST {
 	bool value;
 public:
 	BoolLiteralAST(bool value);
-	bool getValue();
+	[[nodiscard]] bool getValue() const noexcept { return value; }
 };
 
 class UnaryExprAST: public ExprAST {
