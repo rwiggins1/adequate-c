@@ -40,10 +40,10 @@ bool Parser::expect(TokenType type) {
 	return true;
 }
 
-std::unique_ptr<ExprAST> Parser::parseNumberExpr() {
+std::unique_ptr<ExprAST> Parser::parseNumberLiteral() {
 	double value = std::stod(current.lexeme);
 	advance();
-	return std::make_unique<NumberExprAST>(value);
+	return std::make_unique<NumberLiteralAST>(value);
 }
 
 std::unique_ptr<ExprAST> Parser::parseStringLiteral() {
@@ -86,7 +86,7 @@ std::unique_ptr<VariableDeclarationAST> Parser::parseVarDecl() {
 		advance(); // consume '='
 
 		if (match(TokenType::NUMBER)) {
-			initializer = parseNumberExpr();
+			initializer = parseNumberLiteral();
 		}
 		else if (match(TokenType::STRING_LIT)) {
 			initializer = parseStringLiteral();

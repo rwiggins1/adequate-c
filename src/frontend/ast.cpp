@@ -4,7 +4,7 @@
 #include <string>
 
 namespace frontend {
-NumberExprAST::NumberExprAST(double val) : value(val) {}
+NumberLiteralAST::NumberLiteralAST(double val) : value(val) {}
 
 StringLiteralAST::StringLiteralAST(std::string val) : value(std::move(val)) {}
 

@@ -24,10 +24,10 @@ protected:
 	ExprAST() = default;
 };
 
-class NumberExprAST: public ExprAST {
+class NumberLiteralAST: public ExprAST {
 	double value;
 public:
-	NumberExprAST(double val);
+	NumberLiteralAST(double val);
 	[[nodiscard]] double getValue() const noexcept { return value; }
 };
 

@@ -5,7 +5,7 @@
 using namespace frontend;
 
 TEST(astTest,  NumberExpr) {
-	auto expr = std::make_unique<NumberExprAST>(42.0);
+	auto expr = std::make_unique<NumberLiteralAST>(42.0);
 	ASSERT_NE(expr, nullptr);
 	ASSERT_EQ(expr->getValue(), 42.0);
 }
@@ -29,7 +29,7 @@ TEST(astTest, BoolLiteral) {
 }
 
 TEST(astTest, VarDec) {
-	auto expr = std::make_unique<NumberExprAST>(42.0);
+	auto expr = std::make_unique<NumberLiteralAST>(42.0);
 	auto var_dec = std::make_unique<VariableDeclarationAST>("int", "x", std::move(expr));
 	ASSERT_NE(var_dec, nullptr);
 	ASSERT_EQ(var_dec->getType(), "int");
