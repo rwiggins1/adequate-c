@@ -1,7 +1,10 @@
 #include "parser.hpp"
 #include "frontend/token.hpp"
+#include <algorithm>
 #include <iostream>
 #include <memory>
+#include <utility>
+#include <vector>
 
 namespace frontend {
 
@@ -65,7 +68,103 @@ std::unique_ptr<ExprAST> Parser::parseBooleanLiteral() {
 	return std::make_unique<BoolLiteralAST>(value);
 }
 
-std::unique_ptr<VariableDeclarationAST> Parser::parseVarDecl() {
+std::unique_ptr<ExprAST> Parser::parseUnaryExpr() {
+	std::string op;
+	std::unique_ptr<ExprAST> operand = nullptr;
+	
+	// if post-fix operator (identifier++)
+	if (current.type == TokenType::IDENT) {
+		operand = parsePrimaryExpr();
+		advance();
+		op = current.lexeme;
+		return std::make_unique<UnaryExprAST>(op, std::move(operand));
+	}
+
+	// if pre-fixed operator (!identifier)
+	op = current.lexeme;
+	advance();
+	operand = parsePrimaryExpr();
+	return std::make_unique<UnaryExprAST>(op, std::move(operand));
+}
+
+// TODO: Add nested Expr support (Operator precedence)
+// TODO: Use Maximal Munch
+std::unique_ptr<ExprAST> Parser::parseBinaryExpr() {
+	std::unique_ptr<ExprAST> lhs = parsePrimaryExpr();
+	std::string op = current.lexeme;
+	advance();
+	std::unique_ptr<ExprAST> rhs = parsePrimaryExpr();
+	return std::make_unique<BinaryExprAST>(op, std::move(lhs), std::move(rhs));
+}
+
+std::unique_ptr<ExprAST> Parser::parseVarExpr() {
+	std::string name = current.lexeme;
+	advance();
+	return std::make_unique<VariableExprAST>(name);
+}
+
+std::unique_ptr<ExprAST> Parser::parseIdentifierExpr() {
+	std::string name = current.lexeme;
+	advance(); // eats identifier
+
+	if (match(TokenType::OPAREN)) {
+		return parseFunctionCallExpr(name);
+	}
+
+	return std::make_unique<VariableExprAST>(name);
+}
+
+// TODO: Allow function calls as arguments
+std::unique_ptr<ExprAST> Parser::parseFunctionCallExpr(std::string& name) {
+	advance(); // eat (
+	std::vector<std::unique_ptr<ExprAST>> args; 
+	
+	while (!match(TokenType::CPAREN)) {
+		if (auto arg = parsePrimaryExpr()) {
+			args.push_back(std::move(arg));
+		}
+		else {
+			return nullptr;
+		}
+
+		if (match(TokenType::COMMA)) {
+			advance();
+			if (match(TokenType::CPAREN)) { // trailing comma: foo(x,)
+				return nullptr; 
+			}
+		}
+		else if (!match(TokenType::CPAREN)) { // if not ',' must be ')'
+			return nullptr;
+		}
+	}
+	advance();
+	return std::make_unique<CallExprAST>(name, std::move(args));
+}
+
+std::unique_ptr<ExprAST> Parser::parsePrimaryExpr() {
+	switch (current.type) {
+		case TokenType::NUMBER:
+			return parseNumberLiteral();
+		case TokenType::STRING_LIT:
+			return parseStringLiteral();
+		case TokenType::CHAR_LIT:
+			return parseCharacterLiteral();
+
+		case TokenType::TRUE:
+		case TokenType::FALSE:
+			return parseBooleanLiteral();
+
+		case TokenType::IDENT:
+			return parseIdentifierExpr();
+
+		case TokenType::OPAREN:
+			return nullptr; // TODO: add parseParenExpr()
+		default:
+			return nullptr;
+	}
+}
+
+std::unique_ptr<StmtAST> Parser::parseVarDecl() {
 	// int test = 3;
 
 	if (!isType(current.type)) {
@@ -84,23 +183,7 @@ std::unique_ptr<VariableDeclarationAST> Parser::parseVarDecl() {
 
 	if (match(TokenType::ASSIGN)) {
 		advance(); // consume '='
-
-		if (match(TokenType::NUMBER)) {
-			initializer = parseNumberLiteral();
-		}
-		else if (match(TokenType::STRING_LIT)) {
-			initializer = parseStringLiteral();
-		}
-		else if (match(TokenType::CHAR_LIT)) {
-			initializer = parseCharacterLiteral();
-		}
-		else if (match(TokenType::TRUE) || match(TokenType::FALSE)) {
-			initializer = parseBooleanLiteral();
-		}
-		else {
-			std::cerr << "Expected expression after '='\n";
-			return nullptr;
-		}
+		initializer = parsePrimaryExpr();
 	}
 
 	if (!expect(TokenType::SEMICOLON)) {

@@ -53,31 +53,31 @@ public:
 };
 
 class UnaryExprAST: public ExprAST {
-	char op;
+	std::string op;
 	std::unique_ptr<ExprAST> operand;
 public:
-	UnaryExprAST(char op, std::unique_ptr<ExprAST> operand);
+	UnaryExprAST(std::string op, std::unique_ptr<ExprAST> operand);
 };
 
 class BinaryExprAST: public ExprAST {
-	char op;
+	std::string op;
 	std::unique_ptr<ExprAST> lhs, rhs;
 public:
-	BinaryExprAST(char op, std::unique_ptr<ExprAST> lhs,
+	BinaryExprAST(std::string op, std::unique_ptr<ExprAST> lhs,
 	       std::unique_ptr<ExprAST> rhs);
 };
 
 class VariableExprAST: public ExprAST {
 	std::string name;
 public:
-	VariableExprAST(const std::string& name);
+	VariableExprAST(std::string name);
 };
 
 class CallExprAST: public ExprAST {
 	std::string callee;
 	std::vector<std::unique_ptr<ExprAST>> args;
 public:
-	CallExprAST(const std::string& callee, std::vector<std::unique_ptr<ExprAST>> args);
+	CallExprAST(std::string callee, std::vector<std::unique_ptr<ExprAST>> args);
 };
 
 

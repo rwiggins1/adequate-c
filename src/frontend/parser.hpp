@@ -22,10 +22,20 @@ private:
 	std::unique_ptr<ExprAST> parseStringLiteral();
 	std::unique_ptr<ExprAST> parseCharacterLiteral();
 	std::unique_ptr<ExprAST> parseBooleanLiteral();
-	std::unique_ptr<VariableDeclarationAST> parseVariableDeclaration();
+
+	std::unique_ptr<ExprAST> parseUnaryExpr();
+	std::unique_ptr<ExprAST> parseBinaryExpr();
+	std::unique_ptr<ExprAST> parseVarExpr();
+
+	std::unique_ptr<ExprAST> parseIdentifierExpr();
+	std::unique_ptr<ExprAST> parseFunctionCallExpr(std::string& name);
+
+	std::unique_ptr<ExprAST> parsePrimaryExpr();
+
+	std::unique_ptr<StmtAST> parseVariableDeclaration();
 
 public:
 	explicit Parser(Lexer &lex);
-	std::unique_ptr<VariableDeclarationAST> parseVarDecl();
+	std::unique_ptr<StmtAST> parseVarDecl();
 };
 } // namespace frontend
