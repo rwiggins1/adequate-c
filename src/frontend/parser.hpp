@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ast/ast.hpp"
-#include "lexer.hpp"
-#include "token.hpp"
+#include "lexer/lexer.hpp"
+#include "lexer/token.hpp"
 #include <memory>
 
 namespace frontend {
