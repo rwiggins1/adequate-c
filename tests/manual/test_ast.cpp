@@ -1,4 +1,4 @@
-#include "frontend/lexer.hpp"
+#include "frontend/lexer/lexer.hpp"
 #include "frontend/parser.hpp"
 #include <fstream>
 #include <iostream>

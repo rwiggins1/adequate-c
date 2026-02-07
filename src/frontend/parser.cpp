@@ -1,5 +1,5 @@
 #include "parser.hpp"
-#include "frontend/token.hpp"
+#include "lexer/token.hpp"
 #include <iostream>
 #include <memory>
 #include <utility>
