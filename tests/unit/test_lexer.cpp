@@ -1,4 +1,3 @@
-#include <algorithm>
 #include <gtest/gtest.h>
 #include "frontend/lexer.hpp"
 #include "frontend/token.hpp"
