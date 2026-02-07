@@ -62,8 +62,8 @@ target_include_directories(test_ast PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # Google Test for AST and Lexer
 add_executable(ast_gtest
-    tests/unit/test_ast.cpp
-    tests/unit/test_lexer.cpp
+    tests/unit/frontend/test_ast.cpp
+    tests/unit/frontend/test_lexer.cpp
     src/frontend/ast/ast.cpp
     src/frontend/lexer.cpp
     src/frontend/parser.cpp
