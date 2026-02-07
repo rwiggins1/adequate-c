@@ -64,6 +64,7 @@ target_include_directories(test_ast PRIVATE ${CMAKE_SOURCE_DIR}/src)
 add_executable(ast_gtest
     tests/unit/test_ast.cpp
     tests/unit/test_lexer.cpp
+    tests/unit/test_token.cpp
     src/frontend/ast.cpp
     src/frontend/lexer.cpp
     src/frontend/parser.cpp
