@@ -64,7 +64,7 @@ test-gtest: build
 	@echo "===================="
 	@cd $(BUILD_DIR) && ctest --output-on-failure
 
-test-all: test-lexer
+test-all: test-lexer test-ast test-gtest
 	@echo ""
 	@echo "All tests complete!"
 
