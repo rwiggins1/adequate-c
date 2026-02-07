@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ast.hpp"
+#include "ast/ast.hpp"
 #include "lexer.hpp"
 #include "token.hpp"
 #include <memory>

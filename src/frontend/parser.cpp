@@ -1,6 +1,5 @@
 #include "parser.hpp"
 #include "frontend/token.hpp"
-#include <algorithm>
 #include <iostream>
 #include <memory>
 #include <utility>
