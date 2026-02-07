@@ -65,6 +65,7 @@ add_executable(ast_gtest
     tests/unit/frontend/test_ast.cpp
     tests/unit/frontend/test_lexer.cpp
     src/frontend/ast/ast.cpp
+    tests/unit/frontend/test_token.cpp
     src/frontend/lexer.cpp
     src/frontend/parser.cpp
 )
