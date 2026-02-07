@@ -102,11 +102,11 @@ public:
 	BreakStmtAST(std::unique_ptr<ExprAST> value);
 };
 
-class AsignmentStmtAST: public StmtAST {
+class AssignmentStmtAST: public StmtAST {
 	std::string varName;
 	std::unique_ptr<ExprAST> value;
 public:
-	AsignmentStmtAST(std::string varName, std::unique_ptr<ExprAST>value);
+	AssignmentStmtAST(std::string varName, std::unique_ptr<ExprAST>value);
 };
 
 
@@ -188,43 +188,12 @@ public:
 	[[nodiscard]] const PrototypeAST* getProto() const { return prototype.get(); }
 };
 
-class SwitchStmtAST : public StmtAST{
-	std::unique_ptr<ExprAST> value;
-	std::vector<std::pair<std::unique_ptr<ExprAST>, std::unique_ptr<BlockStmtAST>>> cases;
-	std::unique_ptr<BlockStmtAST> defaultCase;
-
-	SwitchStmtAST(std::unique_ptr<ExprAST> value,
-	       std::vector<std::pair<std::unique_ptr<ExprAST>, 
-	       std::unique_ptr<BlockStmtAST>>> cases,
-	       std::unique_ptr<BlockStmtAST> defaultCase = nullptr);
-};
-
 class StructAST: public ASTNode {
 	std::string name;
 	std::vector<std::unique_ptr<VariableDeclarationAST>> fields;
 
 	StructAST(std::string name,
 		std::vector<std::unique_ptr<VariableDeclarationAST>> fields);
-};
-
-class EnumAST : public ASTNode{
-	std::string name;
-	std::vector<std::pair<std::string, std::unique_ptr<ExprAST>>> elements;
-
-	EnumAST(std::string name,
-		std::vector<std::pair<std::string,
-	 	std::unique_ptr<ExprAST>>> elements);
-};
-
-class ClassAST : public ASTNode{
-	std::string name;
-	std::string parent;
-	std::vector<std::unique_ptr<VariableDeclarationAST>> fields;
-	std::vector<std::unique_ptr<FunctionAST>> methods;
-
-	ClassAST(std::string name, std::string parent, 
-		std::vector<std::unique_ptr<VariableDeclarationAST>> fields,
-		std::vector<std::unique_ptr<FunctionAST>> methods);
 };
 }
 
