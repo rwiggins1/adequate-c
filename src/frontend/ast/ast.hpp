@@ -109,7 +109,6 @@ public:
 	AssignmentStmtAST(std::string varName, std::unique_ptr<ExprAST>value);
 };
 
-
 // Variable Declaration
 class VariableDeclarationAST : public StmtAST {
 	std::string type;

@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 #include <memory>
-#include "frontend/ast.hpp"
+#include "frontend/ast/ast.hpp"
 
 using namespace frontend;
 
