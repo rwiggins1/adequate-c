@@ -57,6 +57,8 @@ class UnaryExprAST: public ExprAST {
 	std::unique_ptr<ExprAST> operand;
 public:
 	UnaryExprAST(std::string op, std::unique_ptr<ExprAST> operand);
+	[[nodiscard]] std::string getOperator() const noexcept { return op; }
+	[[nodiscard]] ExprAST* getOperand() const { return operand.get(); }
 };
 
 class BinaryExprAST: public ExprAST {
@@ -65,12 +67,17 @@ class BinaryExprAST: public ExprAST {
 public:
 	BinaryExprAST(std::string op, std::unique_ptr<ExprAST> lhs,
 	       std::unique_ptr<ExprAST> rhs);
+	
+	[[nodiscard]] std::string getOperator() const noexcept { return op; }
+	[[nodiscard]] ExprAST* getLhs() const { return lhs.get(); }
+	[[nodiscard]] ExprAST* getRhs() const { return rhs.get(); }
 };
 
 class VariableExprAST: public ExprAST {
 	std::string name;
 public:
 	VariableExprAST(std::string name);
+	[[nodiscard]] std::string getName() const noexcept { return name; }
 };
 
 class CallExprAST: public ExprAST {
@@ -78,6 +85,8 @@ class CallExprAST: public ExprAST {
 	std::vector<std::unique_ptr<ExprAST>> args;
 public:
 	CallExprAST(std::string callee, std::vector<std::unique_ptr<ExprAST>> args);
+	[[nodiscard]] std::string getCallee() const noexcept { return callee; }
+	[[nodiscard]] const std::vector<std::unique_ptr<ExprAST>>& getArgs() const { return args; }
 };
 
 
