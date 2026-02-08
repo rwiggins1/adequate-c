@@ -85,6 +85,8 @@ class CallExprAST: public ExprAST {
 	std::vector<std::unique_ptr<ExprAST>> args;
 public:
 	CallExprAST(std::string callee, std::vector<std::unique_ptr<ExprAST>> args);
+	[[nodiscard]] std::string getCallee() const noexcept { return callee; }
+	[[nodiscard]] const std::vector<std::unique_ptr<ExprAST>>& getArgs() const { return args; }
 };
 
 

@@ -1,7 +1,9 @@
+#include "gtest/gtest.h"
 #include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
 #include <utility>
+#include <vector>
 #include "frontend/ast/ast.hpp"
 
 using namespace frontend;
@@ -32,19 +34,50 @@ TEST(astTest, BoolLiteral) {
 
 TEST(astTest, UnaryExpr) {
 	auto bool_lit = std::make_unique<BoolLiteralAST>(true);
-	auto unary = std::make_unique<UnaryExprAST>("+", std::move(bool_lit));
-	ASSERT_EQ(unary->getOperator(), "+");
-	ASSERT_NE(unary->getOperand(), nullptr);
+	auto unary = std::make_unique<UnaryExprAST>("!", std::move(bool_lit));
+	ASSERT_EQ(unary->getOperator(), "!");
+
+	ExprAST* literal = unary->getOperand();
+	auto* boolLiteral = dynamic_cast<BoolLiteralAST*>(literal);
+
+	ASSERT_EQ(boolLiteral->getValue(), true);
 }
 
 // 2 + 3
 TEST(astTest, BinaryExpr) {
 	auto two = std::make_unique<NumberLiteralAST>(2);
-	auto three = std::make_unique<NumberLiteralAST>(2);
+	auto three = std::make_unique<NumberLiteralAST>(3);
 	auto add = std::make_unique<BinaryExprAST>("+", std::move(two), std::move(three));
 	ASSERT_EQ(add->getOperator(), "+");
-	ASSERT_NE(add->getLhs(), nullptr);
-	ASSERT_NE(add->getRhs(), nullptr);
+
+	ExprAST* lhs = add->getLhs();
+	auto* lhsLiteral = dynamic_cast<NumberLiteralAST*>(lhs);
+	ASSERT_EQ(lhsLiteral->getValue(), 2);
+
+	ExprAST* rhs = add->getRhs();
+	auto* rhsLiteral = dynamic_cast<NumberLiteralAST*>(rhs);
+
+	ASSERT_EQ(rhsLiteral->getValue(), 3);
+}
+
+// someFunc(12, "test", true)
+TEST(astTest, FunctionCallExpr) {
+	std::string callee = "someFunc";
+	auto twelve = std::make_unique<NumberLiteralAST>(12);
+	auto testStr = std::make_unique<StringLiteralAST>("test");
+	auto bool_lit = std::make_unique<BoolLiteralAST>(true);
+	std::vector<std::unique_ptr<ExprAST>> args;
+
+	args.push_back(std::move(twelve));
+	args.push_back(std::move(testStr));
+	args.push_back(std::move(bool_lit));
+
+	auto funcCall = std::make_unique<CallExprAST>(callee, std::move(args));
+	const auto& Args = funcCall->getArgs();
+
+	auto* TwelveLiteral = dynamic_cast<NumberLiteralAST*>(Args[0].get());
+
+	ASSERT_EQ(TwelveLiteral->getValue(), 12);
 }
 
 TEST(astTest, VarDec) {
