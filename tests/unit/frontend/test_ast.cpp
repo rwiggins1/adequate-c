@@ -1,5 +1,7 @@
+#include <algorithm>
 #include <gtest/gtest.h>
 #include <memory>
+#include <utility>
 #include "frontend/ast/ast.hpp"
 
 using namespace frontend;
@@ -26,6 +28,23 @@ TEST(astTest, BoolLiteral) {
 	auto bool_lit = std::make_unique<BoolLiteralAST>(true);
 	ASSERT_NE(bool_lit, nullptr);
 	ASSERT_EQ(bool_lit->getValue(), true);
+}
+
+TEST(astTest, UnaryExpr) {
+	auto bool_lit = std::make_unique<BoolLiteralAST>(true);
+	auto unary = std::make_unique<UnaryExprAST>("+", std::move(bool_lit));
+	ASSERT_EQ(unary->getOperator(), "+");
+	ASSERT_NE(unary->getOperand(), nullptr);
+}
+
+// 2 + 3
+TEST(astTest, BinaryExpr) {
+	auto two = std::make_unique<NumberLiteralAST>(2);
+	auto three = std::make_unique<NumberLiteralAST>(2);
+	auto add = std::make_unique<BinaryExprAST>("+", std::move(two), std::move(three));
+	ASSERT_EQ(add->getOperator(), "+");
+	ASSERT_NE(add->getLhs(), nullptr);
+	ASSERT_NE(add->getRhs(), nullptr);
 }
 
 TEST(astTest, VarDec) {
