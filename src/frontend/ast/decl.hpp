@@ -39,6 +39,9 @@ class StructAST : public DeclAST {
 
 	StructAST(std::string name,
 		std::vector<std::unique_ptr<VariableDeclarationAST>> fields);
+	[[nodiscard]] std::string getName() const { return name; }
+	[[nodiscard]] std::vector<std::unique_ptr<VariableDeclarationAST>> getDeclarations() const 
+	{ return fields; }
 };
 
 class NamespaceAST : public DeclAST {
