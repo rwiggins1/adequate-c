@@ -1,5 +1,8 @@
 #include "parser.hpp"
 #include "lexer/token.hpp"
+#include "ast/ast.hpp"
+#include "ast/expr.hpp"
+#include "ast/stmt.hpp"
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -42,67 +45,67 @@ bool Parser::expect(TokenType type) {
 	return true;
 }
 
-std::unique_ptr<ExprAST> Parser::parseNumberLiteral() {
+std::unique_ptr<ast::ExprAST> Parser::parseNumberLiteral() {
 	double value = std::stod(current.lexeme);
 	advance();
-	return std::make_unique<NumberLiteralAST>(value);
+	return std::make_unique<ast::NumberLiteralAST>(value);
 }
 
-std::unique_ptr<ExprAST> Parser::parseStringLiteral() {
+std::unique_ptr<ast::ExprAST> Parser::parseStringLiteral() {
 	std::string value = current.lexeme;
 	advance();
-	return std::make_unique<StringLiteralAST>(value);
+	return std::make_unique<ast::StringLiteralAST>(value);
 }
 
-std::unique_ptr<ExprAST> Parser::parseCharacterLiteral() {
+std::unique_ptr<ast::ExprAST> Parser::parseCharacterLiteral() {
 	std::string str = current.lexeme;
 	const char *value = str.c_str();
 	advance();
-	return std::make_unique<CharLiteralAST>(*value);
+	return std::make_unique<ast::CharLiteralAST>(*value);
 }
 
-std::unique_ptr<ExprAST> Parser::parseBooleanLiteral() {
+std::unique_ptr<ast::ExprAST> Parser::parseBooleanLiteral() {
 	bool value = current.type == TokenType::TRUE;
 	advance();
-	return std::make_unique<BoolLiteralAST>(value);
+	return std::make_unique<ast::BoolLiteralAST>(value);
 }
 
-std::unique_ptr<ExprAST> Parser::parseUnaryExpr() {
+std::unique_ptr<ast::ExprAST> Parser::parseUnaryExpr() {
 	std::string op;
-	std::unique_ptr<ExprAST> operand = nullptr;
+	std::unique_ptr<ast::ExprAST> operand = nullptr;
 	
 	// if post-fix operator (identifier++)
 	if (current.type == TokenType::IDENT) {
 		operand = parsePrimaryExpr();
 		advance();
 		op = current.lexeme;
-		return std::make_unique<UnaryExprAST>(op, std::move(operand));
+		return std::make_unique<ast::UnaryExprAST>(op, std::move(operand));
 	}
 
 	// if pre-fixed operator (!identifier)
 	op = current.lexeme;
 	advance();
 	operand = parsePrimaryExpr();
-	return std::make_unique<UnaryExprAST>(op, std::move(operand));
+	return std::make_unique<ast::UnaryExprAST>(op, std::move(operand));
 }
 
 // TODO: Add nested Expr support (Operator precedence)
 // TODO: Use Maximal Munch
-std::unique_ptr<ExprAST> Parser::parseBinaryExpr() {
-	std::unique_ptr<ExprAST> lhs = parsePrimaryExpr();
+std::unique_ptr<ast::ExprAST> Parser::parseBinaryExpr() {
+	std::unique_ptr<ast::ExprAST> lhs = parsePrimaryExpr();
 	std::string op = current.lexeme;
 	advance();
-	std::unique_ptr<ExprAST> rhs = parsePrimaryExpr();
-	return std::make_unique<BinaryExprAST>(op, std::move(lhs), std::move(rhs));
+	std::unique_ptr<ast::ExprAST> rhs = parsePrimaryExpr();
+	return std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
 }
 
-std::unique_ptr<ExprAST> Parser::parseVarExpr() {
+std::unique_ptr<ast::ExprAST> Parser::parseVarExpr() {
 	std::string name = current.lexeme;
 	advance();
-	return std::make_unique<VariableExprAST>(name);
+	return std::make_unique<ast::VariableExprAST>(name);
 }
 
-std::unique_ptr<ExprAST> Parser::parseIdentifierExpr() {
+std::unique_ptr<ast::ExprAST> Parser::parseIdentifierExpr() {
 	std::string name = current.lexeme;
 	advance(); // eats identifier
 
@@ -110,13 +113,13 @@ std::unique_ptr<ExprAST> Parser::parseIdentifierExpr() {
 		return parseFunctionCallExpr(name);
 	}
 
-	return std::make_unique<VariableExprAST>(name);
+	return std::make_unique<ast::VariableExprAST>(name);
 }
 
 // TODO: Allow function calls as arguments
-std::unique_ptr<ExprAST> Parser::parseFunctionCallExpr(std::string& name) {
+std::unique_ptr<ast::ExprAST> Parser::parseFunctionCallExpr(std::string& name) {
 	advance(); // eat (
-	std::vector<std::unique_ptr<ExprAST>> args; 
+	std::vector<std::unique_ptr<ast::ExprAST>> args; 
 	
 	while (!match(TokenType::CPAREN)) {
 		if (auto arg = parsePrimaryExpr()) {
@@ -137,10 +140,10 @@ std::unique_ptr<ExprAST> Parser::parseFunctionCallExpr(std::string& name) {
 		}
 	}
 	advance();
-	return std::make_unique<CallExprAST>(name, std::move(args));
+	return std::make_unique<ast::CallExprAST>(name, std::move(args));
 }
 
-std::unique_ptr<ExprAST> Parser::parsePrimaryExpr() {
+std::unique_ptr<ast::ExprAST> Parser::parsePrimaryExpr() {
 	switch (current.type) {
 		case TokenType::NUMBER:
 			return parseNumberLiteral();
@@ -163,7 +166,7 @@ std::unique_ptr<ExprAST> Parser::parsePrimaryExpr() {
 	}
 }
 
-std::unique_ptr<StmtAST> Parser::parseVarDecl() {
+std::unique_ptr<ast::StmtAST> Parser::parseVarDecl() {
 	// int test = 3;
 
 	if (!isType(current.type)) {
@@ -178,7 +181,7 @@ std::unique_ptr<StmtAST> Parser::parseVarDecl() {
 	std::string name = current.lexeme;
 	advance();
 
-	std::unique_ptr<ExprAST> initializer = nullptr;
+	std::unique_ptr<ast::ExprAST> initializer = nullptr;
 
 	if (match(TokenType::ASSIGN)) {
 		advance(); // consume '='
@@ -190,7 +193,7 @@ std::unique_ptr<StmtAST> Parser::parseVarDecl() {
 	}
 	advance(); // consume ';'
 
-	return std::make_unique<VariableDeclarationAST>(type, name,
+	return std::make_unique<ast::VariableDeclarationAST>(type, name,
 							std::move(initializer));
 }
 

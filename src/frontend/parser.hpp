@@ -17,25 +17,25 @@ private:
 	static bool isLiteral(TokenType type);
 	bool expect(TokenType type);
 
-	std::unique_ptr<ExprAST> parseExpression();
-	std::unique_ptr<ExprAST> parseNumberLiteral();
-	std::unique_ptr<ExprAST> parseStringLiteral();
-	std::unique_ptr<ExprAST> parseCharacterLiteral();
-	std::unique_ptr<ExprAST> parseBooleanLiteral();
+	std::unique_ptr<ast::ExprAST> parseExpression();
+	std::unique_ptr<ast::ExprAST> parseNumberLiteral();
+	std::unique_ptr<ast::ExprAST> parseStringLiteral();
+	std::unique_ptr<ast::ExprAST> parseCharacterLiteral();
+	std::unique_ptr<ast::ExprAST> parseBooleanLiteral();
 
-	std::unique_ptr<ExprAST> parseUnaryExpr();
-	std::unique_ptr<ExprAST> parseBinaryExpr();
-	std::unique_ptr<ExprAST> parseVarExpr();
+	std::unique_ptr<ast::ExprAST> parseUnaryExpr();
+	std::unique_ptr<ast::ExprAST> parseBinaryExpr();
+	std::unique_ptr<ast::ExprAST> parseVarExpr();
 
-	std::unique_ptr<ExprAST> parseIdentifierExpr();
-	std::unique_ptr<ExprAST> parseFunctionCallExpr(std::string& name);
+	std::unique_ptr<ast::ExprAST> parseIdentifierExpr();
+	std::unique_ptr<ast::ExprAST> parseFunctionCallExpr(std::string& name);
 
-	std::unique_ptr<ExprAST> parsePrimaryExpr();
+	std::unique_ptr<ast::ExprAST> parsePrimaryExpr();
 
-	std::unique_ptr<StmtAST> parseVariableDeclaration();
+	std::unique_ptr<ast::StmtAST> parseVariableDeclaration();
 
 public:
 	explicit Parser(Lexer &lex);
-	std::unique_ptr<StmtAST> parseVarDecl();
+	std::unique_ptr<ast::StmtAST> parseVarDecl();
 };
 } // namespace frontend
