@@ -2,6 +2,7 @@
 #include "lexer/token.hpp"
 #include "ast/ast.hpp"
 #include "ast/expr.hpp"
+#include "ast/stmt.hpp"
 #include <iostream>
 #include <memory>
 #include <utility>

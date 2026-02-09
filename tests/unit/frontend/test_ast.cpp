@@ -6,6 +6,7 @@
 #include <vector>
 #include "frontend/ast/ast.hpp"
 #include "frontend/ast/expr.hpp"
+#include "frontend/ast/stmt.hpp"
 
 using namespace frontend::ast;
 
