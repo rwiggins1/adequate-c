@@ -5,8 +5,9 @@
 #include <utility>
 #include <vector>
 #include "frontend/ast/ast.hpp"
+#include "frontend/ast/expr.hpp"
 
-using namespace frontend;
+using namespace frontend::ast;
 
 TEST(astTest,  NumberExpr) {
 	auto expr = std::make_unique<NumberLiteralAST>(42.0);
