@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ast.hpp"
+#include <memory>
+#include <string>
 
 namespace frontend::ast {
 
@@ -8,18 +10,21 @@ class BlockStmtAST : public StmtAST {
 	std::vector<std::unique_ptr<StmtAST>> statements;
 public:
 	BlockStmtAST(std::vector<std::unique_ptr<StmtAST>> stmts);
+	[[nodiscard]] const std::vector<std::unique_ptr<StmtAST>>& getStmts() const { return statements; }
 };
 
 class ReturnStmtAST : public StmtAST {
 	std::unique_ptr<ExprAST> value;
 public:
 	ReturnStmtAST(std::unique_ptr<ExprAST> value);
+	[[nodiscard]] ExprAST* getValue() const { return value.get(); }
 };
 
 class BreakStmtAST : public StmtAST {
 	std::unique_ptr<ExprAST> value;
 public:
 	BreakStmtAST(std::unique_ptr<ExprAST> value);
+	[[nodiscard]] ExprAST* getValue() const { return value.get(); }
 };
 
 class AssignmentStmtAST: public StmtAST {
@@ -27,6 +32,8 @@ class AssignmentStmtAST: public StmtAST {
 	std::unique_ptr<ExprAST> value;
 public:
 	AssignmentStmtAST(std::string varName, std::unique_ptr<ExprAST>value);
+	[[nodiscard]] std::string getVariableName() const {return varName; }
+	[[nodiscard]] ExprAST* getValue() const { return value.get(); }
 };
 
 // Variable Declaration
