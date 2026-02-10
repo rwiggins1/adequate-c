@@ -204,9 +204,10 @@
     ::= <literal>
     ::= ( Expr )
 
-<modifier> ::= const
-    ::= static
-    ::= comptime
+<modifier> ::= ε
+    ::= const <modifier>
+    ::= static <modifier>
+    ::= comptime <modifier>
 
 <type> ::= <modifier> <type>
     ::= int 
