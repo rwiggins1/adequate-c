@@ -20,7 +20,6 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 set(SOURCES
     src/main.cpp
     src/frontend/lexer/lexer.cpp
-    src/frontend/ast/ast.cpp
     src/frontend/ast/expr.cpp
     src/frontend/ast/stmt.cpp
     src/frontend/parser.cpp
@@ -57,7 +56,6 @@ target_include_directories(test_lexer PRIVATE ${CMAKE_SOURCE_DIR}/src)
 add_executable(test_ast
     tests/manual/test_ast.cpp
     src/frontend/lexer/lexer.cpp
-    src/frontend/ast/ast.cpp
     src/frontend/ast/expr.cpp
     src/frontend/ast/stmt.cpp
     src/frontend/parser.cpp
@@ -70,7 +68,6 @@ add_executable(ast_gtest
     tests/unit/frontend/test_lexer.cpp
     tests/unit/frontend/test_token.cpp
 
-    src/frontend/ast/ast.cpp
     src/frontend/ast/expr.cpp
     src/frontend/ast/stmt.cpp
     src/frontend/lexer/lexer.cpp
