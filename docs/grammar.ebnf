@@ -1,11 +1,11 @@
-# ===================================================================
+(* # ===================================================================
 # Adequate-C Language Grammar Specification
 # ===================================================================
 # Format: BNF (Backus-Naur Form)
 # File extension: .ebnf (for GitHub syntax highlighting)
 # Note: Grammar is still being worked on and includes future features
 #       that may not be implemented for v1.0
-# ===================================================================
+# =================================================================== *)
 
 <program> ::= <import-stmt> <declaration-seq>
     ::= <declaration-seq>
