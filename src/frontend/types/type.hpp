@@ -1,3 +1,4 @@
+#include <memory>
 #include <string>
 
 namespace frontend::types {
@@ -79,6 +80,22 @@ public:
 	}
 
 	[[nodiscard]] bool isPrimitive() const override { return true; }
+};
+
+class ArrayType : public Type {
+	std::unique_ptr<Type> elementType;
+	size_t size;
+public:
+	[[nodiscard]] Type* getElementType() const { return elementType.get();} 
+	[[nodiscard]] size_t getSize() const { return size;} 
+
+	[[nodiscard]] bool isPrimitive() const override { return false; }
+};
+
+class StructType : public Type {
+	std::string name;
+public:
+	[[nodiscard]] bool isPrimitive() const override { return false; }
 };
 
 }
