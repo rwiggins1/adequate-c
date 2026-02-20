@@ -46,11 +46,10 @@
 <Enum_allowed_type> ::= int
 <Enum_body> ::= <Ident> <Enum_body_tail>
 <Enum_body_tail> ::= ε
-    ::= <AssignmentStmt> <Enum_body_tail>
+    ::= = <Expr> <Enum_body_tail>
     ::= , <Enum_tail>
 <Enum_tail> ::= ε
     ::= <ident> <Enum_body_tail>
-    ::= <AssignmentStmt> <Enum_body_tail>
 
 <template> ::= template < <template-tail> >
 <template-tail> ::= <template-constraint> : <ident> <template-tail>
@@ -138,8 +137,9 @@
 
 <Expr> ::= <cond>
 
-<cond> ::= <logical-or-expression>
-    ::= <logical-or-expression> ? <expression> : <cond>
+<cond> ::= <logical-or-expression> <cond-tail>
+<cond-tail> ::= ε
+    ::= ? <Expr> : <cond>
 
 <logical-or-expression> ::= <logical-and-expression> <logical-or-expression-tail>
 <logical-or-expression-tail> ::= ε
@@ -191,7 +191,7 @@
 
 <cast-expression> ::= <unary-expression> <cast-expression-tail>
 <cast-expression-tail> ::= ε
-    ::= ( <type> ) <cast-expression>
+    ::= ( <primitive-type> ) <cast-expression>
 
 <unary-expression> ::= <postfix-expression> <unary-expression-tail>
 <unary-expression-tail> ::= ε
@@ -217,13 +217,11 @@
     ::= <literal>
     ::= ( Expr )
 
-<modifier> ::= ε
-    ::= const <modifier>
-    ::= static <modifier>
-    ::= comptime <modifier>
-
-<type> ::= <modifier> <type>
-    ::= int 
+<type> ::= <primitive-type>
+	::= const <type>
+	::= static <type>
+	::= comptime <type>
+<primitive-type> ::= int 
     ::= string 
     ::= char 
     ::= bool 
