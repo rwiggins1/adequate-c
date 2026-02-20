@@ -1,5 +1,7 @@
+#pragma once
 #include <memory>
 #include <string>
+#include <string_view>
 
 namespace frontend::types {
 
@@ -86,15 +88,35 @@ class ArrayType : public Type {
 	std::unique_ptr<Type> elementType;
 	size_t size;
 public:
+	ArrayType(std::unique_ptr<Type> elem, size_t sz)
+        	: elementType(std::move(elem)), size(sz) {}
+
+	[[nodiscard]] std::string toString() const override {
+        	return elementType->toString() + "[" + std::to_string(size) + "]";
+    	}
+
 	[[nodiscard]] Type* getElementType() const { return elementType.get();} 
 	[[nodiscard]] size_t getSize() const { return size;} 
-
+	bool equals(const Type* other) const override {
+		auto arr = dynamic_cast<const ArrayType*>(other);
+		if (!arr) { 
+			return false; 
+		}
+		return size == arr->size && elementType->equals(arr->elementType.get());
+	}
 	[[nodiscard]] bool isPrimitive() const override { return false; }
 };
 
 class StructType : public Type {
 	std::string name;
 public:
+	StructType(std::string n) : name(std::move(n)) {}
+
+	bool equals(const Type* other) const override {
+        	auto s = dynamic_cast<const StructType*>(other);
+        	return s && s->name == name;
+    	}
+	[[nodiscard]] std::string_view getName() const { return name; }
 	[[nodiscard]] bool isPrimitive() const override { return false; }
 };
 

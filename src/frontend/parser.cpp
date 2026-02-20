@@ -3,6 +3,7 @@
 #include "ast/ast.hpp"
 #include "ast/expr.hpp"
 #include "ast/stmt.hpp"
+#include "types/type.hpp"
 #include <iostream>
 #include <memory>
 #include <utility>
@@ -192,8 +193,9 @@ std::unique_ptr<ast::StmtAST> Parser::parseVarDecl() {
 		return nullptr;
 	}
 	advance(); // consume ';'
-
-	return std::make_unique<ast::VariableDeclarationAST>(type, name,
+	//
+	auto integer_type = std::make_unique<types::IntType>();
+	return std::make_unique<ast::VariableDeclarationAST>(std::move(integer_type), name,
 							std::move(initializer));
 }
 
