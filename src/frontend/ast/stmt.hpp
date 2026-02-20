@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast.hpp"
+#include "../types/type.hpp"
 #include <memory>
 #include <string>
 
@@ -38,14 +39,14 @@ public:
 
 // Variable Declaration
 class VariableDeclarationAST : public StmtAST {
-	std::string type;
+	std::unique_ptr<types::Type> type;
 	std::string name;
 	std::unique_ptr<ExprAST> initializer;
 public:
-	VariableDeclarationAST(std::string type, std::string name, 
+	VariableDeclarationAST(std::unique_ptr<types::Type> type, std::string name, 
 		std::unique_ptr<ExprAST> initializer = nullptr);
 
-	[[nodiscard]] std::string getType() const noexcept { return type; }
+	[[nodiscard]] types::Type* getType() const noexcept { return type.get(); }
 	[[nodiscard]] std::string getName() const noexcept { return name; }
 	[[nodiscard]] ExprAST* getInit() const { return initializer.get(); }
 	[[nodiscard]] bool hasInit() const noexcept { return initializer != nullptr; }
