@@ -7,13 +7,30 @@
 #       that may not be implemented for v1.0
 # =================================================================== *)
 
-<program> ::= <declaration>
+<program> ::= <import-stmt> <declaration-seq>
+    ::= <declaration-seq>
+
+<declaration-seq> ::= <main-function> <declaration>
+    ::= <declaration> <main-function> <declaration>
 
 <declaration> ::= ε
     ::= <namespace> <declaration>
     ::= <Struct> <declaration>
     ::= <function> <declaration>
     ::= <Enum> <declaration>
+
+
+<import-stmt> ::= import <ident> <import-stmt-tail>
+<import-stmt-tail> ::= ; <import-tail> 
+    ::= . <ident> <import-stmt-tail>
+<import-tail> ::= ε
+    ::= <import-stmt>
+
+
+<main-function>::= func main (<paramList>) <main-function-tail>
+
+<main-function-tail> ::= -> void { <body> }
+    ::= { <body> }
 
 <namespace> ::= namespace <ident> { <declaration> }
 
@@ -25,6 +42,27 @@
 <struct-function-tail> ::= { <body> }
     ::= ;
 
+<Enum> ::= enum <ident> : <Enum_allowed_type> { <Enum_body> }
+<Enum_allowed_type> ::= int
+<Enum_body> ::= <Ident> <Enum_body_tail>
+<Enum_body_tail> ::= ε
+    ::= = <Expr> <Enum_body_tail>
+    ::= , <Enum_tail>
+<Enum_tail> ::= ε
+    ::= <ident> <Enum_body_tail>
+
+<template> ::= template < <template-tail> >
+<template-tail> ::= <template-constraint> : <ident> <template-tail>
+    ::= , <template-constraint> : <ident> <template-tail>
+
+<template-constraint> ::= numeric
+    ::= integral
+    ::= floating
+    ::= signed
+    ::= unsigned
+    ::= comparable
+    ::= orderable
+
 <function> ::= <prototype> { <body> }
 <prototype> ::= func <function-name> <generic> ( <paramList> ) -> <return-list>
 <function-name> ::= <ident> <function-name-tail>
@@ -34,6 +72,16 @@
     ::= <type> <ident> <paramList_tail>
 <paramList_tail> ::= ε
     ::= , <type> <ident> <paramList_tail>
+<return-list> ::= <type>
+    ::= union [ <type> <return-list-tail> ]
+    ::= tuple [ <type> <return-list-tail> ]
+<return-list-tail> ::= ε
+    ::= , <type> <return-list-tail>
+
+<generic> ::= ε
+    ::= < <ident> <generic-tail> >
+<generic-tail> ::= ε
+    ::= , <ident> <generic-tail>
 
 <body> ::= ε
     ::= <Stmt> <body>
@@ -64,6 +112,16 @@
 <WhileStmt> ::= while ( <cond> ) { <body> }
 
 <DoStmt> ::= do { <body> } while ( <cond> )
+
+<SwitchStmt> ::= switch ( <Switch_allowed_type> ) { <Switch_body> }
+<Switch_body> ::= <case_list>
+<case_list> ::= <case_clause> <case_list>
+<case_clause> ::= case <Switch_allowed_literal> : <body>
+    ::= default : <body>
+<Switch_allowed_type> ::= int 
+    ::= char
+<Switch_allowed_literal> ::= Int_lit 
+    ::= char_lit
 
 <ReturnStmt> ::= return <ReturnStmt-tail>
 <ReturnStmt-tail> ::= ;
@@ -160,6 +218,7 @@
 <type> ::= <primitive-type>
 	::= const <type>
 	::= static <type>
+	::= comptime <type>
 <primitive-type> ::= int 
     ::= string 
     ::= char 
