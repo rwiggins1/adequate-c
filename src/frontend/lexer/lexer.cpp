@@ -189,7 +189,11 @@ Token Lexer::tokenize() {
 			}
 			return {TokenType::DIVIDE, "/", line, column};
 		case '%':
-			return makeToken(TokenType::MODULO, "%");
+			advance();
+			if (current == '=') {
+				return makeToken(TokenType::MODULO_ASSIGN, "%=");
+			}
+			return {TokenType::MODULO, "%", line, column};
 		case '=':
 			advance();
 			if (current == '=') {
@@ -208,7 +212,11 @@ Token Lexer::tokenize() {
 				return makeToken(TokenType::GREATER_EQUAL, ">=");
 			}
 			if (current == '>') {
-				return makeToken(TokenType::RIGHT_SHIFT, ">>");
+				advance();
+				if (current == '=') {
+					return makeToken(TokenType::RIGHT_SHIFT_ASSIGN, ">>=");
+				}
+				return {TokenType::RIGHT_SHIFT, ">>", line, column};
 			}
 			return {TokenType::GREATER, ">", line, column};
 		case '<':
@@ -217,7 +225,11 @@ Token Lexer::tokenize() {
 				return makeToken(TokenType::LESS_EQUAL, "<");
 			}
 			if (current == '<') {
-				return makeToken(TokenType::LEFT_SHIFT, "<<");
+				advance();
+				if (current == '=') {
+					return makeToken(TokenType::LEFT_SHIFT_ASSIGN, "<<=");
+				}
+				return {TokenType::LEFT_SHIFT, "<<", line, column};
 			}
 			return {TokenType::LESS, "<", line, column};
 		case '&':
@@ -225,15 +237,27 @@ Token Lexer::tokenize() {
 			if (current == '&') {
 				return makeToken(TokenType::AND, "&&");
 			}
-			return makeToken(TokenType::BIT_AND, "&");
+			if (current == '=') {
+				return makeToken(TokenType::BIT_AND_ASSIGN, "&=");
+			}
+			return {TokenType::BIT_AND, "&", line, column};
 		case '|':
 			advance();
 			if (current == '|') {
 				return makeToken(TokenType::OR, "||");
 			}
-			return makeToken(TokenType::BIT_OR, "|");
+			if (current == '=') {
+				return makeToken(TokenType::BIT_OR_ASSIGN, "|=");
+			}
+			return {TokenType::BIT_OR, "|", line, column};
 		case '^':
-			return makeToken(TokenType::BIT_XOR, "^");
+			advance();
+			if (current == '=') {
+				return makeToken(TokenType::BIT_XOR_ASSIGN, "^=");
+			}
+			return {TokenType::BIT_XOR, "^", line, column};
+		case '~':
+			return makeToken(TokenType::BIT_NOT, "~");
 		case '@':
 			return makeToken(TokenType::REFERENCE, "@");
 		case '.':

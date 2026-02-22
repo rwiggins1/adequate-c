@@ -1,17 +1,22 @@
 #include "parser.hpp"
+#include "diagnostics/diagnostics.hpp"
 #include "lexer/token.hpp"
 #include "ast/ast.hpp"
 #include "ast/expr.hpp"
 #include "ast/stmt.hpp"
 #include "types/type.hpp"
+#include <cstddef>
 #include <iostream>
 #include <memory>
 #include <utility>
 #include <vector>
+#include <variant>
 
 namespace frontend {
 
-Parser::Parser(Lexer &lex) : lexer(lex), current(lexer.get()) {}
+// !TODO remove lexer.get initialization
+Parser::Parser(Lexer &lex, ErrorReporter &errors) 
+	: lexer(lex), current(lexer.get()), errors(errors) {}
 
 void Parser::advance() { current = lexer.get(); }
 
@@ -46,157 +51,171 @@ bool Parser::expect(TokenType type) {
 	return true;
 }
 
-std::unique_ptr<ast::ExprAST> Parser::parseNumberLiteral() {
-	double value = std::stod(current.lexeme);
-	advance();
-	return std::make_unique<ast::NumberLiteralAST>(value);
-}
 
-std::unique_ptr<ast::ExprAST> Parser::parseStringLiteral() {
-	std::string value = current.lexeme;
-	advance();
-	return std::make_unique<ast::StringLiteralAST>(value);
-}
-
-std::unique_ptr<ast::ExprAST> Parser::parseCharacterLiteral() {
-	std::string str = current.lexeme;
-	const char *value = str.c_str();
-	advance();
-	return std::make_unique<ast::CharLiteralAST>(*value);
-}
-
-std::unique_ptr<ast::ExprAST> Parser::parseBooleanLiteral() {
-	bool value = current.type == TokenType::TRUE;
-	advance();
-	return std::make_unique<ast::BoolLiteralAST>(value);
-}
-
-std::unique_ptr<ast::ExprAST> Parser::parseUnaryExpr() {
-	std::string op;
-	std::unique_ptr<ast::ExprAST> operand = nullptr;
-	
-	// if post-fix operator (identifier++)
-	if (current.type == TokenType::IDENT) {
-		operand = parsePrimaryExpr();
-		advance();
-		op = current.lexeme;
-		return std::make_unique<ast::UnaryExprAST>(op, std::move(operand));
-	}
-
-	// if pre-fixed operator (!identifier)
-	op = current.lexeme;
-	advance();
-	operand = parsePrimaryExpr();
-	return std::make_unique<ast::UnaryExprAST>(op, std::move(operand));
-}
-
-// TODO: Add nested Expr support (Operator precedence)
-// TODO: Use Maximal Munch
-std::unique_ptr<ast::ExprAST> Parser::parseBinaryExpr() {
-	std::unique_ptr<ast::ExprAST> lhs = parsePrimaryExpr();
-	std::string op = current.lexeme;
-	advance();
-	std::unique_ptr<ast::ExprAST> rhs = parsePrimaryExpr();
-	return std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
-}
-
-std::unique_ptr<ast::ExprAST> Parser::parseVarExpr() {
-	std::string name = current.lexeme;
-	advance();
-	return std::make_unique<ast::VariableExprAST>(name);
-}
-
-std::unique_ptr<ast::ExprAST> Parser::parseIdentifierExpr() {
-	std::string name = current.lexeme;
-	advance(); // eats identifier
-
-	if (match(TokenType::OPAREN)) {
-		return parseFunctionCallExpr(name);
-	}
-
-	return std::make_unique<ast::VariableExprAST>(name);
-}
-
-// TODO: Allow function calls as arguments
-std::unique_ptr<ast::ExprAST> Parser::parseFunctionCallExpr(std::string& name) {
-	advance(); // eat (
-	std::vector<std::unique_ptr<ast::ExprAST>> args; 
-	
-	while (!match(TokenType::CPAREN)) {
-		if (auto arg = parsePrimaryExpr()) {
-			args.push_back(std::move(arg));
-		}
-		else {
-			return nullptr;
-		}
-
-		if (match(TokenType::COMMA)) {
-			advance();
-			if (match(TokenType::CPAREN)) { // trailing comma: foo(x,)
-				return nullptr; 
-			}
-		}
-		else if (!match(TokenType::CPAREN)) { // if not ',' must be ')'
-			return nullptr;
-		}
-	}
-	advance();
-	return std::make_unique<ast::CallExprAST>(name, std::move(args));
-}
-
-std::unique_ptr<ast::ExprAST> Parser::parsePrimaryExpr() {
+std::unique_ptr<ast::ASTNode> Parser::literal() {
 	switch (current.type) {
-		case TokenType::NUMBER:
-			return parseNumberLiteral();
-		case TokenType::STRING_LIT:
-			return parseStringLiteral();
-		case TokenType::CHAR_LIT:
-			return parseCharacterLiteral();
-
-		case TokenType::TRUE:
-		case TokenType::FALSE:
-			return parseBooleanLiteral();
-
-		case TokenType::IDENT:
-			return parseIdentifierExpr();
-
-		case TokenType::OPAREN:
-			return nullptr; // TODO: add parseParenExpr()
+		case TokenType::NUMBER: {
+			auto result = std::make_unique<ast::NumberLiteralAST>(std::stod(current.lexeme));
+			advance();
+			return result;
+		}
+		case TokenType::STRING_LIT: {
+			auto result = std::make_unique<ast::StringLiteralAST>(std::move(current.lexeme));
+			advance();
+			return result;
+		}
+		case TokenType::CHAR_LIT: {
+			std::string temp = current.lexeme;
+			const char *value = temp.c_str();
+			auto result = std::make_unique<ast::CharLiteralAST>(*value);
+			advance();
+			return result;
+		}
+		case TokenType::TRUE: {
+			auto result = std::make_unique<ast::BoolLiteralAST>(false);
+			advance();
+			return result;
+		}
+		case TokenType::FALSE: {
+			auto result = std::make_unique<ast::BoolLiteralAST>(false);
+			advance();
+			return result;
+		}
 		default:
+			errors.error(
+                	"Expected literal but got " + current.lexeme,
+                	current.line,
+                	current.column
+            		);
 			return nullptr;
 	}
 }
 
-std::unique_ptr<ast::StmtAST> Parser::parseVarDecl() {
-	// int test = 3;
-
-	if (!isType(current.type)) {
-		return nullptr;
-	}
-	std::string type = current.lexeme;
-	advance();
-
-	if (!expect(TokenType::IDENT)) {
-		return nullptr;
-	}
-	std::string name = current.lexeme;
-	advance();
-
-	std::unique_ptr<ast::ExprAST> initializer = nullptr;
-
-	if (match(TokenType::ASSIGN)) {
-		advance(); // consume '='
-		initializer = parsePrimaryExpr();
-	}
-
-	if (!expect(TokenType::SEMICOLON)) {
-		return nullptr;
-	}
-	advance(); // consume ';'
-	//
-	auto integer_type = std::make_unique<types::IntType>();
-	return std::make_unique<ast::VariableDeclarationAST>(std::move(integer_type), name,
-							std::move(initializer));
+bool Parser::unaryOperator() const {
+	return current.type == TokenType::BIT_AND ||
+		current.type == TokenType::MULTIPLY ||
+		current.type == TokenType::PLUS ||
+		current.type == TokenType::MINUS ||
+		current.type == TokenType::BIT_NOT ||
+		current.type == TokenType::NOT;
 }
 
-} // namespace frontend
+bool Parser::assignmentOperator() const {
+	return current.type == TokenType::EQUAL ||
+		current.type == TokenType::MULTIPLY_ASSIGN ||
+		current.type == TokenType::DIVIDE_ASSIGN ||
+		current.type == TokenType::MODULO_ASSIGN ||
+		current.type == TokenType::PLUS_ASSIGN ||
+		current.type == TokenType::MINUS_ASSIGN ||
+		current.type == TokenType::LEFT_SHIFT_ASSIGN ||
+		current.type == TokenType::RIGHT_SHIFT_ASSIGN ||
+		current.type == TokenType::BIT_AND_ASSIGN ||
+		current.type == TokenType::BIT_XOR_ASSIGN ||
+		current.type == TokenType::BIT_OR_ASSIGN;
+}
+
+std::unique_ptr<types::Type> Parser::primitiveType() {
+	switch (current.type) {
+		case TokenType::INT: {
+			advance();
+			return std::make_unique<types::IntType>();
+		}
+		case TokenType::STRING: {
+			advance();
+			return std::make_unique<types::StringType>();
+		}
+		case TokenType::CHAR: {
+			advance();
+			return std::make_unique<types::CharType>();
+		}
+		case TokenType::BOOL: {
+			advance();
+			return std::make_unique<types::BoolType>();
+		}
+		case TokenType::FLOAT: {
+			advance();
+			return std::make_unique<types::FloatType>();
+		}
+		case TokenType::DOUBLE: {
+			advance();
+			return std::make_unique<types::DoubleType>();
+		}
+		case TokenType::VOID: {
+			advance();
+			return std::make_unique<types::VoidType>();
+		}
+		default:
+			errors.error(
+                	"Expected primitive type but got " + current.lexeme,
+                	current.line,
+                	current.column
+            		);
+			return nullptr;
+	}
+}
+
+std::unique_ptr<types::Type> Parser::type() {
+	switch (current.type) {
+		case TokenType::CONST: {
+			advance();
+			if (auto inner_type = type(); inner_type) { 
+				return std::make_unique<types::ConstType>(std::move(inner_type));
+			}
+			errors.error(
+                	"Expected type after 'const' but got " + current.lexeme,
+                	current.line,
+                	current.column
+            		);
+			return nullptr;
+		}
+		case TokenType::STATIC: {
+			advance();
+			if (auto inner_type = type(); inner_type) {
+				return std::make_unique<types::StaticType>(std::move(inner_type));
+			}
+			errors.error(
+                	"Expected type after 'static' but got " + current.lexeme,
+                	current.line,
+                	current.column
+            		);
+			return nullptr;
+		}
+		default:
+			return primitiveType();
+	}
+}
+
+std::unique_ptr<ast::ASTNode> Parser::primaryExpr() {
+	if (current.type == TokenType::IDENT) {
+		auto name = std::make_unique<ast::VariableExprAST>(std::move(current.lexeme));
+		advance();
+		return name;
+	}
+	if (auto lit = literal(); lit) {
+		return lit;
+	}
+	if (current.type == TokenType::LBRACE) {
+		advance();
+		if (auto expr = parseExpression(); expr) {
+			advance();
+			if (current.type == TokenType::RBRACE) {
+				advance();
+				return expr;
+			}
+			errors.error(
+			"Expected '}' but got " + current.lexeme,
+			current.line,
+			current.column
+			);
+			return nullptr;
+		}
+	}
+	errors.error(
+	"Expected identifier or '{' but got " + current.lexeme,
+	current.line,
+	current.column
+	);
+	return nullptr;
+}
+
+}

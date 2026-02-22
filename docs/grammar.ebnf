@@ -74,8 +74,7 @@
     ::= [ <additive-expression> ] = <Expr>;
     ::= = <Expr>;
 
-<AssignmentStmt> ::= <ident> = <AssignmentStmt_tail> ;
-<AssignmentStmt_tail> ::= <Expr>
+<AssignmentStmt> ::= <ident> <assignment-operator> <Expr> ;
 
 <Expr> ::= <cond>
 
@@ -135,9 +134,8 @@
 <cast-expression-tail> ::= ε
     ::= ( <primitive-type> ) <cast-expression>
 
-<unary-expression> ::= <postfix-expression> <unary-expression-tail>
-<unary-expression-tail> ::= ε
-    ::= <unary-operator> <cast-expression>
+<unary-expression> ::= <unary-operator> <postfix-expression>
+	::= <postfix-expression>
 
 <postfix-expression> ::= <primary-expression> <postfix-expression-tail>
 <postfix-expression-tail> ::= ε
@@ -148,24 +146,25 @@
     ::= ++
     ::= --
 
-<arg-list> ::=    ε 
-    ::= <Expr> <arg-list-tail>
-<arg-list-tail> ::= ε
-    ::= , <Expr> <arg-list-tail>
+<arg-list> ::= <Expr> <arg-list-tail>
+	::=    ε 
+<arg-list-tail> ::= , <Expr> <arg-list-tail>
+	::=    ε 
 
 <primary-expression> ::= <ident>
     ::= <literal>
     ::= ( Expr )
 
-<type> ::= <primitive-type>
-	::= const <type>
+<type> ::= const <type>
 	::= static <type>
+	::= <primitive-type>
 <primitive-type> ::= int 
     ::= string 
     ::= char 
     ::= bool 
     ::= float 
     ::= double
+    ::= void
 <type-list> ::= ε
     ::= , <type> <type-list>
 
