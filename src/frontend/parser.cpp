@@ -194,11 +194,10 @@ std::unique_ptr<ast::ASTNode> Parser::primaryExpr() {
 	if (auto lit = literal(); lit) {
 		return lit;
 	}
-	if (current.type == TokenType::LBRACE) {
+	if (current.type == TokenType::OPAREN) {
 		advance();
 		if (auto expr = parseExpression(); expr) {
-			advance();
-			if (current.type == TokenType::RBRACE) {
+			if (current.type == TokenType::CPAREN) {
 				advance();
 				return expr;
 			}
@@ -211,7 +210,7 @@ std::unique_ptr<ast::ASTNode> Parser::primaryExpr() {
 		}
 	}
 	errors.error(
-	"Expected identifier or '{' but got " + current.lexeme,
+	"Expected identifier, literal or '(' but got " + current.lexeme,
 	current.line,
 	current.column
 	);
