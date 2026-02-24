@@ -37,8 +37,8 @@ TEST(astTest, BoolLiteral) {
 
 TEST(astTest, UnaryExpr) {
 	auto bool_lit = std::make_unique<BoolLiteralAST>(true);
-	auto unary = std::make_unique<UnaryExprAST>("!", std::move(bool_lit));
-	ASSERT_EQ(unary->getOperator(), "!");
+	auto unary = std::make_unique<UnaryExprAST>(UnaryOp::NOT, std::move(bool_lit));
+	ASSERT_EQ(unary->getOperator(), UnaryOp::NOT);
 
 	ExprAST* literal = unary->getOperand();
 	auto* boolLiteral = dynamic_cast<BoolLiteralAST*>(literal);
@@ -50,8 +50,8 @@ TEST(astTest, UnaryExpr) {
 TEST(astTest, BinaryExpr) {
 	auto two = std::make_unique<NumberLiteralAST>(2);
 	auto three = std::make_unique<NumberLiteralAST>(3);
-	auto add = std::make_unique<BinaryExprAST>("+", std::move(two), std::move(three));
-	ASSERT_EQ(add->getOperator(), "+");
+	auto add = std::make_unique<BinaryExprAST>(BinaryOp::ADD, std::move(two), std::move(three));
+	ASSERT_EQ(add->getOperator(), BinaryOp::ADD);
 
 	ExprAST* lhs = add->getLhs();
 	auto* lhsLiteral = dynamic_cast<NumberLiteralAST*>(lhs);

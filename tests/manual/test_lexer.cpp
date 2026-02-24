@@ -22,16 +22,9 @@ const char* tokenTypeToString(TokenType type) {
 	case TokenType::CASE: return "CASE";
 	case TokenType::DEFAULT: return "DEFAULT";
 	case TokenType::STRUCT: return "STRUCT";
-	case TokenType::CLASS: return "CLASS";
 	case TokenType::ENUM: return "ENUM";
 	case TokenType::STATIC: return "STATIC";
-	case TokenType::PUBLIC: return "PUBLIC";
-	case TokenType::PRIVATE: return "PRIVATE";
-	case TokenType::TRY: return "TRY";
-	case TokenType::CATCH: return "CATCH";
-	case TokenType::THROW: return "THROW";
 	case TokenType::NAMESPACE: return "NAMESPACE";
-	case TokenType::OPERATOR: return "OPERATOR";
 	case TokenType::IMPORT: return "IMPORT";
 	case TokenType::INT: return "INT";
 	case TokenType::FLOAT: return "FLOAT";
