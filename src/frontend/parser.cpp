@@ -5,6 +5,7 @@
 #include "ast/expr.hpp"
 #include "ast/stmt.hpp"
 #include "types/type.hpp"
+#include "gtest/gtest.h"
 #include <cstddef>
 #include <iostream>
 #include <memory>
@@ -216,5 +217,11 @@ std::unique_ptr<ast::ASTNode> Parser::primaryExpr() {
 	);
 	return nullptr;
 }
+
+std::unique_ptr<ast::ExprAST> Parser::parseExpression() {
+	return nullptr;
+}
+
+std::unique_ptr<ast::StmtAST> Parser::parseVarDecl() { return nullptr; }
 
 }
