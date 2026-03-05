@@ -70,6 +70,7 @@ add_executable(ast_gtest
 
     src/frontend/ast/expr.cpp
     src/frontend/ast/stmt.cpp
+    src/frontend/ast/decl.cpp
     src/frontend/lexer/lexer.cpp
     src/frontend/parser.cpp
 )

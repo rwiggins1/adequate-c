@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ast.hpp"
-#include "../types/type.hpp"
+#include "decl.hpp"
 #include <memory>
 #include <string>
 
@@ -35,21 +35,6 @@ public:
 	AssignmentStmtAST(std::string varName, std::unique_ptr<ExprAST>value);
 	[[nodiscard]] std::string getVariableName() const {return varName; }
 	[[nodiscard]] ExprAST* getValue() const { return value.get(); }
-};
-
-// Variable Declaration
-class VariableDeclarationAST : public StmtAST {
-	std::unique_ptr<types::Type> type;
-	std::string name;
-	std::unique_ptr<ExprAST> initializer;
-public:
-	VariableDeclarationAST(std::unique_ptr<types::Type> type, std::string name, 
-		std::unique_ptr<ExprAST> initializer = nullptr);
-
-	[[nodiscard]] types::Type* getType() const noexcept { return type.get(); }
-	[[nodiscard]] std::string getName() const noexcept { return name; }
-	[[nodiscard]] ExprAST* getInit() const { return initializer.get(); }
-	[[nodiscard]] bool hasInit() const noexcept { return initializer != nullptr; }
 };
 
 class IfStmtAST : public StmtAST {

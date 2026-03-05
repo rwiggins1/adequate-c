@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ast.hpp"
-#include "stmt.hpp"
 #include "../types/type.hpp"
 #include <algorithm>
 #include <memory>
@@ -9,6 +8,21 @@
 #include <vector>
 
 namespace frontend::ast {
+// Variable Declaration
+class VariableDeclarationAST : public DeclAST {
+	std::unique_ptr<types::Type> type;
+	std::string name;
+	std::unique_ptr<ExprAST> initializer;
+public:
+	VariableDeclarationAST(std::unique_ptr<types::Type> type, std::string name, 
+		std::unique_ptr<ExprAST> initializer = nullptr);
+
+	[[nodiscard]] types::Type* getType() const noexcept { return type.get(); }
+	[[nodiscard]] std::string getName() const noexcept { return name; }
+	[[nodiscard]] ExprAST* getInit() const { return initializer.get(); }
+	[[nodiscard]] bool hasInit() const noexcept { return initializer != nullptr; }
+};
+
 /// PrototypeAST - Function signature
 /// Captures: name, parameters with types, and return type
 class PrototypeAST {
