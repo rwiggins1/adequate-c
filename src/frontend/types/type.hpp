@@ -122,12 +122,17 @@ class StructType : public Type {
 public:
 	StructType(std::string n) : name(std::move(n)) {}
 
+	[[nodiscard]] std::string toString() const override {
+		return "struct " + name;
+	}
+
 	bool equals(const Type* other) const override {
         	auto s = dynamic_cast<const StructType*>(other);
         	return s && s->name == name;
     	}
 	[[nodiscard]] std::string_view getName() const { return name; }
 	[[nodiscard]] bool isPrimitive() const override { return false; }
+	[[nodiscard]] bool isStruct() const override { return true; }
 };
 
 class ConstType : public Type {
