@@ -9,18 +9,17 @@
 
 <program> ::= <declaration>
 
-<declaration> ::= ε
-    ::= <namespace> <declaration>
+<declaration> ::= <namespace> <declaration>
     ::= <Struct> <declaration>
     ::= <function> <declaration>
-    ::= <Enum> <declaration>
+    ::= ε
 
 <namespace> ::= namespace <ident> { <declaration> }
 
-<Struct> ::= struct <ident> <generic> { <Struct_body> }
-<Struct_body> ::= ε
-    ::= <VarDec> <Struct_body>
-    ::= <struct-function> <Struct_body>
+<struct> ::= struct <ident> { <Struct_body> }
+<struct-body> ::= <VarDec> <struct-body>
+    ::= <struct-function> <struct-body>
+    ::= ε
 <struct-function> ::= <prototype> <struct-function-tail>
 <struct-function-tail> ::= { <body> }
     ::= ;
@@ -28,16 +27,16 @@
 <function> ::= <prototype> { <body> }
 <prototype> ::= func <function-name> <generic> ( <paramList> ) -> <return-list>
 <function-name> ::= <ident> <function-name-tail>
-<function-name-tail> ::= ε
-    ::= :: <ident> <function-name-tail>
-<paramList> ::= ε
-    ::= <type> <ident> <paramList_tail>
-<paramList_tail> ::= ε
-    ::= , <type> <ident> <paramList_tail>
+<function-name-tail> ::= :: <ident> <function-name-tail>
+    ::= ε
+<param-list> ::= <type> <ident> <param-list-tail>
+    ::= ε
+<paramlist-tail> ::= , <type> <ident> <param-list-tail>
+    ::= ε
 
-<body> ::= ε
-    ::= <Stmt> <body>
+<body> ::= <Stmt> <body>
     ::= <VarDec> <body>
+    ::= ε
 
 <Stmt> ::= <IfStmt> <Stmt_tail>
     ::= <ForStmt> <Stmt_tail>
@@ -48,12 +47,12 @@
     ::= <BreakStmt> <Stmt_tail>
     ::= <AssignmentStmt> <Stmt_tail>
 
-<Stmt_tail> ::= ε 
-    ::= <Stmt> <Stmt_tail>
+<Stmt_tail> ::= <Stmt> <Stmt_tail>
+    ::= ε
 
 <IfStmt> ::= if ( <cond> ) { <body> } <IfStmt_tail>
-<IfStmt_tail> ::= ε
-    ::= else <elseStmt>
+<IfStmt_tail> ::= else <elseStmt>
+    ::= ε
 <elseStmt> ::= <IfStmt>
     ::= { <body> }
 
@@ -79,72 +78,72 @@
 <Expr> ::= <cond>
 
 <cond> ::= <logical-or-expression> <cond-tail>
-<cond-tail> ::= ε
-    ::= ? <Expr> : <cond>
+<cond-tail> ::= ? <Expr> : <cond>
+	::= ε
 
 <logical-or-expression> ::= <logical-and-expression> <logical-or-expression-tail>
-<logical-or-expression-tail> ::= ε
-	::= || <logical-and-expression>
+<logical-or-expression-tail> ::= || <logical-and-expression>
+    ::= ε
 
 <logical-and-expression> ::= <inclusive-or-expression> <logical-and-expression-tail>
-<logical-and-expression-tail> ::= ε
-    ::= && <inclusive-or-expression>
+<logical-and-expression-tail> ::= && <inclusive-or-expression>
+    ::= ε
 
 <inclusive-or-expression> ::= <exclusive-or-expression> <inclusive-or-expression-tail>
-<inclusive-or-expression-tail> ::= ε
-        ::= | <exclusive-or-expression>
+<inclusive-or-expression-tail> ::= | <exclusive-or-expression>
+    ::= ε
 
 <exclusive-or-expression> ::= <and-expression> <exclusive-or-expression-tail>
-<exclusive-or-expression-tail> ::= ε
-        ::= ^ <and-expression>
+<exclusive-or-expression-tail> ::= ^ <and-expression>
+    ::= ε
 
 <and-expression> ::= <equality-expression> <and-expression-tail>
-<and-expression-tail> ::= ε
-        ::= & <equality-expression>
+<and-expression-tail> ::= & <equality-expression>
+	::= ε
 
 <equality-expression> ::= <relational-expression> <equality-expression-tail>
-<equality-expression-tail> ::= ε
-    ::= == <relational-expression>
+<equality-expression-tail> ::= == <relational-expression>
     ::= != <relational-expression>
+    ::= ε
 
 <relational-expression> ::= <shift-expression> <relational-expression-tail>
-<relational-expression-tail> ::= ε
-      ::= < <shift-expression>
+<relational-expression-tail> ::= < <shift-expression>
       ::= > <shift-expression>
       ::= <= <shift-expression>
       ::= >= <shift-expression>
+      ::= ε
 
 <shift-expression> ::= <additive-expression> <shift-expression-tail>
-<shift-expression-tail> ::= ε
-    ::= << <additive-expression>
+<shift-expression-tail> ::= << <additive-expression>
     ::= >> <additive-expression>
+    ::= ε
 
 <additive-expression> ::= <multiplicative-expression> <additive-expression-tail>
-<additive-expression-tail> ::= ε
-    ::= + <multiplicative-expression>
+<additive-expression-tail> ::= + <multiplicative-expression>
     ::= - <multiplicative-expression>
+    ::= ε
 
 <multiplicative-expression> ::= <cast-expression> <multiplicative-expression-tail>
-<multiplicative-expression-tail> ::= ε
-    ::= * <cast-expression>
+<multiplicative-expression-tail> ::= * <cast-expression>
     ::= / <cast-expression>
     ::= % <cast-expression>
+    ::= ε
 
 <cast-expression> ::= <unary-expression> <cast-expression-tail>
-<cast-expression-tail> ::= ε
-    ::= ( <primitive-type> ) <cast-expression>
+<cast-expression-tail> ::= ( <primitive-type> ) <cast-expression>
+    ::= ε
 
 <unary-expression> ::= <unary-operator> <postfix-expression>
 	::= <postfix-expression>
 
 <postfix-expression> ::= <primary-expression> <postfix-expression-tail>
-<postfix-expression-tail> ::= ε
-    ::= [ <Expr> ]
+<postfix-expression-tail> ::= [ <Expr> ]
     ::= ( <arg-list> )
     ::= . <ident>
     ::= :: <ident>
     ::= ++
     ::= --
+    ::= ε
 
 <arg-list> ::= <Expr> <arg-list-tail>
 	::=    ε 
@@ -165,8 +164,6 @@
     ::= float 
     ::= double
     ::= void
-<type-list> ::= ε
-    ::= , <type> <type-list>
 
 <assignment-operator> ::= =
     ::= *=

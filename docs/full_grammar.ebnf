@@ -34,10 +34,10 @@
 
 <namespace> ::= namespace <ident> { <declaration> }
 
-<Struct> ::= struct <ident> <generic> { <Struct_body> }
-<Struct_body> ::= ε
-    ::= <VarDec> <Struct_body>
-    ::= <struct-function> <Struct_body>
+<struct> ::= struct <ident> <generic> { <Struct_body> }
+<struct-body> ::= <VarDec> <struct_body>
+    ::= <struct-function> <struct_body>
+    ::= ε
 <struct-function> ::= <prototype> <struct-function-tail>
 <struct-function-tail> ::= { <body> }
     ::= ;
@@ -45,11 +45,11 @@
 <Enum> ::= enum <ident> : <Enum_allowed_type> { <Enum_body> }
 <Enum_allowed_type> ::= int
 <Enum_body> ::= <Ident> <Enum_body_tail>
-<Enum_body_tail> ::= ε
-    ::= = <Expr> <Enum_body_tail>
+<Enum_body_tail> ::= = <Expr> <Enum_body_tail>
     ::= , <Enum_tail>
-<Enum_tail> ::= ε
-    ::= <ident> <Enum_body_tail>
+    ::= ε
+<Enum_tail> ::= <ident> <Enum_body_tail>
+    ::= ε
 
 <template> ::= template < <template-tail> >
 <template-tail> ::= <template-constraint> : <ident> <template-tail>
