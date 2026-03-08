@@ -181,6 +181,20 @@ std::unique_ptr<types::Type> Parser::type() {
             		);
 			return nullptr;
 		}
+		case TokenType::STRUCT: {
+			advance();
+			if (current.type == TokenType::IDENT) {
+				std::string struct_name = current.lexeme;
+				advance();
+				return std::make_unique<types::StructType>(std::move(struct_name));
+			}
+			errors.error(
+                	"Expected identifier after 'struct' but got " + current.lexeme,
+                	current.line,
+                	current.column
+            		);
+			return nullptr;
+		}
 		default:
 			return primitiveType();
 	}

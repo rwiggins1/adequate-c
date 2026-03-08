@@ -221,6 +221,7 @@
 <type> ::= const <type>
 	::= static <type>
 	::= comptime <type>
+	::= struct <ident>
 	::= <primitive-type>
 <primitive-type> ::= int 
     ::= string 

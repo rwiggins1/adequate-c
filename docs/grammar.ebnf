@@ -157,6 +157,7 @@
 
 <type> ::= const <type>
 	::= static <type>
+	::= struct <ident>
 	::= <primitive-type>
 <primitive-type> ::= int 
     ::= string 
