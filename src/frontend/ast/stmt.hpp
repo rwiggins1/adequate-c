@@ -21,12 +21,9 @@ public:
 	[[nodiscard]] ExprAST* getValue() const { return value.get(); }
 };
 
-class BreakStmtAST : public StmtAST {
-	std::unique_ptr<ExprAST> value;
-public:
-	BreakStmtAST(std::unique_ptr<ExprAST> value);
-	[[nodiscard]] ExprAST* getValue() const { return value.get(); }
-};
+class BreakStmtAST : public StmtAST {};
+
+class ContinueStmtAST : public StmtAST {};
 
 class AssignmentStmtAST: public StmtAST {
 	std::string varName;

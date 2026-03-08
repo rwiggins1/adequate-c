@@ -92,9 +92,10 @@
     ::= <WhileStmt> <Stmt_tail>
     ::= <DoStmt> <Stmt_tail>
     ::= <SwitchStmt> <Stmt_tail>
+    ::= <AssignmentStmt> <Stmt_tail>
     ::= <ReturnStmt>
     ::= <BreakStmt> <Stmt_tail>
-    ::= <AssignmentStmt> <Stmt_tail>
+    ::= <ContinueStmt> <Stmt_tail>
 
 <Stmt_tail> ::= ε 
     ::= <Stmt> <Stmt_tail>
@@ -128,6 +129,8 @@
     ::= <Expr> ;
 
 <BreakStmt> ::= break ;
+
+<ContinueStmt> ::= continue ;
 
 <VarDec> ::= <type> <ident> <VarDec_tail>
 <VarDec_tail> ::= ;

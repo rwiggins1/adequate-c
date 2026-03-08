@@ -41,9 +41,10 @@
 <Stmt> ::= <IfStmt> <Stmt_tail>
     ::= <ForStmt> <Stmt_tail>
     ::= <WhileStmt> <Stmt_tail>
+    ::= <AssignmentStmt> <Stmt_tail>
     ::= <ReturnStmt>
     ::= <BreakStmt> <Stmt_tail>
-    ::= <AssignmentStmt> <Stmt_tail>
+    ::= <ContinueStmt> <Stmt_tail>
 
 <Stmt_tail> ::= <Stmt> <Stmt_tail>
     ::= ε
@@ -65,6 +66,8 @@
     ::= <Expr> ;
 
 <BreakStmt> ::= break ;
+
+<ContinueStmt> ::= continue ;
 
 <VarDec> ::= <type> <ident> <VarDec_tail>
 <VarDec_tail> ::= ;

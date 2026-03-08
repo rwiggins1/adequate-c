@@ -10,9 +10,6 @@ BlockStmtAST::BlockStmtAST(std::vector<std::unique_ptr<StmtAST>> stmts)
 ReturnStmtAST::ReturnStmtAST(std::unique_ptr<ExprAST> value)
     : value(std::move(value)) {}
 
-BreakStmtAST::BreakStmtAST(std::unique_ptr<ExprAST> value)
-    : value(std::move(value)) {}
-
 AssignmentStmtAST::AssignmentStmtAST(std::string varName,
 				     std::unique_ptr<ExprAST> value)
     : varName(std::move(varName)), value(std::move(value)) {}

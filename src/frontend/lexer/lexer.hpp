@@ -25,6 +25,7 @@ private:
 		{"while", TokenType::WHILE},
 		{"return", TokenType::RETURN},
 		{"break", TokenType::BREAK},
+		{"continue", TokenType::CONTINUE},
 
 		{"switch", TokenType::SWITCH},
 		{"case", TokenType::CASE},
