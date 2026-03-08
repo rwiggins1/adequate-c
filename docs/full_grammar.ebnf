@@ -64,14 +64,14 @@
     ::= orderable
 
 <function> ::= <prototype> { <body> }
-<prototype> ::= func <function-name> <generic> ( <paramList> ) -> <return-list>
+<prototype> ::= func <function-name> <generic> ( <param-list> ) -> <return-list>
 <function-name> ::= <ident> <function-name-tail>
 <function-name-tail> ::= ε
     ::= :: <ident> <function-name-tail>
-<paramList> ::= ε
-    ::= <type> <ident> <paramList_tail>
-<paramList_tail> ::= ε
-    ::= , <type> <ident> <paramList_tail>
+<param-list> ::= ε
+    ::= <type> <ident> <param-list-tail>
+<param-list-tail> ::= ε
+    ::= , <type> <ident> <param-list-tail>
 <return-list> ::= <type>
     ::= union [ <type> <return-list-tail> ]
     ::= tuple [ <type> <return-list-tail> ]
@@ -126,6 +126,8 @@
 <ReturnStmt> ::= return <ReturnStmt-tail>
 <ReturnStmt-tail> ::= ;
     ::= <Expr> ;
+
+<BreakStmt> ::= break ;
 
 <VarDec> ::= <type> <ident> <VarDec_tail>
 <VarDec_tail> ::= ;

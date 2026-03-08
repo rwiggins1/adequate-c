@@ -25,13 +25,13 @@
     ::= ;
 
 <function> ::= <prototype> { <body> }
-<prototype> ::= func <function-name> <generic> ( <paramList> ) -> <return-list>
+<prototype> ::= func <function-name> ( <param-list> ) -> <type>
 <function-name> ::= <ident> <function-name-tail>
 <function-name-tail> ::= :: <ident> <function-name-tail>
     ::= ε
 <param-list> ::= <type> <ident> <param-list-tail>
     ::= ε
-<paramlist-tail> ::= , <type> <ident> <param-list-tail>
+<param-list-tail> ::= , <type> <ident> <param-list-tail>
     ::= ε
 
 <body> ::= <Stmt> <body>
@@ -41,8 +41,6 @@
 <Stmt> ::= <IfStmt> <Stmt_tail>
     ::= <ForStmt> <Stmt_tail>
     ::= <WhileStmt> <Stmt_tail>
-    ::= <DoStmt> <Stmt_tail>
-    ::= <SwitchStmt> <Stmt_tail>
     ::= <ReturnStmt>
     ::= <BreakStmt> <Stmt_tail>
     ::= <AssignmentStmt> <Stmt_tail>
@@ -62,11 +60,11 @@
 
 <WhileStmt> ::= while ( <cond> ) { <body> }
 
-<DoStmt> ::= do { <body> } while ( <cond> )
-
 <ReturnStmt> ::= return <ReturnStmt-tail>
 <ReturnStmt-tail> ::= ;
     ::= <Expr> ;
+
+<BreakStmt> ::= break ;
 
 <VarDec> ::= <type> <ident> <VarDec_tail>
 <VarDec_tail> ::= ;
