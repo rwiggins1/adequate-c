@@ -38,25 +38,25 @@
     ::= <VarDec> <body>
     ::= ε
 
-<Stmt> ::= <IfStmt> <Stmt_tail>
-    ::= <ForStmt> <Stmt_tail>
-    ::= <WhileStmt> <Stmt_tail>
-    ::= <AssignmentStmt> <Stmt_tail>
+<Stmt> ::= <IfStmt> <Stmt-tail>
+    ::= <ForStmt> <Stmt-tail>
+    ::= <WhileStmt> <Stmt-tail>
+    ::= <AssignmentStmt> <Stmt-tail>
     ::= <ReturnStmt>
-    ::= <BreakStmt> <Stmt_tail>
-    ::= <ContinueStmt> <Stmt_tail>
+    ::= <BreakStmt> <Stmt-tail>
+    ::= <ContinueStmt> <Stmt-tail>
 
-<Stmt_tail> ::= <Stmt> <Stmt_tail>
+<Stmt-tail> ::= <Stmt> <Stmt-tail>
     ::= ε
 
-<IfStmt> ::= if ( <cond> ) { <body> } <IfStmt_tail>
-<IfStmt_tail> ::= else <elseStmt>
+<IfStmt> ::= if ( <cond> ) { <body> } <IfStmt-tail>
+<IfStmt-tail> ::= else <elseStmt>
     ::= ε
 <elseStmt> ::= <IfStmt>
     ::= { <body> }
 
-<ForStmt> ::= for ( <for_init> ; <cond> ; <Expr> ) { <body> }
-<for_init> ::= <type> <AssignmentStmt>
+<ForStmt> ::= for ( <for-init> ; <cond> ; <Expr> ) { <body> }
+<for-init> ::= <type> <AssignmentStmt>
     ::= <AssignmentStmt>
 
 <WhileStmt> ::= while ( <cond> ) { <body> }
@@ -69,12 +69,12 @@
 
 <ContinueStmt> ::= continue ;
 
-<VarDec> ::= <type> <ident> <VarDec_tail>
-<VarDec_tail> ::= ;
+<AssignmentStmt> ::= <ident> <assignment-operator> <Expr> ;
+
+<VarDec> ::= <type> <ident> <VarDec-tail>
+<VarDec-tail> ::= ;
     ::= [ <additive-expression> ] = <Expr>;
     ::= = <Expr>;
-
-<AssignmentStmt> ::= <ident> <assignment-operator> <Expr> ;
 
 <Expr> ::= <cond>
 
@@ -124,14 +124,10 @@
     ::= - <multiplicative-expression>
     ::= ε
 
-<multiplicative-expression> ::= <cast-expression> <multiplicative-expression-tail>
-<multiplicative-expression-tail> ::= * <cast-expression>
-    ::= / <cast-expression>
-    ::= % <cast-expression>
-    ::= ε
-
-<cast-expression> ::= <unary-expression> <cast-expression-tail>
-<cast-expression-tail> ::= ( <primitive-type> ) <cast-expression>
+<multiplicative-expression> ::= <unary-expression> <multiplicative-expression-tail>
+<multiplicative-expression-tail> ::= * <unary-expression>
+    ::= / <unary-expression>
+    ::= % <unary-expression>
     ::= ε
 
 <unary-expression> ::= <unary-operator> <postfix-expression>
