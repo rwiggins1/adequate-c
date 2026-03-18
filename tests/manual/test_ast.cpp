@@ -1,5 +1,6 @@
 #include "frontend/lexer/lexer.hpp"
 #include "frontend/parser.hpp"
+#include "frontend/diagnostics/diagnostics.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -20,9 +21,10 @@ void testFile(const std::string &filename) {
 	std::string source = buffer.str();
 
 	std::cout << "Source:\n" << source << "\n\n";
-
+	
+	ErrorReporter error;
 	Lexer lexer(source);
-	Parser parser(lexer);
+	Parser parser(lexer, error);
 
 	auto varDecl = parser.parseVarDecl();
 

@@ -34,10 +34,10 @@
 
 <namespace> ::= namespace <ident> { <declaration> }
 
-<Struct> ::= struct <ident> <generic> { <Struct_body> }
-<Struct_body> ::= ε
-    ::= <VarDec> <Struct_body>
-    ::= <struct-function> <Struct_body>
+<struct> ::= struct <ident> <generic> { <Struct_body> }
+<struct-body> ::= <VarDec> <struct_body>
+    ::= <struct-function> <struct_body>
+    ::= ε
 <struct-function> ::= <prototype> <struct-function-tail>
 <struct-function-tail> ::= { <body> }
     ::= ;
@@ -45,11 +45,11 @@
 <Enum> ::= enum <ident> : <Enum_allowed_type> { <Enum_body> }
 <Enum_allowed_type> ::= int
 <Enum_body> ::= <Ident> <Enum_body_tail>
-<Enum_body_tail> ::= ε
-    ::= = <Expr> <Enum_body_tail>
+<Enum_body_tail> ::= = <Expr> <Enum_body_tail>
     ::= , <Enum_tail>
-<Enum_tail> ::= ε
-    ::= <ident> <Enum_body_tail>
+    ::= ε
+<Enum_tail> ::= <ident> <Enum_body_tail>
+    ::= ε
 
 <template> ::= template < <template-tail> >
 <template-tail> ::= <template-constraint> : <ident> <template-tail>
@@ -64,14 +64,14 @@
     ::= orderable
 
 <function> ::= <prototype> { <body> }
-<prototype> ::= func <function-name> <generic> ( <paramList> ) -> <return-list>
+<prototype> ::= func <function-name> <generic> ( <param-list> ) -> <return-list>
 <function-name> ::= <ident> <function-name-tail>
 <function-name-tail> ::= ε
     ::= :: <ident> <function-name-tail>
-<paramList> ::= ε
-    ::= <type> <ident> <paramList_tail>
-<paramList_tail> ::= ε
-    ::= , <type> <ident> <paramList_tail>
+<param-list> ::= ε
+    ::= <type> <ident> <param-list-tail>
+<param-list-tail> ::= ε
+    ::= , <type> <ident> <param-list-tail>
 <return-list> ::= <type>
     ::= union [ <type> <return-list-tail> ]
     ::= tuple [ <type> <return-list-tail> ]
@@ -87,26 +87,27 @@
     ::= <Stmt> <body>
     ::= <VarDec> <body>
 
-<Stmt> ::= <IfStmt> <Stmt_tail>
-    ::= <ForStmt> <Stmt_tail>
-    ::= <WhileStmt> <Stmt_tail>
-    ::= <DoStmt> <Stmt_tail>
-    ::= <SwitchStmt> <Stmt_tail>
+<Stmt> ::= <IfStmt> <Stmt-tail>
+    ::= <ForStmt> <Stmt-tail>
+    ::= <WhileStmt> <Stmt-tail>
+    ::= <DoStmt> <Stmt-tail>
+    ::= <SwitchStmt> <Stmt-tail>
+    ::= <AssignmentStmt> <Stmt-tail>
     ::= <ReturnStmt>
-    ::= <BreakStmt> <Stmt_tail>
-    ::= <AssignmentStmt> <Stmt_tail>
+    ::= <BreakStmt> <Stmt-tail>
+    ::= <ContinueStmt> <Stmt-tail>
 
-<Stmt_tail> ::= ε 
-    ::= <Stmt> <Stmt_tail>
+<Stmt-tail> ::= ε 
+    ::= <Stmt> <Stmt-tail>
 
-<IfStmt> ::= if ( <cond> ) { <body> } <IfStmt_tail>
-<IfStmt_tail> ::= ε
+<IfStmt> ::= if ( <cond> ) { <body> } <IfStmt-tail>
+<IfStmt-tail> ::= ε
     ::= else <elseStmt>
 <elseStmt> ::= <IfStmt>
     ::= { <body> }
 
-<ForStmt> ::= for ( <for_init> ; <cond> ; <Expr> ) { <body> }
-<for_init> ::= <type> <AssignmentStmt>
+<ForStmt> ::= for ( <for-init> ; <cond> ; <Expr> ) { <body> }
+<for-init> ::= <type> <AssignmentStmt>
     ::= <AssignmentStmt>
 
 <WhileStmt> ::= while ( <cond> ) { <body> }
@@ -127,13 +128,16 @@
 <ReturnStmt-tail> ::= ;
     ::= <Expr> ;
 
-<VarDec> ::= <type> <ident> <VarDec_tail>
-<VarDec_tail> ::= ;
+<BreakStmt> ::= break ;
+
+<ContinueStmt> ::= continue ;
+
+<AssignmentStmt> ::= <ident> <assignment-operator> <Expr> ;
+
+<VarDec> ::= <type> <ident> <VarDec-tail>
+<VarDec-tail> ::= ;
     ::= [ <additive-expression> ] = <Expr>;
     ::= = <Expr>;
-
-<AssignmentStmt> ::= <ident> = <AssignmentStmt_tail> ;
-<AssignmentStmt_tail> ::= <Expr>
 
 <Expr> ::= <cond>
 
@@ -183,19 +187,14 @@
     ::= + <multiplicative-expression>
     ::= - <multiplicative-expression>
 
-<multiplicative-expression> ::= <cast-expression> <multiplicative-expression-tail>
+<multiplicative-expression> ::= <unary-expression> <multiplicative-expression-tail>
 <multiplicative-expression-tail> ::= ε
-    ::= * <cast-expression>
-    ::= / <cast-expression>
-    ::= % <cast-expression>
+    ::= * <unary-expression>
+    ::= / <unary-expression>
+    ::= % <unary-expression>
 
-<cast-expression> ::= <unary-expression> <cast-expression-tail>
-<cast-expression-tail> ::= ε
-    ::= ( <primitive-type> ) <cast-expression>
-
-<unary-expression> ::= <postfix-expression> <unary-expression-tail>
-<unary-expression-tail> ::= ε
-    ::= <unary-operator> <cast-expression>
+<unary-expression> ::= <unary-operator> <postfix-expression>
+	::= <postfix-expression>
 
 <postfix-expression> ::= <primary-expression> <postfix-expression-tail>
 <postfix-expression-tail> ::= ε
@@ -206,25 +205,28 @@
     ::= ++
     ::= --
 
-<arg-list> ::=    ε 
-    ::= <Expr> <arg-list-tail>
-<arg-list-tail> ::= ε
-    ::= , <Expr> <arg-list-tail>
+<arg-list> ::= <Expr> <arg-list-tail>
+	::= ε 
+<arg-list-tail> ::= , <Expr> <arg-list-tail>
+	::= ε 
 
 <primary-expression> ::= <ident>
     ::= <literal>
     ::= ( Expr )
 
-<type> ::= <primitive-type>
-	::= const <type>
+<type> ::= const <type>
 	::= static <type>
 	::= comptime <type>
+	::= struct <ident>
+	::= <primitive-type>
 <primitive-type> ::= int 
     ::= string 
     ::= char 
     ::= bool 
     ::= float 
     ::= double
+    ::= void
+    ::= infer
 <type-list> ::= ε
     ::= , <type> <type-list>
 

@@ -64,6 +64,16 @@ public:
 	[[nodiscard]] bool isPrimitive() const override { return true; }
 };
 
+class CharType : public Type {
+public:
+	[[nodiscard]] std::string toString() const override { return "char"; }
+	[[nodiscard]] bool equals(const Type* other) const override {
+		return dynamic_cast<const CharType*>(other) != nullptr;
+	}
+
+	[[nodiscard]] bool isPrimitive() const override { return true; }
+};
+
 class StringType : public Type {
 public:
 	[[nodiscard]] std::string toString() const override { return "string"; }
@@ -112,12 +122,58 @@ class StructType : public Type {
 public:
 	StructType(std::string n) : name(std::move(n)) {}
 
+	[[nodiscard]] std::string toString() const override {
+		return "struct " + name;
+	}
+
 	bool equals(const Type* other) const override {
         	auto s = dynamic_cast<const StructType*>(other);
         	return s && s->name == name;
     	}
 	[[nodiscard]] std::string_view getName() const { return name; }
 	[[nodiscard]] bool isPrimitive() const override { return false; }
+	[[nodiscard]] bool isStruct() const override { return true; }
 };
 
+class ConstType : public Type {
+    std::unique_ptr<Type> innerType;
+    
+public:
+    ConstType(std::unique_ptr<Type> inner) 
+        : innerType(std::move(inner)) {}
+    
+    [[nodiscard]] Type* getInnerType() const { return innerType.get(); }
+    
+    [[nodiscard]] std::string toString() const override {
+        return "const " + innerType->toString();
+    }
+    
+    bool equals(const Type* other) const override {
+        if (auto* constType = dynamic_cast<const ConstType*>(other)) {
+            return innerType->equals(constType->innerType.get());
+        }
+        return false;
+    }
+};
+
+class StaticType : public Type {
+    std::unique_ptr<Type> innerType;
+    
+public:
+    StaticType(std::unique_ptr<Type> inner) 
+        : innerType(std::move(inner)) {}
+    
+    [[nodiscard]] Type* getInnerType() const { return innerType.get(); }
+    
+    [[nodiscard]] std::string toString() const override {
+        return "static " + innerType->toString();
+    }
+    
+    bool equals(const Type* other) const override {
+        if (auto* staticType = dynamic_cast<const StaticType*>(other)) {
+            return innerType->equals(staticType->innerType.get());
+        }
+        return false;
+    }
+};
 }
