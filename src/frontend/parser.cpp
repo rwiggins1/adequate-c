@@ -5,17 +5,14 @@
 #include "ast/expr.hpp"
 #include "ast/stmt.hpp"
 #include "types/type.hpp"
-#include "gtest/gtest.h"
 #include <cstddef>
 #include <iostream>
 #include <memory>
 #include <utility>
 #include <vector>
-#include <variant>
 
 namespace frontend {
 
-// !TODO remove lexer.get initialization
 Parser::Parser(Lexer &lex, ErrorReporter &errors) 
 	: lexer(lex), current(lexer.get()), errors(errors) {}
 
