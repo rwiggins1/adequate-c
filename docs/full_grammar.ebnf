@@ -13,18 +13,18 @@
 <declaration-seq> ::= <main-function> <declaration>
     ::= <declaration> <main-function> <declaration>
 
-<declaration> ::= ε
-    ::= <namespace> <declaration>
+<declaration> ::= <namespace> <declaration>
     ::= <Struct> <declaration>
     ::= <function> <declaration>
     ::= <Enum> <declaration>
+    ::= ε
 
 
 <import-stmt> ::= import <ident> <import-stmt-tail>
 <import-stmt-tail> ::= ; <import-tail> 
     ::= . <ident> <import-stmt-tail>
-<import-tail> ::= ε
-    ::= <import-stmt>
+<import-tail> ::= <import-stmt>
+    ::= ε
 
 
 <main-function>::= func main (<paramList>) <main-function-tail>
@@ -66,26 +66,26 @@
 <function> ::= <prototype> { <body> }
 <prototype> ::= func <function-name> <generic> ( <param-list> ) -> <return-list>
 <function-name> ::= <ident> <function-name-tail>
-<function-name-tail> ::= ε
-    ::= :: <ident> <function-name-tail>
-<param-list> ::= ε
-    ::= <type> <ident> <param-list-tail>
-<param-list-tail> ::= ε
-    ::= , <type> <ident> <param-list-tail>
+<function-name-tail> ::= :: <ident> <function-name-tail>
+    ::= ε
+<param-list> ::= <type> <ident> <param-list-tail>
+    ::= ε
+<param-list-tail> ::= , <type> <ident> <param-list-tail>
+    ::= ε
 <return-list> ::= <type>
     ::= union [ <type> <return-list-tail> ]
     ::= tuple [ <type> <return-list-tail> ]
-<return-list-tail> ::= ε
-    ::= , <type> <return-list-tail>
+<return-list-tail> ::= , <type> <return-list-tail>
+    ::= ε
 
-<generic> ::= ε
-    ::= < <ident> <generic-tail> >
-<generic-tail> ::= ε
-    ::= , <ident> <generic-tail>
+<generic> ::= < <ident> <generic-tail> >
+    ::= ε
+<generic-tail> ::= , <ident> <generic-tail>
+    ::= ε
 
-<body> ::= ε
-    ::= <Stmt> <body>
+<body> ::= <Stmt> <body>
     ::= <VarDec> <body>
+    ::= ε
 
 <Stmt> ::= <IfStmt> <Stmt-tail>
     ::= <ForStmt> <Stmt-tail>
@@ -97,12 +97,12 @@
     ::= <BreakStmt> <Stmt-tail>
     ::= <ContinueStmt> <Stmt-tail>
 
-<Stmt-tail> ::= ε 
-    ::= <Stmt> <Stmt-tail>
+<Stmt-tail> ::= <Stmt> <Stmt-tail>
+    ::= ε
 
 <IfStmt> ::= if ( <cond> ) { <body> } <IfStmt-tail>
-<IfStmt-tail> ::= ε
-    ::= else <elseStmt>
+<IfStmt-tail> ::= else <elseStmt>
+    ::= ε
 <elseStmt> ::= <IfStmt>
     ::= { <body> }
 
@@ -142,68 +142,68 @@
 <Expr> ::= <cond>
 
 <cond> ::= <logical-or-expression> <cond-tail>
-<cond-tail> ::= ε
-    ::= ? <Expr> : <cond>
+<cond-tail> ::= ? <Expr> : <cond>
+    ::= ε
 
 <logical-or-expression> ::= <logical-and-expression> <logical-or-expression-tail>
-<logical-or-expression-tail> ::= ε
-	::= || <logical-and-expression>
+<logical-or-expression-tail> ::= || <logical-and-expression>
+	::= ε
 
 <logical-and-expression> ::= <inclusive-or-expression> <logical-and-expression-tail>
-<logical-and-expression-tail> ::= ε
-    ::= && <inclusive-or-expression>
+<logical-and-expression-tail> ::= && <inclusive-or-expression>
+    ::= ε
 
 <inclusive-or-expression> ::= <exclusive-or-expression> <inclusive-or-expression-tail>
-<inclusive-or-expression-tail> ::= ε
-        ::= | <exclusive-or-expression>
+<inclusive-or-expression-tail> ::= | <exclusive-or-expression>
+	::= ε
 
 <exclusive-or-expression> ::= <and-expression> <exclusive-or-expression-tail>
-<exclusive-or-expression-tail> ::= ε
-        ::= ^ <and-expression>
+<exclusive-or-expression-tail> ::= ^ <and-expression>
+	::= ε
 
 <and-expression> ::= <equality-expression> <and-expression-tail>
-<and-expression-tail> ::= ε
-        ::= & <equality-expression>
+<and-expression-tail> ::= & <equality-expression>
+	::= ε
 
 <equality-expression> ::= <relational-expression> <equality-expression-tail>
-<equality-expression-tail> ::= ε
-    ::= == <relational-expression>
+<equality-expression-tail> ::= == <relational-expression>
     ::= != <relational-expression>
+    ::= ε
 
 <relational-expression> ::= <shift-expression> <relational-expression-tail>
-<relational-expression-tail> ::= ε
-      ::= < <shift-expression>
+<relational-expression-tail> ::= < <shift-expression>
       ::= > <shift-expression>
       ::= <= <shift-expression>
       ::= >= <shift-expression>
+      ::= ε
 
 <shift-expression> ::= <additive-expression> <shift-expression-tail>
-<shift-expression-tail> ::= ε
-    ::= << <additive-expression>
+<shift-expression-tail> ::= << <additive-expression>
     ::= >> <additive-expression>
+    ::= ε
 
 <additive-expression> ::= <multiplicative-expression> <additive-expression-tail>
-<additive-expression-tail> ::= ε
-    ::= + <multiplicative-expression>
+<additive-expression-tail> ::= + <multiplicative-expression>
     ::= - <multiplicative-expression>
+    ::= ε
 
 <multiplicative-expression> ::= <unary-expression> <multiplicative-expression-tail>
-<multiplicative-expression-tail> ::= ε
-    ::= * <unary-expression>
+<multiplicative-expression-tail> ::= * <unary-expression>
     ::= / <unary-expression>
     ::= % <unary-expression>
+    ::= ε
 
 <unary-expression> ::= <unary-operator> <postfix-expression>
 	::= <postfix-expression>
 
 <postfix-expression> ::= <primary-expression> <postfix-expression-tail>
-<postfix-expression-tail> ::= ε
-    ::= [ <Expr> ]
+<postfix-expression-tail> ::= [ <Expr> ]
     ::= ( <arg-list> )
     ::= . <ident>
     ::= :: <ident>
     ::= ++
     ::= --
+    ::= ε
 
 <arg-list> ::= <Expr> <arg-list-tail>
 	::= ε 
@@ -227,8 +227,8 @@
     ::= double
     ::= void
     ::= infer
-<type-list> ::= ε
-    ::= , <type> <type-list>
+<type-list> ::= , <type> <type-list>
+    ::= ε
 
 <assignment-operator> ::= =
     ::= *=
