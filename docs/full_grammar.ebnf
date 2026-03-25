@@ -10,13 +10,16 @@
 <program> ::= <import-stmt> <declaration-seq>
     ::= <declaration-seq>
 
-<declaration-seq> ::= <main-function> <declaration>
-    ::= <declaration> <main-function> <declaration>
+<declaration-seq> ::= <main-function> <declaration-list>
+    ::= <declaration-list> <main-function> <declaration>
 
-<declaration> ::= <namespace> <declaration>
-    ::= <Struct> <declaration>
-    ::= <function> <declaration>
-    ::= <Enum> <declaration>
+<declaration-list> ::= <declaration> <declaration-list>
+    ::= ε
+
+<declaration> ::= <namespace>
+    ::= <Struct>
+    ::= <function>
+    ::= <Enum>
     ::= ε
 
 
