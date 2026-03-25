@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
@@ -50,7 +51,7 @@ bool Parser::expect(TokenType type) {
 }
 
 
-std::unique_ptr<ast::ASTNode> Parser::literal() {
+std::optional<std::unique_ptr<ast::ASTNode>> Parser::literal() {
 	switch (current.type) {
 		case TokenType::NUMBER: {
 			auto result = std::make_unique<ast::NumberLiteralAST>(std::stod(current.lexeme));
@@ -85,7 +86,7 @@ std::unique_ptr<ast::ASTNode> Parser::literal() {
                 	current.line,
                 	current.column
             		);
-			return nullptr;
+			return std::nullopt;
 	}
 }
 
@@ -112,7 +113,7 @@ bool Parser::assignmentOperator() const {
 		current.type == TokenType::BIT_OR_ASSIGN;
 }
 
-std::unique_ptr<types::Type> Parser::primitiveType() {
+std::optional<std::unique_ptr<types::Type>> Parser::primitiveType() {
 	switch (current.type) {
 		case TokenType::INT: {
 			advance();
@@ -148,35 +149,35 @@ std::unique_ptr<types::Type> Parser::primitiveType() {
                 	current.line,
                 	current.column
             		);
-			return nullptr;
+			return std::nullopt;
 	}
 }
 
-std::unique_ptr<types::Type> Parser::type() {
+std::optional<std::unique_ptr<types::Type>> Parser::type() {
 	switch (current.type) {
 		case TokenType::CONST: {
 			advance();
 			if (auto inner_type = type(); inner_type) { 
-				return std::make_unique<types::ConstType>(std::move(inner_type));
+				return std::make_unique<types::ConstType>(std::move(*inner_type));
 			}
 			errors.error(
                 	"Expected type after 'const' but got " + current.lexeme,
                 	current.line,
                 	current.column
             		);
-			return nullptr;
+			return std::nullopt;
 		}
 		case TokenType::STATIC: {
 			advance();
 			if (auto inner_type = type(); inner_type) {
-				return std::make_unique<types::StaticType>(std::move(inner_type));
+				return std::make_unique<types::StaticType>(std::move(*inner_type));
 			}
 			errors.error(
                 	"Expected type after 'static' but got " + current.lexeme,
                 	current.line,
                 	current.column
             		);
-			return nullptr;
+			return std::nullopt;
 		}
 		case TokenType::STRUCT: {
 			advance();
@@ -190,14 +191,14 @@ std::unique_ptr<types::Type> Parser::type() {
                 	current.line,
                 	current.column
             		);
-			return nullptr;
+			return std::nullopt;
 		}
 		default:
 			return primitiveType();
 	}
 }
 
-std::unique_ptr<ast::ASTNode> Parser::primaryExpr() {
+std::optional<std::unique_ptr<ast::ASTNode>> Parser::primaryExpr() {
 	if (current.type == TokenType::IDENT) {
 		auto name = std::make_unique<ast::VariableExprAST>(std::move(current.lexeme));
 		advance();
@@ -218,7 +219,7 @@ std::unique_ptr<ast::ASTNode> Parser::primaryExpr() {
 			current.line,
 			current.column
 			);
-			return nullptr;
+			return std::nullopt;
 		}
 	}
 	errors.error(
@@ -226,13 +227,13 @@ std::unique_ptr<ast::ASTNode> Parser::primaryExpr() {
 	current.line,
 	current.column
 	);
-	return nullptr;
+	return std::nullopt;
 }
 
-std::unique_ptr<ast::ExprAST> Parser::parseExpression() {
-	return nullptr;
+std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseExpression() {
+	return std::nullopt;
 }
 
-std::unique_ptr<ast::StmtAST> Parser::parseVarDecl() { return nullptr; }
+std::optional<std::unique_ptr<ast::StmtAST>> Parser::parseVarDecl() { return std::nullopt; }
 
 }

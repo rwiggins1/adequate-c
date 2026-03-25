@@ -6,6 +6,7 @@
 #include "lexer/token.hpp"
 #include "types/type.hpp"
 #include <memory>
+#include <optional>
 
 namespace frontend {
 class Parser {
@@ -20,31 +21,30 @@ private:
 	static bool isLiteral(TokenType type);
 	bool expect(TokenType type);
 	
-	std::unique_ptr<ast::ASTNode> literal();
+	std::optional<std::unique_ptr<ast::ASTNode>> literal();
 	[[nodiscard]] bool unaryOperator() const;
 	[[nodiscard]] bool assignmentOperator() const;
 
-	std::unique_ptr<types::Type> primitiveType();
-	std::unique_ptr<types::Type> type();
+	std::optional<std::unique_ptr<types::Type>> primitiveType();
+	std::optional<std::unique_ptr<types::Type>> type();
 
-	std::unique_ptr<ast::ASTNode> parseArgumentList();
-	std::unique_ptr<ast::ASTNode> parseArgumentListTail();
+	std::optional<std::unique_ptr<ast::ASTNode>> parseArgumentList();
+	std::optional<std::unique_ptr<ast::ASTNode>> parseArgumentListTail();
 
-	std::unique_ptr<ast::ExprAST> parseExpression();
+	std::optional<std::unique_ptr<ast::ExprAST>> parseExpression();
 
-	std::unique_ptr<ast::ExprAST> parseUnaryExpr();
-	std::unique_ptr<ast::ExprAST> parseBinaryExpr();
-	std::unique_ptr<ast::ExprAST> parseVarExpr();
+	std::optional<std::unique_ptr<ast::ExprAST>> parseUnaryExpr();
+	std::optional<std::unique_ptr<ast::ExprAST>> parseBinaryExpr();
+	std::optional<std::unique_ptr<ast::ExprAST>> parseVarExpr();
 
-	std::unique_ptr<ast::ExprAST> parseIdentifierExpr();
-	std::unique_ptr<ast::ExprAST> parseFunctionCallExpr(std::string& name);
+	std::optional<std::unique_ptr<ast::ExprAST>> parseIdentifierExpr();
+	std::optional<std::unique_ptr<ast::ExprAST>> parseFunctionCallExpr(std::string& name);
 
-	std::unique_ptr<ast::ASTNode> primaryExpr();
+	std::optional<std::unique_ptr<ast::ASTNode>> primaryExpr();
 
-	std::unique_ptr<ast::StmtAST> parseVariableDeclaration();
 
 public:
 	explicit Parser(Lexer &lex, ErrorReporter &errors);
-	std::unique_ptr<ast::StmtAST> parseVarDecl();
+	std::optional<std::unique_ptr<ast::StmtAST>> parseVarDecl();
 };
 } // namespace frontend

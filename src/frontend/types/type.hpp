@@ -7,28 +7,28 @@ namespace frontend::types {
 
 class Type {
 public:
-    virtual ~Type() = default;
-    
-    [[nodiscard]] virtual std::string toString() const = 0;
-    [[nodiscard]] virtual bool equals(const Type* other) const = 0;
-    
-    // Type predicates
-    [[nodiscard]] virtual bool isPrimitive() const { return false; }
-    [[nodiscard]] virtual bool isArray() const { return false; }
-    [[nodiscard]] virtual bool isStruct() const { return false; }
-    [[nodiscard]] virtual bool isNullable() const { return false; }
-    [[nodiscard]] virtual bool isFunction() const { return false; }
-    
+	virtual ~Type() = default;
+
+	[[nodiscard]] virtual std::string toString() const = 0;
+	[[nodiscard]] virtual bool equals(const Type *other) const = 0;
+
+	// Type predicates
+	[[nodiscard]] virtual bool isPrimitive() const { return false; }
+	[[nodiscard]] virtual bool isArray() const { return false; }
+	[[nodiscard]] virtual bool isStruct() const { return false; }
+	[[nodiscard]] virtual bool isNullable() const { return false; }
+	[[nodiscard]] virtual bool isFunction() const { return false; }
+
 protected:
-    Type() = default;
+	Type() = default;
 };
 
 // Primitive types
 class IntType : public Type {
 public:
 	[[nodiscard]] std::string toString() const override { return "int"; }
-	[[nodiscard]] bool equals(const Type* other) const override {
-		return dynamic_cast<const IntType*>(other) != nullptr;
+	[[nodiscard]] bool equals(const Type *other) const override {
+		return dynamic_cast<const IntType *>(other) != nullptr;
 	}
 
 	[[nodiscard]] bool isPrimitive() const override { return true; }
@@ -37,8 +37,8 @@ public:
 class FloatType : public Type {
 public:
 	[[nodiscard]] std::string toString() const override { return "float"; }
-	[[nodiscard]] bool equals(const Type* other) const override {
-		return dynamic_cast<const FloatType*>(other) != nullptr;
+	[[nodiscard]] bool equals(const Type *other) const override {
+		return dynamic_cast<const FloatType *>(other) != nullptr;
 	}
 
 	[[nodiscard]] bool isPrimitive() const override { return true; }
@@ -47,8 +47,8 @@ public:
 class DoubleType : public Type {
 public:
 	[[nodiscard]] std::string toString() const override { return "double"; }
-	[[nodiscard]] bool equals(const Type* other) const override {
-		return dynamic_cast<const DoubleType*>(other) != nullptr;
+	[[nodiscard]] bool equals(const Type *other) const override {
+		return dynamic_cast<const DoubleType *>(other) != nullptr;
 	}
 
 	[[nodiscard]] bool isPrimitive() const override { return true; }
@@ -57,8 +57,8 @@ public:
 class BoolType : public Type {
 public:
 	[[nodiscard]] std::string toString() const override { return "bool"; }
-	[[nodiscard]] bool equals(const Type* other) const override {
-		return dynamic_cast<const BoolType*>(other) != nullptr;
+	[[nodiscard]] bool equals(const Type *other) const override {
+		return dynamic_cast<const BoolType *>(other) != nullptr;
 	}
 
 	[[nodiscard]] bool isPrimitive() const override { return true; }
@@ -67,8 +67,8 @@ public:
 class CharType : public Type {
 public:
 	[[nodiscard]] std::string toString() const override { return "char"; }
-	[[nodiscard]] bool equals(const Type* other) const override {
-		return dynamic_cast<const CharType*>(other) != nullptr;
+	[[nodiscard]] bool equals(const Type *other) const override {
+		return dynamic_cast<const CharType *>(other) != nullptr;
 	}
 
 	[[nodiscard]] bool isPrimitive() const override { return true; }
@@ -77,8 +77,8 @@ public:
 class StringType : public Type {
 public:
 	[[nodiscard]] std::string toString() const override { return "string"; }
-	[[nodiscard]] bool equals(const Type* other) const override {
-		return dynamic_cast<const StringType*>(other) != nullptr;
+	[[nodiscard]] bool equals(const Type *other) const override {
+		return dynamic_cast<const StringType *>(other) != nullptr;
 	}
 
 	[[nodiscard]] bool isPrimitive() const override { return true; }
@@ -87,8 +87,8 @@ public:
 class VoidType : public Type {
 public:
 	[[nodiscard]] std::string toString() const override { return "void"; }
-	[[nodiscard]] bool equals(const Type* other) const override {
-		return dynamic_cast<const VoidType*>(other) != nullptr;
+	[[nodiscard]] bool equals(const Type *other) const override {
+		return dynamic_cast<const VoidType *>(other) != nullptr;
 	}
 
 	[[nodiscard]] bool isPrimitive() const override { return true; }
@@ -97,28 +97,32 @@ public:
 class ArrayType : public Type {
 	std::unique_ptr<Type> elementType;
 	size_t size;
+
 public:
 	ArrayType(std::unique_ptr<Type> elem, size_t sz)
-        	: elementType(std::move(elem)), size(sz) {}
+	    : elementType(std::move(elem)), size(sz) {}
 
 	[[nodiscard]] std::string toString() const override {
-        	return elementType->toString() + "[" + std::to_string(size) + "]";
-    	}
+		return elementType->toString() + "[" + std::to_string(size) +
+		       "]";
+	}
 
-	[[nodiscard]] Type* getElementType() const { return elementType.get();} 
-	[[nodiscard]] size_t getSize() const { return size;} 
-	bool equals(const Type* other) const override {
-		auto arr = dynamic_cast<const ArrayType*>(other);
-		if (!arr) { 
-			return false; 
+	[[nodiscard]] Type *getElementType() const { return elementType.get(); }
+	[[nodiscard]] size_t getSize() const { return size; }
+	bool equals(const Type *other) const override {
+		auto arr = dynamic_cast<const ArrayType *>(other);
+		if (!arr) {
+			return false;
 		}
-		return size == arr->size && elementType->equals(arr->elementType.get());
+		return size == arr->size &&
+		       elementType->equals(arr->elementType.get());
 	}
 	[[nodiscard]] bool isPrimitive() const override { return false; }
 };
 
 class StructType : public Type {
 	std::string name;
+
 public:
 	StructType(std::string n) : name(std::move(n)) {}
 
@@ -126,54 +130,53 @@ public:
 		return "struct " + name;
 	}
 
-	bool equals(const Type* other) const override {
-        	auto s = dynamic_cast<const StructType*>(other);
-        	return s && s->name == name;
-    	}
+	bool equals(const Type *other) const override {
+		auto s = dynamic_cast<const StructType *>(other);
+		return s && s->name == name;
+	}
 	[[nodiscard]] std::string_view getName() const { return name; }
 	[[nodiscard]] bool isPrimitive() const override { return false; }
 	[[nodiscard]] bool isStruct() const override { return true; }
 };
 
 class ConstType : public Type {
-    std::unique_ptr<Type> innerType;
-    
+	std::unique_ptr<Type> innerType;
+
 public:
-    ConstType(std::unique_ptr<Type> inner) 
-        : innerType(std::move(inner)) {}
-    
-    [[nodiscard]] Type* getInnerType() const { return innerType.get(); }
-    
-    [[nodiscard]] std::string toString() const override {
-        return "const " + innerType->toString();
-    }
-    
-    bool equals(const Type* other) const override {
-        if (auto* constType = dynamic_cast<const ConstType*>(other)) {
-            return innerType->equals(constType->innerType.get());
-        }
-        return false;
-    }
+	ConstType(std::unique_ptr<Type> inner) : innerType(std::move(inner)) {}
+
+	[[nodiscard]] Type *getInnerType() const { return innerType.get(); }
+
+	[[nodiscard]] std::string toString() const override {
+		return "const " + innerType->toString();
+	}
+
+	bool equals(const Type *other) const override {
+		if (auto *constType = dynamic_cast<const ConstType *>(other)) {
+			return innerType->equals(constType->innerType.get());
+		}
+		return false;
+	}
 };
 
 class StaticType : public Type {
-    std::unique_ptr<Type> innerType;
-    
+	std::unique_ptr<Type> innerType;
+
 public:
-    StaticType(std::unique_ptr<Type> inner) 
-        : innerType(std::move(inner)) {}
-    
-    [[nodiscard]] Type* getInnerType() const { return innerType.get(); }
-    
-    [[nodiscard]] std::string toString() const override {
-        return "static " + innerType->toString();
-    }
-    
-    bool equals(const Type* other) const override {
-        if (auto* staticType = dynamic_cast<const StaticType*>(other)) {
-            return innerType->equals(staticType->innerType.get());
-        }
-        return false;
-    }
+	StaticType(std::unique_ptr<Type> inner) : innerType(std::move(inner)) {}
+
+	[[nodiscard]] Type *getInnerType() const { return innerType.get(); }
+
+	[[nodiscard]] std::string toString() const override {
+		return "static " + innerType->toString();
+	}
+
+	bool equals(const Type *other) const override {
+		if (auto *staticType =
+			dynamic_cast<const StaticType *>(other)) {
+			return innerType->equals(staticType->innerType.get());
+		}
+		return false;
+	}
 };
-}
+} // namespace frontend::types
