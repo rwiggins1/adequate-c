@@ -28,17 +28,16 @@ private:
 	std::optional<std::unique_ptr<types::Type>> parsePrimitiveType();
 	std::optional<std::unique_ptr<types::Type>> parseType();
 
-	std::optional<std::unique_ptr<ast::ASTNode>> parseArgumentList();
-	std::optional<std::unique_ptr<ast::ASTNode>> parseArgumentListTail();
+	std::vector<std::unique_ptr<ast::ExprAST>> parseArgList();
+	std::vector<std::unique_ptr<ast::ExprAST>> parseArgListTail(std::unique_ptr<ast::ExprAST>);
 
 	std::optional<std::unique_ptr<ast::ExprAST>> parseExpression();
 
 	std::optional<std::unique_ptr<ast::ExprAST>> parseUnaryExpr();
 	std::optional<std::unique_ptr<ast::ExprAST>> parseBinaryExpr();
 	std::optional<std::unique_ptr<ast::ExprAST>> parseVarExpr();
-
-	std::optional<std::unique_ptr<ast::ExprAST>> parseIdentifierExpr();
-	std::optional<std::unique_ptr<ast::ExprAST>> parseFunctionCallExpr(std::string& name);
+	std::optional<std::unique_ptr<ast::ExprAST>> parsePostfixExpr();
+	std::optional<std::unique_ptr<ast::ExprAST>> parsePostfixExprTail(std::unique_ptr<ast::ExprAST>);
 
 	std::optional<std::unique_ptr<ast::ASTNode>> parsePrimaryExpr();
 

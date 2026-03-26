@@ -230,6 +230,32 @@ std::optional<std::unique_ptr<ast::ASTNode>> Parser::parsePrimaryExpr() {
 	return std::nullopt;
 }
 
+std::vector<std::unique_ptr<ast::ExprAST>> Parser::parseArgListTail(std::unique_ptr<ast::ExprAST> expr) {
+	std::vector<std::unique_ptr<ast::ExprAST>> args;
+	args.emplace_back(std::move(expr));
+
+	while (current.type == TokenType::COMMA) {
+		advance();
+		auto next_expr = parseExpression();
+		if (next_expr) {
+			args.emplace_back(std::move(*next_expr));
+		}
+		else {
+			return args;
+		}
+	}
+	return args;
+}
+
+std::vector<std::unique_ptr<ast::ExprAST>> Parser::parseArgList() {
+	auto expr = parseExpression();
+	if (expr) {
+		auto arg_list_t = parseArgListTail(std::move(*expr));
+		return arg_list_t;
+	}
+	return {};
+}
+
 std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseExpression() {
 	return std::nullopt;
 }
