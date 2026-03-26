@@ -21,12 +21,12 @@ private:
 	static bool isLiteral(TokenType type);
 	bool expect(TokenType type);
 	
-	std::optional<std::unique_ptr<ast::ASTNode>> literal();
+	std::optional<std::unique_ptr<ast::ASTNode>> parseLiteral();
 	[[nodiscard]] bool unaryOperator() const;
 	[[nodiscard]] bool assignmentOperator() const;
 
-	std::optional<std::unique_ptr<types::Type>> primitiveType();
-	std::optional<std::unique_ptr<types::Type>> type();
+	std::optional<std::unique_ptr<types::Type>> parsePrimitiveType();
+	std::optional<std::unique_ptr<types::Type>> parseType();
 
 	std::optional<std::unique_ptr<ast::ASTNode>> parseArgumentList();
 	std::optional<std::unique_ptr<ast::ASTNode>> parseArgumentListTail();
@@ -40,7 +40,7 @@ private:
 	std::optional<std::unique_ptr<ast::ExprAST>> parseIdentifierExpr();
 	std::optional<std::unique_ptr<ast::ExprAST>> parseFunctionCallExpr(std::string& name);
 
-	std::optional<std::unique_ptr<ast::ASTNode>> primaryExpr();
+	std::optional<std::unique_ptr<ast::ASTNode>> parsePrimaryExpr();
 
 
 public:

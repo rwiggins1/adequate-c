@@ -51,7 +51,7 @@ bool Parser::expect(TokenType type) {
 }
 
 
-std::optional<std::unique_ptr<ast::ASTNode>> Parser::literal() {
+std::optional<std::unique_ptr<ast::ASTNode>> Parser::parseLiteral() {
 	switch (current.type) {
 		case TokenType::NUMBER: {
 			auto result = std::make_unique<ast::NumberLiteralAST>(std::stod(current.lexeme));
@@ -113,7 +113,7 @@ bool Parser::assignmentOperator() const {
 		current.type == TokenType::BIT_OR_ASSIGN;
 }
 
-std::optional<std::unique_ptr<types::Type>> Parser::primitiveType() {
+std::optional<std::unique_ptr<types::Type>> Parser::parsePrimitiveType() {
 	switch (current.type) {
 		case TokenType::INT: {
 			advance();
@@ -153,11 +153,11 @@ std::optional<std::unique_ptr<types::Type>> Parser::primitiveType() {
 	}
 }
 
-std::optional<std::unique_ptr<types::Type>> Parser::type() {
+std::optional<std::unique_ptr<types::Type>> Parser::parseType() {
 	switch (current.type) {
 		case TokenType::CONST: {
 			advance();
-			if (auto inner_type = type(); inner_type) { 
+			if (auto inner_type = parseType(); inner_type) { 
 				return std::make_unique<types::ConstType>(std::move(*inner_type));
 			}
 			errors.error(
@@ -169,7 +169,7 @@ std::optional<std::unique_ptr<types::Type>> Parser::type() {
 		}
 		case TokenType::STATIC: {
 			advance();
-			if (auto inner_type = type(); inner_type) {
+			if (auto inner_type = parseType(); inner_type) {
 				return std::make_unique<types::StaticType>(std::move(*inner_type));
 			}
 			errors.error(
@@ -194,17 +194,17 @@ std::optional<std::unique_ptr<types::Type>> Parser::type() {
 			return std::nullopt;
 		}
 		default:
-			return primitiveType();
+			return parsePrimitiveType();
 	}
 }
 
-std::optional<std::unique_ptr<ast::ASTNode>> Parser::primaryExpr() {
+std::optional<std::unique_ptr<ast::ASTNode>> Parser::parsePrimaryExpr() {
 	if (current.type == TokenType::IDENT) {
 		auto name = std::make_unique<ast::VariableExprAST>(std::move(current.lexeme));
 		advance();
 		return name;
 	}
-	if (auto lit = literal(); lit) {
+	if (auto lit = parseLiteral(); lit) {
 		return lit;
 	}
 	if (current.type == TokenType::OPAREN) {
