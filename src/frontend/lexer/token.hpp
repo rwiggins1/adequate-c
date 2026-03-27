@@ -33,14 +33,16 @@ enum class TokenType : std::uint8_t {
 	BIT_AND_ASSIGN, BIT_OR_ASSIGN, BIT_XOR_ASSIGN,
 	LEFT_SHIFT_ASSIGN, RIGHT_SHIFT_ASSIGN, // <<=, >>=
 
-	ARROW, REFERENCE,
-	DOT,
+	ARROW, REFERENCE, // ->, @
+	DOT, // '.'
 	QUESTION, // ? (for ternary)
-	SCOPE,
+	SCOPE, // '::'
     
 	// Delimiters
 	COLON, SEMICOLON, COMMA,
-	LBRACE, RBRACE, OPAREN, CPAREN, RSQRBRACKET, LSQRBRACKET,
+	LBRACE, RBRACE, // '{', '}'
+	OPAREN, CPAREN, // '(', ')' 
+	RSQRBRACKET, LSQRBRACKET, // '[', ']'
     
 	// Literals
 	NUMBER, STRING_LIT, CHAR_LIT, IDENT,
