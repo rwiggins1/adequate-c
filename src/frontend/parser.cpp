@@ -244,6 +244,14 @@ std::vector<std::unique_ptr<ast::ExprAST>> Parser::parseArgListTail(std::unique_
 			return args;
 		}
 	}
+	if (current.type != TokenType::CPAREN) {
+		errors.error(
+		"Expected ')' but got " + current.lexeme,
+		current.line,
+		current.column
+		);
+		return args;
+	}
 	return args;
 }
 
