@@ -314,37 +314,39 @@ std::optional<std::unique_ptr<ast::ExprAST>> Parser::parsePostfixExprTail(std::u
 		advance();
 		return std::make_unique<ast::UnaryExprAST>(ast::UnaryOp::POST_DECREMENT, std::move(primary_expr));
 	}
-	if (current.type == TokenType::MULTIPLY ||
-		current.type == TokenType::DIVIDE ||
-		current.type == TokenType::MODULO ||
-		current.type == TokenType::PLUS ||
-		current.type == TokenType::MINUS ||
-		current.type == TokenType::LEFT_SHIFT ||
-		current.type == TokenType::RIGHT_SHIFT ||
-		current.type == TokenType::LESS ||
-		current.type == TokenType::GREATER ||
-		current.type == TokenType::LESS_EQUAL ||
-		current.type == TokenType::GREATER_EQUAL ||
-		current.type == TokenType::EQUAL ||
-		current.type == TokenType::NOT_EQUAL ||
-		current.type == TokenType::BIT_AND ||
-		current.type == TokenType::BIT_XOR ||
-		current.type == TokenType::BIT_OR ||
-		current.type == TokenType::AND ||
-		current.type == TokenType::OR ||
-		current.type == TokenType::QUESTION ||
-		current.type == TokenType::COMMA ||
-		current.type == TokenType::RSQRBRACKET ||
-		current.type == TokenType::CPAREN ||
-		current.type == TokenType::SEMICOLON) {
-		return std::nullopt;
+	switch (current.type) {
+		case TokenType::MULTIPLY:
+		case TokenType::DIVIDE:
+		case TokenType::MODULO:
+		case TokenType::PLUS:
+		case TokenType::MINUS:
+		case TokenType::LEFT_SHIFT:
+		case TokenType::RIGHT_SHIFT:
+		case TokenType::LESS:
+		case TokenType::GREATER:
+		case TokenType::LESS_EQUAL:
+		case TokenType::GREATER_EQUAL:
+		case TokenType::EQUAL:
+		case TokenType::NOT_EQUAL:
+		case TokenType::BIT_AND:
+		case TokenType::BIT_XOR:
+		case TokenType::BIT_OR:
+		case TokenType::AND:
+		case TokenType::OR:
+		case TokenType::QUESTION:
+		case TokenType::COMMA:
+		case TokenType::RSQRBRACKET:
+		case TokenType::CPAREN:
+		case TokenType::SEMICOLON:
+			return std::nullopt;
+		default:
+			errors.error(
+			"Expected '[', '(', '.', '::', '++', or '--' but got " + current.lexeme,
+			current.line,
+			current.column
+			);
+			return std::nullopt;
 	}
-	errors.error(
-	"Expected '[', '(', '.', '::', '++', or '--' but got " + current.lexeme,
-	current.line,
-	current.column
-	);
-	return std::nullopt;
 }
 
 std::optional<std::unique_ptr<ast::ExprAST>> Parser::parsePostfixExpr() {

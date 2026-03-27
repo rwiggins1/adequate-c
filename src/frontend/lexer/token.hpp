@@ -23,9 +23,9 @@ enum class TokenType : std::uint8_t {
 	PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN,  // += -= *= /=
 	MODULO_ASSIGN, // %=
 
-	EQUAL, NOT_EQUAL,
+	EQUAL, NOT_EQUAL, // '==', '!='
 	GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
-	ASSIGN,
+	ASSIGN, // '='
 
 	AND, OR, NOT,
 	BIT_AND, BIT_OR, BIT_XOR, BIT_NOT,
