@@ -21,7 +21,7 @@ private:
 	static bool isLiteral(TokenType type);
 	bool expect(TokenType type);
 	
-	std::optional<std::unique_ptr<ast::ASTNode>> parseLiteral();
+	std::optional<std::unique_ptr<ast::ExprAST>> parseLiteral();
 	[[nodiscard]] bool unaryOperator() const;
 	[[nodiscard]] bool assignmentOperator() const;
 
@@ -39,7 +39,7 @@ private:
 	std::optional<std::unique_ptr<ast::ExprAST>> parsePostfixExpr();
 	std::optional<std::unique_ptr<ast::ExprAST>> parsePostfixExprTail(std::unique_ptr<ast::ExprAST>);
 
-	std::optional<std::unique_ptr<ast::ASTNode>> parsePrimaryExpr();
+	std::optional<std::unique_ptr<ast::ExprAST>> parsePrimaryExpr();
 
 
 public:

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <frontend/ast/ast.hpp>
+#include <memory>
 
 namespace frontend::ast {
 
@@ -74,11 +75,11 @@ public:
 };
 
 class CallExprAST: public ExprAST {
-	std::string callee;
+	std::unique_ptr<ExprAST> callee;
 	std::vector<std::unique_ptr<ExprAST>> args;
 public:
-	CallExprAST(std::string callee, std::vector<std::unique_ptr<ExprAST>> args);
-	[[nodiscard]] std::string getCallee() const noexcept { return callee; }
+	CallExprAST(std::unique_ptr<ExprAST> callee, std::vector<std::unique_ptr<ExprAST>> args);
+	[[nodiscard]] ExprAST* getCallee() const noexcept { return callee.get(); }
 	[[nodiscard]] const std::vector<std::unique_ptr<ExprAST>>& getArgs() const { return args; }
 };
 

@@ -18,6 +18,6 @@ BinaryExprAST::BinaryExprAST(BinaryOp op, std::unique_ptr<ExprAST> lhs, std::uni
 
 VariableExprAST::VariableExprAST(std::string name) : name(std::move(name)) {}
 
-CallExprAST::CallExprAST(std::string callee, std::vector<std::unique_ptr<ExprAST>> args) 
+CallExprAST::CallExprAST(std::unique_ptr<ExprAST> callee, std::vector<std::unique_ptr<ExprAST>> args) 
 	: callee(std::move(callee)), args(std::move(args)) {}
 }

@@ -70,7 +70,7 @@ TEST(astTest, BinaryExpr) {
 
 // someFunc(12, "test", true)
 TEST(astTest, FunctionCallExpr) {
-	std::string callee = "someFunc";
+	auto callee = std::make_unique<VariableExprAST>("someFunc");
 	auto twelve = std::make_unique<NumberLiteralAST>(12);
 	auto testStr = std::make_unique<StringLiteralAST>("test");
 	auto bool_lit = std::make_unique<BoolLiteralAST>(true);
@@ -80,7 +80,7 @@ TEST(astTest, FunctionCallExpr) {
 	args.push_back(std::move(testStr));
 	args.push_back(std::move(bool_lit));
 
-	auto funcCall = std::make_unique<CallExprAST>(callee, std::move(args));
+	auto funcCall = std::make_unique<CallExprAST>(std::move(callee), std::move(args));
 	const auto &Args = funcCall->getArgs();
 
 	auto *TwelveLiteral = dynamic_cast<NumberLiteralAST *>(Args[0].get());
@@ -257,8 +257,9 @@ TEST(astTest, Comprehensive) {
 	std::vector<std::unique_ptr<ExprAST>> args;
 	args.emplace_back(std::make_unique<NumberLiteralAST>(5));
 	args.emplace_back(std::make_unique<NumberLiteralAST>(3));
-
-	auto sum_call = std::make_unique<CallExprAST>("add", std::move(args));
+	
+	auto sum_callee = std::make_unique<VariableExprAST>("add");
+	auto sum_call = std::make_unique<CallExprAST>(std::move(sum_callee), std::move(args));
 
 	auto sum = std::make_unique<VariableDeclarationAST>(
 	    std::make_unique<IntType>(), "sum", std::move(sum_call));
@@ -273,8 +274,9 @@ TEST(astTest, Comprehensive) {
 	ASSERT_NE(sum_call_check, nullptr)
 	    << "Initializer should be function call";
 
-	std::string sum_callee_check = sum_call_check->getCallee();
-	EXPECT_EQ(sum_callee_check, "add");
+	auto sum_callee_check = sum_call_check->getCallee();
+	auto sum_calle = dynamic_cast<VariableExprAST*>(std::move(sum_callee_check));
+	EXPECT_EQ(sum_calle->getName(), "add");
 
 	const auto &sum_args = sum_call_check->getArgs();
 	ASSERT_EQ(sum_args.size(), 2) << "add() call should have 2 arguments";
@@ -291,8 +293,10 @@ TEST(astTest, Comprehensive) {
 	args2.emplace_back(std::make_unique<NumberLiteralAST>(4));
 	args2.emplace_back(std::make_unique<NumberLiteralAST>(7));
 
+	auto mul_var = std::make_unique<VariableExprAST>("multiply");
+
 	auto mul_call =
-	    std::make_unique<CallExprAST>("multiply", std::move(args2));
+	    std::make_unique<CallExprAST>(std::move(mul_var), std::move(args2));
 
 	auto product = std::make_unique<VariableDeclarationAST>(
 	    std::make_unique<IntType>(), "product", std::move(mul_call));
@@ -306,8 +310,10 @@ TEST(astTest, Comprehensive) {
 	auto *prod_call_check = dynamic_cast<CallExprAST *>(product->getInit());
 	ASSERT_NE(prod_call_check, nullptr);
 
-	std::string prod_callee_check = prod_call_check->getCallee();
-	EXPECT_EQ(prod_callee_check, "multiply");
+	auto prod_callee_check = prod_call_check->getCallee();
+	auto prod_callee_var = dynamic_cast<VariableExprAST*>(prod_callee_check);
+	std::string prod_callee = prod_callee_var->getName();
+	EXPECT_EQ(prod_callee, "multiply");
 
 	const auto &prod_args = prod_call_check->getArgs();
 	ASSERT_EQ(prod_args.size(), 2);

@@ -51,7 +51,7 @@ bool Parser::expect(TokenType type) {
 }
 
 
-std::optional<std::unique_ptr<ast::ASTNode>> Parser::parseLiteral() {
+std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseLiteral() {
 	switch (current.type) {
 		case TokenType::NUMBER: {
 			auto result = std::make_unique<ast::NumberLiteralAST>(std::stod(current.lexeme));
@@ -198,7 +198,7 @@ std::optional<std::unique_ptr<types::Type>> Parser::parseType() {
 	}
 }
 
-std::optional<std::unique_ptr<ast::ASTNode>> Parser::parsePrimaryExpr() {
+std::optional<std::unique_ptr<ast::ExprAST>> Parser::parsePrimaryExpr() {
 	if (current.type == TokenType::IDENT) {
 		auto name = std::make_unique<ast::VariableExprAST>(std::move(current.lexeme));
 		advance();
@@ -254,6 +254,99 @@ std::vector<std::unique_ptr<ast::ExprAST>> Parser::parseArgList() {
 		return arg_list_t;
 	}
 	return {};
+}
+
+std::optional<std::unique_ptr<ast::ExprAST>> Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
+	if (current.type == TokenType::LSQRBRACKET) {
+		advance();
+		auto expr = parseExpression();
+		if (expr) {
+			if (current.type == TokenType::RSQRBRACKET) {
+				return expr;
+			}
+			errors.error(
+			"Expected ']' but got " + current.lexeme,
+			current.line,
+			current.column
+			);
+			return std::nullopt;
+		}
+		return std::nullopt;
+	}
+	if (current.type == TokenType::OPAREN) {
+		advance();
+
+		auto args = parseArgList();
+		if (current.type == TokenType::CPAREN) {
+			advance();
+			return std::make_unique<ast::CallExprAST>(std::move(primary_expr), std::move(args));
+		}
+	}
+	if (current.type == TokenType::DOT) {
+		advance();
+		if (current.type == TokenType::IDENT) {
+			auto name = std::move(current.lexeme);
+			advance();
+			return std::make_unique<ast::VariableExprAST>(std::move(name));
+		}
+	}
+	if (current.type == TokenType::SCOPE) {
+		advance();
+		if (current.type == TokenType::IDENT) {
+			auto name = std::move(current.lexeme);
+			advance();
+			return std::make_unique<ast::VariableExprAST>(std::move(name));
+		}
+	}
+	if (current.type == TokenType::PLUS_PLUS) {
+		advance();
+		return std::make_unique<ast::UnaryExprAST>(ast::UnaryOp::POST_INCREMENT, std::move(primary_expr));
+	}
+	if (current.type == TokenType::MINUS_MINUS) {
+		advance();
+		return std::make_unique<ast::UnaryExprAST>(ast::UnaryOp::POST_DECREMENT, std::move(primary_expr));
+	}
+	if (current.type == TokenType::MULTIPLY ||
+		current.type == TokenType::DIVIDE ||
+		current.type == TokenType::MODULO ||
+		current.type == TokenType::PLUS ||
+		current.type == TokenType::MINUS ||
+		current.type == TokenType::LEFT_SHIFT ||
+		current.type == TokenType::RIGHT_SHIFT ||
+		current.type == TokenType::LESS ||
+		current.type == TokenType::GREATER ||
+		current.type == TokenType::LESS_EQUAL ||
+		current.type == TokenType::GREATER_EQUAL ||
+		current.type == TokenType::EQUAL ||
+		current.type == TokenType::NOT_EQUAL ||
+		current.type == TokenType::BIT_AND ||
+		current.type == TokenType::BIT_XOR ||
+		current.type == TokenType::BIT_OR ||
+		current.type == TokenType::AND ||
+		current.type == TokenType::OR ||
+		current.type == TokenType::QUESTION ||
+		current.type == TokenType::COMMA ||
+		current.type == TokenType::RSQRBRACKET ||
+		current.type == TokenType::CPAREN ||
+		current.type == TokenType::SEMICOLON) {
+		return std::nullopt;
+	}
+	errors.error(
+	"Expected '[', '(', '.', '::', '++', or '--' but got " + current.lexeme,
+	current.line,
+	current.column
+	);
+	return std::nullopt;
+}
+
+std::optional<std::unique_ptr<ast::ExprAST>> Parser::parsePostfixExpr() {
+	std::optional<std::unique_ptr<ast::ExprAST>> lhsOpt = parsePrimaryExpr();
+	if (!lhsOpt) {
+		return std::nullopt;
+	}
+
+	std::unique_ptr<ast::ExprAST> lhs = std::move(*lhsOpt);
+	return parsePostfixExprTail(std::move(lhs));
 }
 
 std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseExpression() {
