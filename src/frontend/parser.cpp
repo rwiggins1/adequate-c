@@ -9,6 +9,7 @@
 #include <iostream>
 #include <memory>
 #include <optional>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -357,6 +358,38 @@ std::optional<std::unique_ptr<ast::ExprAST>> Parser::parsePostfixExpr() {
 
 	std::unique_ptr<ast::ExprAST> lhs = std::move(*lhsOpt);
 	return parsePostfixExprTail(std::move(lhs));
+}
+
+
+std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseUnaryExpr() {
+	if (auto is_unary_op = unaryOperator(); is_unary_op) {
+		ast::UnaryOp unary_op{};
+
+		switch (current.type) {
+			case TokenType::PLUS:
+				unary_op = ast::UnaryOp::PLUS;
+				break;
+			case TokenType::MINUS:
+				unary_op = ast::UnaryOp::MINUS;
+				break;
+			case TokenType::NOT:
+				unary_op = ast::UnaryOp::NOT;
+				break;
+			case TokenType::BIT_NOT:
+				unary_op = ast::UnaryOp::BIT_NOT;
+				break;
+			default:
+				errors.error("Invalid unary operator", current.line, current.column);
+				return std::nullopt;
+		}
+		advance();
+
+		if (auto postfix_expr = parsePostfixExpr()) {
+			return std::make_unique<ast::UnaryExprAST>(std::move(unary_op), std::move(*postfix_expr));
+		}
+		return std::nullopt;
+	}
+	return parsePostfixExpr();
 }
 
 std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseExpression() {
