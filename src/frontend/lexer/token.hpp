@@ -36,6 +36,7 @@ enum class TokenType : std::uint8_t {
 	ARROW, REFERENCE,
 	DOT,
 	QUESTION, // ? (for ternary)
+	SCOPE,
     
 	// Delimiters
 	COLON, SEMICOLON, COMMA,

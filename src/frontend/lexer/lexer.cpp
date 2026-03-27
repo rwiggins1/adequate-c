@@ -266,7 +266,11 @@ Token Lexer::tokenize() {
 			return makeToken(TokenType::QUESTION, "?");
 		// Delimiters
 		case ':':
-			return makeToken(TokenType::COLON, ":");
+			advance();
+			if (current == ':') {
+				return makeToken(TokenType::SCOPE, "::");
+			}
+			return {TokenType::COLON, ":", line, column};
 		case ';':
 			return makeToken(TokenType::SEMICOLON, ";");
 		case ',':
