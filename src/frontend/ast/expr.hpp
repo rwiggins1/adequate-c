@@ -35,7 +35,7 @@ public:
 };
 
 enum class UnaryOp : uint8_t {
-	PLUS, MINUS, NOT, BIT_NOT,
+	AND, MUL, PLUS, MINUS, NOT, BIT_NOT,
 	POST_INCREMENT, POST_DECREMENT
 };
 

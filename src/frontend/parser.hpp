@@ -2,6 +2,7 @@
 
 #include "ast/ast.hpp"
 #include "diagnostics/diagnostics.hpp"
+#include "frontend/ast/expr.hpp"
 #include "lexer/lexer.hpp"
 #include "lexer/token.hpp"
 #include "types/type.hpp"
@@ -19,6 +20,7 @@ private:
 	bool match(TokenType type);
 	static bool isType(TokenType type);
 	static bool isLiteral(TokenType type);
+	ast::BinaryOp getBinaryOp(TokenType type);
 	bool expect(TokenType type);
 	
 	std::optional<std::unique_ptr<ast::ExprAST>> parseLiteral();
@@ -33,8 +35,9 @@ private:
 
 	std::optional<std::unique_ptr<ast::ExprAST>> parseExpression();
 
+	std::optional<std::unique_ptr<ast::ExprAST>> parseMultiplicativeExpr();
+
 	std::optional<std::unique_ptr<ast::ExprAST>> parseUnaryExpr();
-	std::optional<std::unique_ptr<ast::ExprAST>> parseBinaryExpr();
 	std::optional<std::unique_ptr<ast::ExprAST>> parseVarExpr();
 	std::optional<std::unique_ptr<ast::ExprAST>> parsePostfixExpr();
 	std::optional<std::unique_ptr<ast::ExprAST>> parsePostfixExprTail(std::unique_ptr<ast::ExprAST>);
