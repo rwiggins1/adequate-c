@@ -61,13 +61,13 @@ std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseLiteral() {
 	}
 	case TokenType::CHAR_LIT: {
 		std::string temp = current.lexeme;
-		const char *value = temp.c_str();
-		auto result = std::make_unique<ast::CharLiteralAST>(*value);
+		char value = temp[1];
+		auto result = std::make_unique<ast::CharLiteralAST>(value);
 		advance();
 		return result;
 	}
 	case TokenType::TRUE: {
-		auto result = std::make_unique<ast::BoolLiteralAST>(false);
+		auto result = std::make_unique<ast::BoolLiteralAST>(true);
 		advance();
 		return result;
 	}
