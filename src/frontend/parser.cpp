@@ -323,7 +323,7 @@ Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
 	case TokenType::RSQRBRACKET:
 	case TokenType::CPAREN:
 	case TokenType::SEMICOLON:
-		return std::nullopt;
+		return primary_expr;
 	default:
 		errors.error(
 		    "Expected '[', '(', '.', '::', '++', or '--' but got " +
