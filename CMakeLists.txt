@@ -68,6 +68,7 @@ add_executable(ast_gtest
     tests/unit/frontend/test_ast.cpp
     tests/unit/frontend/test_lexer.cpp
     tests/unit/frontend/test_parser_expr.cpp
+    tests/unit/frontend/test_types.cpp
 
     src/frontend/ast/expr.cpp
     src/frontend/ast/stmt.cpp
