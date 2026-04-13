@@ -1,4 +1,4 @@
-#include "frontend/ast/decl.hpp"
+#include "ast/decl.hpp"
 #include <memory>
 #include <string>
 #include "stmt.hpp"

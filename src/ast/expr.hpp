@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <frontend/ast/ast.hpp>
+#include <ast/ast.hpp>
 #include <memory>
 
 namespace frontend::ast {

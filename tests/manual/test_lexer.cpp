@@ -1,8 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-#include "frontend/lexer/lexer.hpp"
-#include "frontend/lexer/token.hpp"
+#include "lexer/lexer.hpp"
+#include "lexer/token.hpp"
 
 using namespace frontend;
 
