@@ -59,6 +59,7 @@ private:
 	Token identifier();
 	Token number();
 	Token string_lit();
+	Token char_lit();
 
 	Token makeToken(TokenType type, const std::string& lexme);
 	Token tokenize();

@@ -23,9 +23,9 @@ enum class TokenType : std::uint8_t {
 	PLUS_ASSIGN, MINUS_ASSIGN, MULTIPLY_ASSIGN, DIVIDE_ASSIGN,  // += -= *= /=
 	MODULO_ASSIGN, // %=
 
-	EQUAL, NOT_EQUAL,
+	EQUAL, NOT_EQUAL, // '==', '!='
 	GREATER, GREATER_EQUAL, LESS, LESS_EQUAL,
-	ASSIGN,
+	ASSIGN, // '='
 
 	AND, OR, NOT,
 	BIT_AND, BIT_OR, BIT_XOR, BIT_NOT,
@@ -33,13 +33,16 @@ enum class TokenType : std::uint8_t {
 	BIT_AND_ASSIGN, BIT_OR_ASSIGN, BIT_XOR_ASSIGN,
 	LEFT_SHIFT_ASSIGN, RIGHT_SHIFT_ASSIGN, // <<=, >>=
 
-	ARROW, REFERENCE,
-	DOT,
+	ARROW, REFERENCE, // ->, @
+	DOT, // '.'
 	QUESTION, // ? (for ternary)
+	SCOPE, // '::'
     
 	// Delimiters
 	COLON, SEMICOLON, COMMA,
-	LBRACE, RBRACE, OPAREN, CPAREN, RSQRBRACKET, LSQRBRACKET,
+	LBRACE, RBRACE, // '{', '}'
+	OPAREN, CPAREN, // '(', ')' 
+	RSQRBRACKET, LSQRBRACKET, // '[', ']'
     
 	// Literals
 	NUMBER, STRING_LIT, CHAR_LIT, IDENT,
