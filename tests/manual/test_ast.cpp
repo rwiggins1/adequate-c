@@ -1,6 +1,6 @@
-#include "frontend/lexer/lexer.hpp"
-#include "frontend/parser.hpp"
-#include "frontend/diagnostics/diagnostics.hpp"
+#include "lexer/lexer.hpp"
+#include "parser/parser.hpp"
+#include "diagnostics/diagnostics.hpp"
 #include <fstream>
 #include <iostream>
 #include <sstream>

@@ -1,8 +1,8 @@
-#include "frontend/ast/ast.hpp"
-#include "frontend/ast/decl.hpp"
-#include "frontend/ast/expr.hpp"
-#include "frontend/ast/stmt.hpp"
-#include "frontend/types/type.hpp"
+#include "ast/ast.hpp"
+#include "ast/decl.hpp"
+#include "ast/expr.hpp"
+#include "ast/stmt.hpp"
+#include "types/type.hpp"
 #include "gtest/gtest.h"
 #include <algorithm>
 #include <filesystem>

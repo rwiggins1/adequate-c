@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "frontend/lexer/token.hpp"
+#include "lexer/token.hpp"
 
 using namespace::frontend;
 

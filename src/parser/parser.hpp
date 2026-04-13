@@ -2,7 +2,7 @@
 
 #include "ast/ast.hpp"
 #include "diagnostics/diagnostics.hpp"
-#include "frontend/ast/expr.hpp"
+#include "ast/expr.hpp"
 #include "lexer/lexer.hpp"
 #include "lexer/token.hpp"
 #include "types/type.hpp"
