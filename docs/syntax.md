@@ -44,10 +44,10 @@ x + y    x - y    x * y    x / y    x % y
 x == y   x != y   x > y    x < y    x >= y   x <= y
 
 // Logical
-x & y    x | y    !x
+x && y    x || y    !x
 
 // Assignment
-x = 5
+x = 5;
 ```
 
 ### Data Types
@@ -81,28 +81,6 @@ int y = 10;
 - Single-line comments start with `//` and continue to end of line
 - Multi-line comments start with `/*` and end with `*/`
 - Multi-line comments cannot be nested
-
-## OOP (Future)
-### Classes
-```cpp
-class className {
-private:
-    int x;
-
-public:
-    // constructor with initialization
-    className(int x): x(x) {}
-
-    func getX() -> int {
-        return x;
-    }
-
-    ~className() {}
-}
-
-// access getX
-className::getX();
-```
 
 ## Notes
 Not all of these syntax features have been added. But they are planned for the initial release.
