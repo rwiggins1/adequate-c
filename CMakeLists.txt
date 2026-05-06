@@ -22,6 +22,7 @@ set(SOURCES
     src/lexer/lexer.cpp
     src/ast/expr.cpp
     src/ast/stmt.cpp
+    src/ast/decl.cpp
     src/parser/parser.cpp
 )
 
@@ -58,6 +59,7 @@ add_executable(test_ast
     src/lexer/lexer.cpp
     src/ast/expr.cpp
     src/ast/stmt.cpp
+    src/ast/decl.cpp
     src/parser/parser.cpp
 )
 target_include_directories(test_ast PRIVATE ${CMAKE_SOURCE_DIR}/src)

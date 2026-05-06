@@ -6,7 +6,7 @@ TEST_AST := test_ast
 SRC_DIR := src
 TEST_DIR := tests
 
-.PHONY: all build clean format run help
+.PHONY: all build clean format run help lint test-lexer test-ast test-gtest test-all
 
 # Default target
 all: build
