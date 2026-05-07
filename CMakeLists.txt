@@ -19,10 +19,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -g")
 # Source files
 set(SOURCES
     src/main.cpp
-    src/frontend/lexer/lexer.cpp
-    src/frontend/ast/expr.cpp
-    src/frontend/ast/stmt.cpp
-    src/frontend/parser.cpp
+    src/lexer/lexer.cpp
+    src/ast/expr.cpp
+    src/ast/stmt.cpp
+    src/parser/parser.cpp
 )
 
 # Build executable named 'adequatec'
@@ -48,30 +48,33 @@ enable_testing()
 # Manual Test executable for lexer
 add_executable(test_lexer
     tests/manual/test_lexer.cpp
-    src/frontend/lexer/lexer.cpp
+    src/lexer/lexer.cpp
 )
 target_include_directories(test_lexer PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # Manual Test executable for ast
 add_executable(test_ast
     tests/manual/test_ast.cpp
-    src/frontend/lexer/lexer.cpp
-    src/frontend/ast/expr.cpp
-    src/frontend/ast/stmt.cpp
-    src/frontend/parser.cpp
+    src/lexer/lexer.cpp
+    src/ast/expr.cpp
+    src/ast/stmt.cpp
+    src/parser/parser.cpp
 )
 target_include_directories(test_ast PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # Google Test for AST and Lexer
 add_executable(ast_gtest
+    tests/unit/frontend/test_token.cpp
     tests/unit/frontend/test_ast.cpp
     tests/unit/frontend/test_lexer.cpp
-    tests/unit/frontend/test_token.cpp
+    tests/unit/frontend/test_parser_expr.cpp
+    tests/unit/frontend/test_types.cpp
 
-    src/frontend/ast/expr.cpp
-    src/frontend/ast/stmt.cpp
-    src/frontend/lexer/lexer.cpp
-    src/frontend/parser.cpp
+    src/ast/expr.cpp
+    src/ast/stmt.cpp
+    src/ast/decl.cpp
+    src/lexer/lexer.cpp
+    src/parser/parser.cpp
 )
 target_include_directories(ast_gtest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(ast_gtest GTest::gtest_main)

@@ -1,6 +1,8 @@
 #pragma once
 
-#include <frontend/ast/ast.hpp>
+#include <cstdint>
+#include <ast/ast.hpp>
+#include <memory>
 
 namespace frontend::ast {
 
@@ -32,23 +34,35 @@ public:
 	[[nodiscard]] bool getValue() const noexcept { return value; }
 };
 
+enum class UnaryOp : uint8_t {
+	AND, MUL, PLUS, MINUS, NOT, BIT_NOT,
+	POST_INCREMENT, POST_DECREMENT
+};
+
 class UnaryExprAST: public ExprAST {
-	std::string op;
+	UnaryOp op;
 	std::unique_ptr<ExprAST> operand;
 public:
-	UnaryExprAST(std::string op, std::unique_ptr<ExprAST> operand);
-	[[nodiscard]] std::string getOperator() const noexcept { return op; }
+	UnaryExprAST(UnaryOp op, std::unique_ptr<ExprAST> operand);
+	[[nodiscard]] UnaryOp getOperator() const noexcept { return op; }
 	[[nodiscard]] ExprAST* getOperand() const { return operand.get(); }
 };
 
+enum class BinaryOp : uint8_t {
+	ADD, SUB, MUL, DIV, MOD,
+	EQ, NEQ, LT, GT, LE, GE,
+	AND, OR,
+	BIT_AND, BIT_OR, BIT_XOR, SHL, SHR
+};
+
 class BinaryExprAST: public ExprAST {
-	std::string op;
+	BinaryOp op;
 	std::unique_ptr<ExprAST> lhs, rhs;
 public:
-	BinaryExprAST(std::string op, std::unique_ptr<ExprAST> lhs,
+	BinaryExprAST(BinaryOp op, std::unique_ptr<ExprAST> lhs,
 	       std::unique_ptr<ExprAST> rhs);
 	
-	[[nodiscard]] std::string getOperator() const noexcept { return op; }
+	[[nodiscard]] BinaryOp getOperator() const noexcept { return op; }
 	[[nodiscard]] ExprAST* getLhs() const { return lhs.get(); }
 	[[nodiscard]] ExprAST* getRhs() const { return rhs.get(); }
 };
@@ -61,11 +75,11 @@ public:
 };
 
 class CallExprAST: public ExprAST {
-	std::string callee;
+	std::unique_ptr<ExprAST> callee;
 	std::vector<std::unique_ptr<ExprAST>> args;
 public:
-	CallExprAST(std::string callee, std::vector<std::unique_ptr<ExprAST>> args);
-	[[nodiscard]] std::string getCallee() const noexcept { return callee; }
+	CallExprAST(std::unique_ptr<ExprAST> callee, std::vector<std::unique_ptr<ExprAST>> args);
+	[[nodiscard]] ExprAST* getCallee() const noexcept { return callee.get(); }
 	[[nodiscard]] const std::vector<std::unique_ptr<ExprAST>>& getArgs() const { return args; }
 };
 

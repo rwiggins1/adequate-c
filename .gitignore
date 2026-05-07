@@ -57,3 +57,7 @@ adequatec
 
 # valgrind
 vgcore.*
+
+# perf
+perf.data
+perf.data.old
