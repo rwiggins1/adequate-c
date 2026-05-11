@@ -34,25 +34,48 @@ void Lexer::skipWhitespace() noexcept {
 }
 
 void Lexer::skipSingleLineComment() noexcept {
-	advance();
-	advance();
+	advance(); // consume '/'
+	advance(); // consume '/'
 
-	while (current != '\n') {
+	while (position < src_length && current != '\n') {
 		advance();
 	}
-	advance();
+
+	if (current == '\n') {
+		advance();
+	}
 }
 
 void Lexer::skipMultiLineComment() noexcept {
-	advance();
-	advance();
+	advance(); // consume '/'
+	advance(); // consume '*'
 
-	while (current != '*' && peekNext() != '/') {
+	while (position < src_length &&
+	       !(current == '*' && peekNext() == '/')) {
 		advance();
 	}
-	advance();
-	advance();
-	advance();
+
+	if (position < src_length) {
+		advance(); // consume '*'
+		advance(); // consume '/'
+    }
+}
+
+// Skip whitespace and comments in alternation
+void Lexer::skipTrivia() noexcept {
+	while (true) {
+		skipWhitespace();
+
+		if (current == '/' && peekNext() == '/') {
+			skipSingleLineComment();
+		}
+		else if (current == '/' && peekNext() == '*') {
+			skipMultiLineComment();
+		}
+		else {
+			break;
+		}
+	}
 }
 
 // Determines identifier
@@ -167,20 +190,6 @@ Token Lexer::makeToken(TokenType type, const std::string &lexme) {
 
 // Tokenizer
 Token Lexer::tokenize() {
-	// EOF
-	if (position >= src_length) {
-		return {TokenType::T_EOF, "\0", line, column};
-	}
-
-	skipWhitespace();
-
-	if (current == '/' && peekNext() == '/') {
-		Lexer::skipSingleLineComment();
-	}
-	else if (current == '/' && peekNext() == '*') {
-		Lexer::skipMultiLineComment();
-	}
-
 	if (std::isalpha(static_cast<unsigned char>(current)) != 0) {
 		return identifier();
 	}
@@ -267,7 +276,7 @@ Token Lexer::tokenize() {
 	case '<':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::LESS_EQUAL, "<");
+			return makeToken(TokenType::LESS_EQUAL, "<=");
 		}
 		if (current == '<') {
 			advance();
@@ -338,6 +347,12 @@ Token Lexer::tokenize() {
 	}
 }
 
-Token Lexer::get() { return tokenize(); }
+Token Lexer::get() { 
+	skipTrivia();
+	if (position >= src_length) {
+		return {TokenType::T_EOF, "\0", line, column};
+	}
+	return tokenize();
+}
 
 } // namespace frontend

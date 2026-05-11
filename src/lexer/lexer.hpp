@@ -55,6 +55,7 @@ private:
 	void skipWhitespace() noexcept;
 	void skipSingleLineComment() noexcept;
 	void skipMultiLineComment() noexcept;
+	void skipTrivia() noexcept;
 
 	Token identifier();
 	Token number();
