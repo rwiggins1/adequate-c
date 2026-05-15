@@ -190,6 +190,9 @@ Token Lexer::makeToken(TokenType type, const std::string &lexme) {
 
 // Tokenizer
 Token Lexer::tokenize() {
+    size_t start_line = line;
+    size_t start_column = column;
+
 	if (std::isalpha(static_cast<unsigned char>(current)) != 0) {
 		return identifier();
 	}
@@ -216,7 +219,7 @@ Token Lexer::tokenize() {
 		if (current == '=') {
 			return makeToken(TokenType::PLUS_ASSIGN, "+=");
 		}
-		return {TokenType::PLUS, "+", line, column};
+		return {TokenType::PLUS, "+", start_line, start_column};
 	case '-':
 		advance();
 		if (current == '-') {
@@ -228,37 +231,37 @@ Token Lexer::tokenize() {
 		if (current == '>') {
 			return makeToken(TokenType::ARROW, "->");
 		}
-		return {TokenType::MINUS, "-", line, column};
+		return {TokenType::MINUS, "-", start_line, start_column};
 	case '*':
 		advance();
 		if (current == '=') {
 			return makeToken(TokenType::MULTIPLY_ASSIGN, "*=");
 		}
-		return {TokenType::MULTIPLY, "*", line, column};
+		return {TokenType::MULTIPLY, "*", start_line, start_column};
 	case '/':
 		advance();
 		if (current == '=') {
 			return makeToken(TokenType::DIVIDE_ASSIGN, "/=");
 		}
-		return {TokenType::DIVIDE, "/", line, column};
+		return {TokenType::DIVIDE, "/", start_line, start_column};
 	case '%':
 		advance();
 		if (current == '=') {
 			return makeToken(TokenType::MODULO_ASSIGN, "%=");
 		}
-		return {TokenType::MODULO, "%", line, column};
+		return {TokenType::MODULO, "%", start_line, start_column};
 	case '=':
 		advance();
 		if (current == '=') {
 			return makeToken(TokenType::EQUAL, "==");
 		}
-		return {TokenType::ASSIGN, "=", line, column};
+		return {TokenType::ASSIGN, "=", start_line, start_column};
 	case '!':
 		advance();
 		if (current == '=') {
 			return makeToken(TokenType::NOT_EQUAL, "!=");
 		}
-		return {TokenType::NOT, "!", line, column};
+		return {TokenType::NOT, "!", start_line, start_column};
 	case '>':
 		advance();
 		if (current == '=') {
@@ -270,9 +273,9 @@ Token Lexer::tokenize() {
 				return makeToken(TokenType::RIGHT_SHIFT_ASSIGN,
 						 ">>=");
 			}
-			return {TokenType::RIGHT_SHIFT, ">>", line, column};
+			return {TokenType::RIGHT_SHIFT, ">>", start_line, start_column};
 		}
-		return {TokenType::GREATER, ">", line, column};
+		return {TokenType::GREATER, ">", start_line, start_column};
 	case '<':
 		advance();
 		if (current == '=') {
@@ -284,9 +287,9 @@ Token Lexer::tokenize() {
 				return makeToken(TokenType::LEFT_SHIFT_ASSIGN,
 						 "<<=");
 			}
-			return {TokenType::LEFT_SHIFT, "<<", line, column};
+			return {TokenType::LEFT_SHIFT, "<<", start_line, start_column};
 		}
-		return {TokenType::LESS, "<", line, column};
+		return {TokenType::LESS, "<", start_line, start_column};
 	case '&':
 		advance();
 		if (current == '&') {
@@ -295,7 +298,7 @@ Token Lexer::tokenize() {
 		if (current == '=') {
 			return makeToken(TokenType::BIT_AND_ASSIGN, "&=");
 		}
-		return {TokenType::BIT_AND, "&", line, column};
+		return {TokenType::BIT_AND, "&", start_line, start_column};
 	case '|':
 		advance();
 		if (current == '|') {
@@ -304,13 +307,13 @@ Token Lexer::tokenize() {
 		if (current == '=') {
 			return makeToken(TokenType::BIT_OR_ASSIGN, "|=");
 		}
-		return {TokenType::BIT_OR, "|", line, column};
+		return {TokenType::BIT_OR, "|", start_line, start_column};
 	case '^':
 		advance();
 		if (current == '=') {
 			return makeToken(TokenType::BIT_XOR_ASSIGN, "^=");
 		}
-		return {TokenType::BIT_XOR, "^", line, column};
+		return {TokenType::BIT_XOR, "^", start_line, start_column};
 	case '~':
 		return makeToken(TokenType::BIT_NOT, "~");
 	case '@':
@@ -325,7 +328,7 @@ Token Lexer::tokenize() {
 		if (current == ':') {
 			return makeToken(TokenType::SCOPE, "::");
 		}
-		return {TokenType::COLON, ":", line, column};
+		return {TokenType::COLON, ":", start_line, start_column};
 	case ';':
 		return makeToken(TokenType::SEMICOLON, ";");
 	case ',':
@@ -347,7 +350,7 @@ Token Lexer::tokenize() {
 	}
 }
 
-Token Lexer::get() { 
+Token Lexer::get() {
 	skipTrivia();
 	if (position >= src_length) {
 		return {TokenType::T_EOF, "\0", line, column};
