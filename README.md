@@ -1,5 +1,5 @@
 # Adequate-C
-A statically-typed C/C++ inspired language with modern features - adequately good.
+A statically-typed, general-purpose language inspired by C++, designed to be smaller, safer, and more readable. Adequate-C's core design goal is explicitness: every keyword, type, and construct should be immediately understandable without knowing the language's history. Adequate-C targets systems-familiar developers who want a fast, ergonomic, and compact language, as well as programmers coming from higher-level languages who want a gentler introduction to systems programming. The language is currently in early development.
 
 ## Building
 
