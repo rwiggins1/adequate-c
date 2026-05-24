@@ -3,6 +3,7 @@
 #include <sstream>
 #include "lexer/lexer.hpp"
 #include "lexer/token.hpp"
+#include "diagnostics/diagnostics.hpp"
 
 using namespace frontend;
 
@@ -85,32 +86,34 @@ const char* tokenTypeToString(TokenType type) {
 
 void testFile(const std::string& filename) {
 	std::cout << "\n=== Testing: " << filename << " ===\n";
-	
+
 	// Read file
 	std::ifstream file(filename);
 	if (!file.is_open()) {
 		std::cerr << "ERROR: Could not open file: " << filename << "\n";
 		return;
 	}
-	
+
 	std::stringstream buffer;
 	buffer << file.rdbuf();
 	std::string source = buffer.str();
-	
+
 	std::cout << "Source:\n" << source << "\n\n";
 	std::cout << "Tokens:\n";
-	
+
+	ErrorReporter error;
+
 	// Tokenize
-	Lexer lexer(source);
+	Lexer lexer(source, error);
 	Token token = lexer.get();
-	
+
 	while (token.type != TokenType::T_EOF) {
-		std::cout << tokenTypeToString(token.type) 
+		std::cout << tokenTypeToString(token.type)
 		          << "\t'" << token.lexeme << "'"
 		          << "\t[" << token.line << ":" << token.column << "]\n";
 		token = lexer.get();
 	}
-	
+
 	std::cout << tokenTypeToString(token.type) << "\n";
 }
 
@@ -118,8 +121,8 @@ int main(int argc, char* argv[]) {
 	if (argc < 2) {
 		return 1;
 	}
-	
+
 	testFile(argv[1]);
-	
+
 	return 0;
 }

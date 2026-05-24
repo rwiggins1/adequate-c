@@ -1,12 +1,14 @@
 #include "lexer.hpp"
+#include "diagnostics/diagnostics.hpp"
 #include "token.hpp"
 #include <cctype>
 #include <cstddef>
+#include <iterator>
 #include <string>
 
 namespace frontend {
-Lexer::Lexer(std::string src)
-    : source(std::move(src)), src_length(source.length()), position(0), line(1),
+Lexer::Lexer(std::string src, ErrorReporter& errors)
+    : source(std::move(src)), errors(errors), src_length(source.length()), position(0), line(1),
       column(1), current(source.empty() ? '\0' : source[0]) {}
 
 void Lexer::advance() noexcept {
@@ -46,7 +48,10 @@ void Lexer::skipSingleLineComment() noexcept {
 	}
 }
 
-void Lexer::skipMultiLineComment() noexcept {
+void Lexer::skipMultiLineComment() {
+    size_t start_line = line;
+    size_t start_column = column;
+
 	advance(); // consume '/'
 	advance(); // consume '*'
 
@@ -58,11 +63,15 @@ void Lexer::skipMultiLineComment() noexcept {
 	if (position < src_length) {
 		advance(); // consume '*'
 		advance(); // consume '/'
-    }
+	}
+	else {
+    	errors.error("unterminated block comment",
+                    start_line, start_column, ErrorPhase::LEXER);
+	}
 }
 
 // Skip whitespace and comments in alternation
-void Lexer::skipTrivia() noexcept {
+void Lexer::skipTrivia() {
 	while (true) {
 		skipWhitespace();
 
@@ -152,8 +161,12 @@ Token Lexer::char_lit() {
 		if (current == '\'') {
 			text += current;
 			advance();
+			errors.error("character literal must contain exactly one character",
+                 startLine, startColumn, ErrorPhase::LEXER);
+			return {TokenType::INVALID, text, startLine, startColumn};
 		}
-
+		errors.error("unterminated char literal",
+                 startLine, startColumn, ErrorPhase::LEXER);
 		return {TokenType::INVALID, text, startLine, startColumn};
 	}
 
@@ -176,6 +189,10 @@ Token Lexer::string_lit() {
 		text += current;
 		advance();
 	}
+	if (position >= src_length) {
+        errors.error("unterminated string literal", startLine, startColumn, ErrorPhase::LEXER);
+        return {TokenType::INVALID, text, startLine, startColumn};
+    }
 	text += current; // add closing qoutes
 	advance();
 	return {TokenType::STRING_LIT, text, startLine, startColumn};
@@ -190,8 +207,8 @@ Token Lexer::makeToken(TokenType type, const std::string &lexme) {
 
 // Tokenizer
 Token Lexer::tokenize() {
-    size_t start_line = line;
-    size_t start_column = column;
+	size_t start_line = line;
+	size_t start_column = column;
 
 	if (std::isalpha(static_cast<unsigned char>(current)) != 0) {
 		return identifier();
@@ -273,7 +290,8 @@ Token Lexer::tokenize() {
 				return makeToken(TokenType::RIGHT_SHIFT_ASSIGN,
 						 ">>=");
 			}
-			return {TokenType::RIGHT_SHIFT, ">>", start_line, start_column};
+			return {TokenType::RIGHT_SHIFT, ">>", start_line,
+				start_column};
 		}
 		return {TokenType::GREATER, ">", start_line, start_column};
 	case '<':
@@ -287,7 +305,8 @@ Token Lexer::tokenize() {
 				return makeToken(TokenType::LEFT_SHIFT_ASSIGN,
 						 "<<=");
 			}
-			return {TokenType::LEFT_SHIFT, "<<", start_line, start_column};
+			return {TokenType::LEFT_SHIFT, "<<", start_line,
+				start_column};
 		}
 		return {TokenType::LESS, "<", start_line, start_column};
 	case '&':
@@ -346,6 +365,8 @@ Token Lexer::tokenize() {
 	case '}':
 		return makeToken(TokenType::RBRACE, "}");
 	default:
+    	errors.error("unexpected character '" + std::string(1, current) + "'",
+                    line, column, ErrorPhase::LEXER);
 		return makeToken(TokenType::INVALID, std::string(1, current));
 	}
 }
