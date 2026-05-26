@@ -199,8 +199,8 @@ Token Lexer::string_lit() {
 }
 
 // Constructs token
-Token Lexer::makeToken(TokenType type, const std::string &lexme) {
-	Token token(type, lexme, line, column);
+Token Lexer::makeToken(TokenType type, const std::string &lexme, size_t start_column) {
+	Token token(type, lexme, line, start_column);
 	advance();
 	return token;
 }
@@ -231,64 +231,64 @@ Token Lexer::tokenize() {
 	case '+':
 		advance();
 		if (current == '+') {
-			return makeToken(TokenType::PLUS_PLUS, "++");
+			return makeToken(TokenType::PLUS_PLUS, "++", start_column);
 		}
 		if (current == '=') {
-			return makeToken(TokenType::PLUS_ASSIGN, "+=");
+			return makeToken(TokenType::PLUS_ASSIGN, "+=", start_column);
 		}
 		return {TokenType::PLUS, "+", start_line, start_column};
 	case '-':
 		advance();
 		if (current == '-') {
-			return makeToken(TokenType::MINUS_MINUS, "--");
+			return makeToken(TokenType::MINUS_MINUS, "--", start_column);
 		}
 		if (current == '=') {
-			return makeToken(TokenType::MINUS_ASSIGN, "-=");
+			return makeToken(TokenType::MINUS_ASSIGN, "-=", start_column);
 		}
 		if (current == '>') {
-			return makeToken(TokenType::ARROW, "->");
+			return makeToken(TokenType::ARROW, "->", start_column);
 		}
 		return {TokenType::MINUS, "-", start_line, start_column};
 	case '*':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::MULTIPLY_ASSIGN, "*=");
+			return makeToken(TokenType::MULTIPLY_ASSIGN, "*=", start_column);
 		}
 		return {TokenType::MULTIPLY, "*", start_line, start_column};
 	case '/':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::DIVIDE_ASSIGN, "/=");
+			return makeToken(TokenType::DIVIDE_ASSIGN, "/=", start_column);
 		}
 		return {TokenType::DIVIDE, "/", start_line, start_column};
 	case '%':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::MODULO_ASSIGN, "%=");
+			return makeToken(TokenType::MODULO_ASSIGN, "%=", start_column);
 		}
 		return {TokenType::MODULO, "%", start_line, start_column};
 	case '=':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::EQUAL, "==");
+			return makeToken(TokenType::EQUAL, "==", start_column);
 		}
 		return {TokenType::ASSIGN, "=", start_line, start_column};
 	case '!':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::NOT_EQUAL, "!=");
+			return makeToken(TokenType::NOT_EQUAL, "!=", start_column);
 		}
 		return {TokenType::NOT, "!", start_line, start_column};
 	case '>':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::GREATER_EQUAL, ">=");
+			return makeToken(TokenType::GREATER_EQUAL, ">=", start_column);
 		}
 		if (current == '>') {
 			advance();
 			if (current == '=') {
 				return makeToken(TokenType::RIGHT_SHIFT_ASSIGN,
-						 ">>=");
+						 ">>=", start_column);
 			}
 			return {TokenType::RIGHT_SHIFT, ">>", start_line,
 				start_column};
@@ -297,13 +297,13 @@ Token Lexer::tokenize() {
 	case '<':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::LESS_EQUAL, "<=");
+			return makeToken(TokenType::LESS_EQUAL, "<=", start_column);
 		}
 		if (current == '<') {
 			advance();
 			if (current == '=') {
 				return makeToken(TokenType::LEFT_SHIFT_ASSIGN,
-						 "<<=");
+						 "<<=", start_column);
 			}
 			return {TokenType::LEFT_SHIFT, "<<", start_line,
 				start_column};
@@ -312,62 +312,62 @@ Token Lexer::tokenize() {
 	case '&':
 		advance();
 		if (current == '&') {
-			return makeToken(TokenType::AND, "&&");
+			return makeToken(TokenType::AND, "&&", start_column);
 		}
 		if (current == '=') {
-			return makeToken(TokenType::BIT_AND_ASSIGN, "&=");
+			return makeToken(TokenType::BIT_AND_ASSIGN, "&=", start_column);
 		}
 		return {TokenType::BIT_AND, "&", start_line, start_column};
 	case '|':
 		advance();
 		if (current == '|') {
-			return makeToken(TokenType::OR, "||");
+			return makeToken(TokenType::OR, "||", start_column);
 		}
 		if (current == '=') {
-			return makeToken(TokenType::BIT_OR_ASSIGN, "|=");
+			return makeToken(TokenType::BIT_OR_ASSIGN, "|=", start_column);
 		}
 		return {TokenType::BIT_OR, "|", start_line, start_column};
 	case '^':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::BIT_XOR_ASSIGN, "^=");
+			return makeToken(TokenType::BIT_XOR_ASSIGN, "^=", start_column);
 		}
 		return {TokenType::BIT_XOR, "^", start_line, start_column};
 	case '~':
-		return makeToken(TokenType::BIT_NOT, "~");
+		return makeToken(TokenType::BIT_NOT, "~", start_column);
 	case '@':
-		return makeToken(TokenType::REFERENCE, "@");
+		return makeToken(TokenType::REFERENCE, "@", start_column);
 	case '.':
-		return makeToken(TokenType::DOT, ".");
+		return makeToken(TokenType::DOT, ".", start_column);
 	case '?':
-		return makeToken(TokenType::QUESTION, "?");
+		return makeToken(TokenType::QUESTION, "?", start_column);
 	// Delimiters
 	case ':':
 		advance();
 		if (current == ':') {
-			return makeToken(TokenType::SCOPE, "::");
+			return makeToken(TokenType::SCOPE, "::", start_column);
 		}
 		return {TokenType::COLON, ":", start_line, start_column};
 	case ';':
-		return makeToken(TokenType::SEMICOLON, ";");
+		return makeToken(TokenType::SEMICOLON, ";", start_column);
 	case ',':
-		return makeToken(TokenType::COMMA, ",");
+		return makeToken(TokenType::COMMA, ",", start_column);
 	case '[':
-		return makeToken(TokenType::LSQRBRACKET, "[");
+		return makeToken(TokenType::LSQRBRACKET, "[", start_column);
 	case ']':
-		return makeToken(TokenType::RSQRBRACKET, "]");
+		return makeToken(TokenType::RSQRBRACKET, "]", start_column);
 	case '(':
-		return makeToken(TokenType::OPAREN, "(");
+		return makeToken(TokenType::OPAREN, "(", start_column);
 	case ')':
-		return makeToken(TokenType::CPAREN, ")");
+		return makeToken(TokenType::CPAREN, ")", start_column);
 	case '{':
-		return makeToken(TokenType::LBRACE, "{");
+		return makeToken(TokenType::LBRACE, "{", start_column);
 	case '}':
-		return makeToken(TokenType::RBRACE, "}");
+		return makeToken(TokenType::RBRACE, "}", start_column);
 	default:
     	errors.error("unexpected character '" + std::string(1, current) + "'",
                     line, column, ErrorPhase::LEXER);
-		return makeToken(TokenType::INVALID, std::string(1, current));
+		return makeToken(TokenType::INVALID, std::string(1, current), start_column);
 	}
 }
 

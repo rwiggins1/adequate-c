@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <string>
 #include <unordered_map>
 #include "token.hpp"
@@ -64,7 +65,7 @@ private:
 	Token string_lit();
 	Token char_lit();
 
-	Token makeToken(TokenType type, const std::string& lexme);
+	Token makeToken(TokenType type, const std::string& lexme, size_t start_column);
 	Token tokenize();
 
 public:
