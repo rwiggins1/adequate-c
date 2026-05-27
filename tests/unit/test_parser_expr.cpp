@@ -23,17 +23,13 @@ using namespace frontend::types;
 
 TEST(ParserExpr, ParseLiteral) {
 	{
-		Lexer lexer("2");
-		ErrorReporter errors;
+	    ErrorReporter errors;
+		Lexer lexer("2", errors);
 
 		Parser parser(lexer, errors);
 
-		// get std::optional<std::unique_ptr<ExprAST>>
-		auto expr_opt =  parser.parseLiteral();
-		ASSERT_TRUE(expr_opt.has_value());
-
 		// get std::unique_ptr<ExprAST>
-		auto expr_ast = std::move(*expr_opt);
+		auto expr_ast =  parser.parseLiteral();
 
 		auto literal_ast = dynamic_cast<ast::NumberLiteralAST*>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
@@ -42,17 +38,14 @@ TEST(ParserExpr, ParseLiteral) {
 		ASSERT_EQ(val, 2.0);
 	}
 	{
-		Lexer lexer("'a'");
 		ErrorReporter errors;
+		Lexer lexer("'a'", errors);
 
 		Parser parser(lexer, errors);
 
-		// get std::optional<std::unique_ptr<ExprAST>>
-		auto expr_opt =  parser.parseLiteral();
-		ASSERT_TRUE(expr_opt.has_value());
 
 		// get std::unique_ptr<ExprAST>
-		auto expr_ast = std::move(*expr_opt);
+		auto expr_ast =  parser.parseLiteral();
 
 		auto literal_ast = dynamic_cast<ast::CharLiteralAST*>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
@@ -61,17 +54,14 @@ TEST(ParserExpr, ParseLiteral) {
 		ASSERT_EQ(val, 'a');
 	}
 	{
-		Lexer lexer("\"Hello, World!\"");
 		ErrorReporter errors;
+		Lexer lexer("\"Hello, World!\"", errors);
 
 		Parser parser(lexer, errors);
 
-		// get std::optional<std::unique_ptr<ExprAST>>
-		auto expr_opt =  parser.parseLiteral();
-		ASSERT_TRUE(expr_opt.has_value());
 
 		// get std::unique_ptr<ExprAST>
-		auto expr_ast = std::move(*expr_opt);
+		auto expr_ast =  parser.parseLiteral();
 
 		auto literal_ast = dynamic_cast<ast::StringLiteralAST*>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
@@ -80,17 +70,14 @@ TEST(ParserExpr, ParseLiteral) {
 		ASSERT_EQ(val, "\"Hello, World!\"");
 	}
 	{
-		Lexer lexer("true");
 		ErrorReporter errors;
+		Lexer lexer("true", errors);
 
 		Parser parser(lexer, errors);
 
-		// get std::optional<std::unique_ptr<ExprAST>>
-		auto expr_opt =  parser.parseLiteral();
-		ASSERT_TRUE(expr_opt.has_value());
 
 		// get std::unique_ptr<ExprAST>
-		auto expr_ast = std::move(*expr_opt);
+		auto expr_ast =  parser.parseLiteral();
 
 		auto literal_ast = dynamic_cast<ast::BoolLiteralAST*>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
@@ -99,17 +86,14 @@ TEST(ParserExpr, ParseLiteral) {
 		ASSERT_EQ(val, true);
 	}
 	{
-		Lexer lexer("false");
 		ErrorReporter errors;
+		Lexer lexer("false", errors);
 
 		Parser parser(lexer, errors);
 
-		// get std::optional<std::unique_ptr<ExprAST>>
-		auto expr_opt =  parser.parseLiteral();
-		ASSERT_TRUE(expr_opt.has_value());
 
 		// get std::unique_ptr<ExprAST>
-		auto expr_ast = std::move(*expr_opt);
+		auto expr_ast =  parser.parseLiteral();
 
 		auto literal_ast = dynamic_cast<ast::BoolLiteralAST*>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
@@ -121,20 +105,17 @@ TEST(ParserExpr, ParseLiteral) {
 
 TEST(ParserExpr, ParserPrimitiveType) {
 	{
-		Lexer lexer("int");
 		ErrorReporter errors;
+		Lexer lexer("int", errors);
 		Parser parser(lexer, errors);
-		
-		// get std::optional<std::unique_ptr<types::Type>>
-		auto prim_type_opt = parser.parsePrimitiveType();
-		ASSERT_TRUE(prim_type_opt.has_value());
+
 
 		// get std::unique_ptr<types::Type>
-		auto prim_type_ast = std::move(*prim_type_opt);
+		auto prim_type_ast = parser.parsePrimitiveType();
 
 		auto prim_type = dynamic_cast<types::IntType*>(prim_type_ast.get());
 		ASSERT_NE(prim_type, nullptr);
-	
+
 		std::string val = prim_type->toString();
 		ASSERT_EQ(val, "int");
 	}
@@ -142,17 +123,12 @@ TEST(ParserExpr, ParserPrimitiveType) {
 
 TEST(ParserExpr, ParserPrimaryExpr) {
 	{
-		Lexer lexer("2");
 		ErrorReporter errors;
+		Lexer lexer("2", errors);
 		Parser parser(lexer, errors);
 
-		// get std::optional<std::unique_ptr<ExprAST>>
-		auto prim_expr_opt = parser.parsePrimaryExpr();
-		errors.printAll();
-		ASSERT_TRUE(prim_expr_opt.has_value());
-
 		// get std::unique_ptr<ExprAST>
-		auto prim_expr_ast = std::move(*prim_expr_opt);
+		auto prim_expr_ast = parser.parsePrimaryExpr();
 
 		auto prim_expr = dynamic_cast<ast::NumberLiteralAST*>(prim_expr_ast.get());
 		ASSERT_NE(prim_expr, nullptr);
@@ -161,17 +137,12 @@ TEST(ParserExpr, ParserPrimaryExpr) {
 
 TEST(ParserExpr, ParserPostfixExpr) {
 	{
-		Lexer lexer("2;");
 		ErrorReporter errors;
+		Lexer lexer("2;", errors);
 		Parser parser(lexer, errors);
 
-		// get std::optional<std::unique_ptr<ExprAST>>
-		auto postfix_expr_opt = parser.parsePostfixExpr();
-		errors.printAll();
-		ASSERT_TRUE(postfix_expr_opt.has_value());
-
 		// get std::unique_ptr<ExprAST>
-		auto postfix_ast = std::move(*postfix_expr_opt);
+		auto postfix_ast = parser.parsePostfixExpr();
 
 		auto prim_expr = dynamic_cast<ast::NumberLiteralAST*>(postfix_ast.get());
 		ASSERT_NE(prim_expr, nullptr);
@@ -180,21 +151,16 @@ TEST(ParserExpr, ParserPostfixExpr) {
 
 TEST(ParserExpr, ParserMultiplicative) {
 	{
-		Lexer lexer("2 * 2;");
 		ErrorReporter errors;
+		Lexer lexer("2 * 2;", errors);
 		Parser parser(lexer, errors);
-		
-		// get std::optional<std::unique_ptr<ExprAST>>
-		auto mult_opt = parser.parseMultiplicativeExpr();
-		errors.printAll();
-		ASSERT_TRUE(mult_opt.has_value());
 
 		// get std::unique_ptr<types::Type>
-		auto mult_ast = std::move(*mult_opt);
+		auto mult_ast = parser.parseMultiplicativeExpr();
 
 		auto mult_expr = dynamic_cast<ast::BinaryExprAST*>(mult_ast.get());
 		ASSERT_NE(mult_expr, nullptr);
-	
+
 		ast::ExprAST* lhs_expr = mult_expr->getLhs();
 		auto lhs = dynamic_cast<ast::NumberLiteralAST*>(lhs_expr);
 		ASSERT_NE(lhs, nullptr);
@@ -207,4 +173,3 @@ TEST(ParserExpr, ParserMultiplicative) {
 		ASSERT_NE(rhs, nullptr);
 	}
 }
-

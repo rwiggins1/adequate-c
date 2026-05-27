@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 #include "lexer/lexer.hpp"
 #include "lexer/token.hpp"
+#include "diagnostics/diagnostics.hpp"
 
 using namespace::frontend;
 
 TEST(lexerTest, Get) {
-	Lexer lexer("int variable = 2 + 3");
+    ErrorReporter errors;
+	Lexer lexer("int variable = 2 + 3", errors);
 	Token token = lexer.get();
 	ASSERT_EQ(token.type, TokenType::INT);
 	token = lexer.get();
@@ -19,4 +21,3 @@ TEST(lexerTest, Get) {
 	token = lexer.get();
 	ASSERT_EQ(token.type, TokenType::NUMBER);
 }
-

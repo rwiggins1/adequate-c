@@ -13,10 +13,10 @@ enum class TokenType : std::uint8_t {
 	CONST, STATIC,
 	NAMESPACE,
 	IMPORT,
-    
+
 	// Types
 	INT, FLOAT, DOUBLE, CHAR, BOOL, VOID, STRING,
-    
+
 	// Operators
 	PLUS, MINUS, MULTIPLY, DIVIDE, MODULO,
 	PLUS_PLUS, MINUS_MINUS,  // ++ --
@@ -37,17 +37,17 @@ enum class TokenType : std::uint8_t {
 	DOT, // '.'
 	QUESTION, // ? (for ternary)
 	SCOPE, // '::'
-    
+
 	// Delimiters
 	COLON, SEMICOLON, COMMA,
 	LBRACE, RBRACE, // '{', '}'
-	OPAREN, CPAREN, // '(', ')' 
+	OPAREN, CPAREN, // '(', ')'
 	RSQRBRACKET, LSQRBRACKET, // '[', ']'
-    
+
 	// Literals
 	NUMBER, STRING_LIT, CHAR_LIT, IDENT,
 	TRUE, FALSE,
-    
+
 	// Special
 	T_EOF,
 	INVALID
@@ -58,9 +58,8 @@ struct Token {
 	std::string lexeme;
 	size_t line;
 	size_t column;
-    
+
 	Token(TokenType t, std::string lex, size_t ln, size_t col)
 		: type(t), lexeme(std::move(lex)), line(ln), column(col) {}
 };
 }
-

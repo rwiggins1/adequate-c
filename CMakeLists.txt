@@ -22,6 +22,7 @@ set(SOURCES
     src/lexer/lexer.cpp
     src/ast/expr.cpp
     src/ast/stmt.cpp
+    src/ast/decl.cpp
     src/parser/parser.cpp
 )
 
@@ -58,17 +59,18 @@ add_executable(test_ast
     src/lexer/lexer.cpp
     src/ast/expr.cpp
     src/ast/stmt.cpp
+    src/ast/decl.cpp
     src/parser/parser.cpp
 )
 target_include_directories(test_ast PRIVATE ${CMAKE_SOURCE_DIR}/src)
 
 # Google Test for AST and Lexer
 add_executable(ast_gtest
-    tests/unit/frontend/test_token.cpp
-    tests/unit/frontend/test_ast.cpp
-    tests/unit/frontend/test_lexer.cpp
-    tests/unit/frontend/test_parser_expr.cpp
-    tests/unit/frontend/test_types.cpp
+    tests/unit/test_token.cpp
+    tests/unit/test_ast.cpp
+    tests/unit/test_lexer.cpp
+    tests/unit/test_parser_expr.cpp
+    tests/unit/test_types.cpp
 
     src/ast/expr.cpp
     src/ast/stmt.cpp

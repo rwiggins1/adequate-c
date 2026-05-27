@@ -21,9 +21,9 @@ void testFile(const std::string &filename) {
 	std::string source = buffer.str();
 
 	std::cout << "Source:\n" << source << "\n\n";
-	
+
 	ErrorReporter error;
-	Lexer lexer(source);
+	Lexer lexer(source, error);
 	Parser parser(lexer, error);
 
 	auto varDecl = parser.parseVarDecl();

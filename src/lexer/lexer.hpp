@@ -1,13 +1,16 @@
 #pragma once
 
+#include <cstddef>
 #include <string>
 #include <unordered_map>
 #include "token.hpp"
+#include "diagnostics/diagnostics.hpp"
 
 namespace frontend {
 class Lexer {
 private:
 	std::string source; // source code
+	ErrorReporter& errors;
 	size_t src_length;
 	size_t position;
 	size_t line;
@@ -54,22 +57,22 @@ private:
 	char peekNext() noexcept;
 	void skipWhitespace() noexcept;
 	void skipSingleLineComment() noexcept;
-	void skipMultiLineComment() noexcept;
+	void skipMultiLineComment();
+	void skipTrivia();
 
 	Token identifier();
 	Token number();
 	Token string_lit();
 	Token char_lit();
 
-	Token makeToken(TokenType type, const std::string& lexme);
+	Token makeToken(TokenType type, const std::string& lexme, size_t start_column);
 	Token tokenize();
 
 public:
-	Lexer(std::string src);
-	
+	Lexer(std::string src, ErrorReporter& errors);
+
 	Token peek();
 	Token get();
 };
 
 }
-
