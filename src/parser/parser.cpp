@@ -45,7 +45,7 @@ bool Parser::expect(TokenType type) {
 	return true;
 }
 
-std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseLiteral() {
+std::unique_ptr<ast::ExprAST> Parser::parseLiteral() {
 	switch (current.type) {
 	case TokenType::NUMBER: {
 		auto result = std::make_unique<ast::NumberLiteralAST>(
@@ -79,7 +79,7 @@ std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseLiteral() {
 	default:
 		errors.error("Expected literal but got " + current.lexeme,
 			     current.line, current.column);
-		return std::nullopt;
+		return nullptr;
 	}
 }
 
@@ -106,7 +106,7 @@ bool Parser::assignmentOperator() const {
 	       current.type == TokenType::BIT_OR_ASSIGN;
 }
 
-std::optional<std::unique_ptr<types::Type>> Parser::parsePrimitiveType() {
+std::unique_ptr<types::Type> Parser::parsePrimitiveType() {
 	switch (current.type) {
 	case TokenType::INT: {
 		advance();
@@ -140,33 +140,33 @@ std::optional<std::unique_ptr<types::Type>> Parser::parsePrimitiveType() {
 		errors.error("Expected primitive type but got " +
 				 current.lexeme,
 			     current.line, current.column);
-		return std::nullopt;
+		return nullptr;
 	}
 }
 
-std::optional<std::unique_ptr<types::Type>> Parser::parseType() {
+std::unique_ptr<types::Type> Parser::parseType() {
 	switch (current.type) {
 	case TokenType::CONST: {
 		advance();
 		if (auto inner_type = parseType(); inner_type) {
 			return std::make_unique<types::ConstType>(
-			    std::move(*inner_type));
+			    std::move(inner_type));
 		}
 		errors.error("Expected type after 'const' but got " +
 				 current.lexeme,
 			     current.line, current.column);
-		return std::nullopt;
+		return nullptr;
 	}
 	case TokenType::STATIC: {
 		advance();
 		if (auto inner_type = parseType(); inner_type) {
 			return std::make_unique<types::StaticType>(
-			    std::move(*inner_type));
+			    std::move(inner_type));
 		}
 		errors.error("Expected type after 'static' but got " +
 				 current.lexeme,
 			     current.line, current.column);
-		return std::nullopt;
+		return nullptr;
 	}
 	case TokenType::STRUCT: {
 		advance();
@@ -179,14 +179,14 @@ std::optional<std::unique_ptr<types::Type>> Parser::parseType() {
 		errors.error("Expected identifier after 'struct' but got " +
 				 current.lexeme,
 			     current.line, current.column);
-		return std::nullopt;
+		return nullptr;
 	}
 	default:
 		return parsePrimitiveType();
 	}
 }
 
-std::optional<std::unique_ptr<ast::ExprAST>> Parser::parsePrimaryExpr() {
+std::unique_ptr<ast::ExprAST> Parser::parsePrimaryExpr() {
 	if (current.type == TokenType::IDENT) {
 		auto name = std::make_unique<ast::VariableExprAST>(
 		    std::move(current.lexeme));
@@ -205,13 +205,13 @@ std::optional<std::unique_ptr<ast::ExprAST>> Parser::parsePrimaryExpr() {
 			}
 			errors.error("Expected '}' but got " + current.lexeme,
 				     current.line, current.column);
-			return std::nullopt;
+			return nullptr;
 		}
 	}
 	errors.error("Expected identifier, literal or '(' but got " +
 			 current.lexeme,
 		     current.line, current.column);
-	return std::nullopt;
+	return nullptr;
 }
 
 std::vector<std::unique_ptr<ast::ExprAST>>
@@ -223,7 +223,7 @@ Parser::parseArgListTail(std::unique_ptr<ast::ExprAST> expr) {
 		advance();
 		auto next_expr = parseExpression();
 		if (next_expr) {
-			args.emplace_back(std::move(*next_expr));
+			args.emplace_back(std::move(next_expr));
 		}
 		else {
 			return args;
@@ -240,13 +240,13 @@ Parser::parseArgListTail(std::unique_ptr<ast::ExprAST> expr) {
 std::vector<std::unique_ptr<ast::ExprAST>> Parser::parseArgList() {
 	auto expr = parseExpression();
 	if (expr) {
-		auto arg_list_t = parseArgListTail(std::move(*expr));
+		auto arg_list_t = parseArgListTail(std::move(expr));
 		return arg_list_t;
 	}
 	return {};
 }
 
-std::optional<std::unique_ptr<ast::ExprAST>>
+std::unique_ptr<ast::ExprAST>
 Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
 	if (current.type == TokenType::LSQRBRACKET) {
 		advance();
@@ -257,9 +257,9 @@ Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
 			}
 			errors.error("Expected ']' but got " + current.lexeme,
 				     current.line, current.column);
-			return std::nullopt;
+			return nullptr;
 		}
-		return std::nullopt;
+		return nullptr;
 	}
 	if (current.type == TokenType::OPAREN) {
 		advance();
@@ -329,22 +329,22 @@ Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
 		    "Expected '[', '(', '.', '::', '++', or '--' but got " +
 			current.lexeme,
 		    current.line, current.column);
-		return std::nullopt;
+		return nullptr;
 	}
 }
 
-std::optional<std::unique_ptr<ast::ExprAST>> Parser::parsePostfixExpr() {
-	std::optional<std::unique_ptr<ast::ExprAST>> lhsOpt =
+std::unique_ptr<ast::ExprAST> Parser::parsePostfixExpr() {
+	std::unique_ptr<ast::ExprAST> lhs_opt =
 	    parsePrimaryExpr();
-	if (!lhsOpt) {
-		return std::nullopt;
+	if (!lhs_opt) {
+		return nullptr;
 	}
 
-	std::unique_ptr<ast::ExprAST> lhs = std::move(*lhsOpt);
+	std::unique_ptr<ast::ExprAST> lhs = std::move(lhs_opt);
 	return parsePostfixExprTail(std::move(lhs));
 }
 
-std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseUnaryExpr() {
+std::unique_ptr<ast::ExprAST> Parser::parseUnaryExpr() {
 	if (auto is_unary_op = unaryOperator(); is_unary_op) {
 		ast::UnaryOp unary_op{};
 
@@ -370,23 +370,23 @@ std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseUnaryExpr() {
 		default:
 			errors.error("Invalid unary operator", current.line,
 				     current.column);
-			return std::nullopt;
+			return nullptr;
 		}
 		advance();
 
 		if (auto postfix_expr = parsePostfixExpr()) {
 			return std::make_unique<ast::UnaryExprAST>(
-			    unary_op, std::move(*postfix_expr));
+			    unary_op, std::move(postfix_expr));
 		}
-		return std::nullopt;
+		return nullptr;
 	}
 	return parsePostfixExpr();
 }
 
-std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseMultiplicativeExpr() {
+std::unique_ptr<ast::ExprAST> Parser::parseMultiplicativeExpr() {
 	auto lhs = parseUnaryExpr();
 	if (!lhs) {
-		return std::nullopt;
+		return nullptr;
 	}
 
 	while (current.type == TokenType::MULTIPLY ||
@@ -407,21 +407,21 @@ std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseMultiplicativeExpr() {
 
 		auto rhs = parseUnaryExpr();
 		if (!rhs) {
-			return std::nullopt;
+			return nullptr;
 		}
 
-		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(*lhs),
-							   std::move(*rhs));
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs),
+							   std::move(rhs));
 	}
 	return lhs;
 }
 
-std::optional<std::unique_ptr<ast::ExprAST>> Parser::parseExpression() {
-	return std::nullopt;
+std::unique_ptr<ast::ExprAST> Parser::parseExpression() {
+	return nullptr;
 }
 
-std::optional<std::unique_ptr<ast::StmtAST>> Parser::parseVarDecl() {
-	return std::nullopt;
+std::unique_ptr<ast::StmtAST> Parser::parseVarDecl() {
+	return nullptr;
 }
 
 } // namespace frontend
