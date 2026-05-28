@@ -383,6 +383,47 @@ std::unique_ptr<ast::ExprAST> Parser::parseUnaryExpr() {
 	return parsePostfixExpr();
 }
 
+static ast::BinaryOp tokenToBinaryOp(TokenType token) {
+    switch (token) {
+    case TokenType::PLUS:
+        return ast::BinaryOp::ADD;
+    case TokenType::MINUS:
+        return ast::BinaryOp::SUB;
+    case TokenType::MULTIPLY:
+        return ast::BinaryOp::MUL;
+    case TokenType::DIVIDE:
+        return ast::BinaryOp::DIV;
+    case TokenType::MODULO:
+        return ast::BinaryOp::MOD;
+    case TokenType::EQUAL:
+        return ast::BinaryOp::EQ;
+    case TokenType::NOT_EQUAL:
+        return ast::BinaryOp::NEQ;
+    case TokenType::LESS:
+        return ast::BinaryOp::LT;
+    case TokenType::GREATER:
+        return ast::BinaryOp::GT;
+    case TokenType::LESS_EQUAL:
+        return ast::BinaryOp::LE;
+    case TokenType::GREATER_EQUAL:
+        return ast::BinaryOp::GE;
+    case TokenType::AND:
+        return ast::BinaryOp::AND;
+    case TokenType::OR:
+        return ast::BinaryOp::OR;
+    case TokenType::BIT_AND:
+        return ast::BinaryOp::BIT_AND;
+    case TokenType::BIT_OR:
+        return ast::BinaryOp::BIT_OR;
+    case TokenType::BIT_XOR:
+        return ast::BinaryOp::BIT_XOR;
+    case TokenType::LEFT_SHIFT:
+        return ast::BinaryOp::SHL;
+    case TokenType::RIGHT_SHIFT:
+        return ast::BinaryOp::SHR;
+    }
+}
+
 std::unique_ptr<ast::ExprAST> Parser::parseMultiplicativeExpr() {
 	auto lhs = parseUnaryExpr();
 	if (!lhs) {
@@ -393,16 +434,7 @@ std::unique_ptr<ast::ExprAST> Parser::parseMultiplicativeExpr() {
 	       current.type == TokenType::DIVIDE ||
 	       current.type == TokenType::MODULO) {
 
-		ast::BinaryOp op{};
-		if (current.type == TokenType::MULTIPLY) {
-			op = ast::BinaryOp::MUL;
-		}
-		else if (current.type == TokenType::DIVIDE) {
-			op = ast::BinaryOp::DIV;
-		}
-		else {
-			op = ast::BinaryOp::MOD;
-		}
+		ast::BinaryOp op = tokenToBinaryOp(current.type);
 		advance();
 
 		auto rhs = parseUnaryExpr();
