@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="docs/logo.png" alt="Adequate-C Logo" width="300"/>
+  <img src="docs/logo.png" alt="Adequate-C Logo" width="200"/>
   
   # Adequate-C
   
