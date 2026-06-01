@@ -61,10 +61,22 @@ class BinaryExprAST: public ExprAST {
 public:
 	BinaryExprAST(BinaryOp op, std::unique_ptr<ExprAST> lhs,
 	       std::unique_ptr<ExprAST> rhs);
-	
+
 	[[nodiscard]] BinaryOp getOperator() const noexcept { return op; }
 	[[nodiscard]] ExprAST* getLhs() const { return lhs.get(); }
 	[[nodiscard]] ExprAST* getRhs() const { return rhs.get(); }
+};
+
+class TernaryExprAST: public ExprAST {
+    std::unique_ptr<ExprAST> condition, thenBranch, elseBranch;
+public:
+    TernaryExprAST(std::unique_ptr<ExprAST> condition,
+		       std::unique_ptr<ExprAST> thenBranch,
+		       std::unique_ptr<ExprAST> elseBranch);
+
+    [[nodiscard]] ExprAST* getCondition()  const { return condition.get(); }
+	[[nodiscard]] ExprAST* getThenBranch() const { return thenBranch.get(); }
+	[[nodiscard]] ExprAST* getElseBranch() const { return elseBranch.get(); }
 };
 
 class VariableExprAST: public ExprAST {

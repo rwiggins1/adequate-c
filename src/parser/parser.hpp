@@ -25,10 +25,6 @@ public:
 	std::vector<std::unique_ptr<ast::ExprAST>>
 	    parseArgListTail(std::unique_ptr<ast::ExprAST>);
 
-	std::unique_ptr<ast::ExprAST> parseExpression();
-
-	std::unique_ptr<ast::ExprAST> parseMultiplicativeExpr();
-
 	std::unique_ptr<ast::ExprAST> parseUnaryExpr();
 	std::unique_ptr<ast::ExprAST> parseVarExpr();
 	std::unique_ptr<ast::ExprAST> parsePostfixExpr();
@@ -36,6 +32,20 @@ public:
 	    parsePostfixExprTail(std::unique_ptr<ast::ExprAST>);
 
 	std::unique_ptr<ast::ExprAST> parsePrimaryExpr();
+
+	std::unique_ptr<ast::ExprAST> parseMultiplicativeExpr();
+	std::unique_ptr<ast::ExprAST> parseAdditiveExpr();
+	std::unique_ptr<ast::ExprAST> parseShiftExpr();
+	std::unique_ptr<ast::ExprAST> parseRelationalExpr();
+	std::unique_ptr<ast::ExprAST> parseEqualityExpr();
+	std::unique_ptr<ast::ExprAST> parseAndExpr();
+	std::unique_ptr<ast::ExprAST> parseXORExpr();
+	std::unique_ptr<ast::ExprAST> parseInclusiveOrExpr();
+	std::unique_ptr<ast::ExprAST> parseLogicalAndExpr();
+	std::unique_ptr<ast::ExprAST> parseLogicalOrExpr();
+
+	std::unique_ptr<ast::ExprAST> parseExpression();
+	std::unique_ptr<ast::ExprAST> parseExpressionTail(std::unique_ptr<ast::ExprAST>);
 
 	std::unique_ptr<ast::StmtAST> parseVarDecl();
 
