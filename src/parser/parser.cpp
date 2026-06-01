@@ -334,8 +334,7 @@ Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
 }
 
 std::unique_ptr<ast::ExprAST> Parser::parsePostfixExpr() {
-	std::unique_ptr<ast::ExprAST> lhs_opt =
-	    parsePrimaryExpr();
+	std::unique_ptr<ast::ExprAST> lhs_opt = parsePrimaryExpr();
 	if (!lhs_opt) {
 		return nullptr;
 	}
@@ -384,44 +383,44 @@ std::unique_ptr<ast::ExprAST> Parser::parseUnaryExpr() {
 }
 
 static ast::BinaryOp tokenToBinaryOp(TokenType token) {
-    switch (token) {
-    case TokenType::PLUS:
-        return ast::BinaryOp::ADD;
-    case TokenType::MINUS:
-        return ast::BinaryOp::SUB;
-    case TokenType::MULTIPLY:
-        return ast::BinaryOp::MUL;
-    case TokenType::DIVIDE:
-        return ast::BinaryOp::DIV;
-    case TokenType::MODULO:
-        return ast::BinaryOp::MOD;
-    case TokenType::EQUAL:
-        return ast::BinaryOp::EQ;
-    case TokenType::NOT_EQUAL:
-        return ast::BinaryOp::NEQ;
-    case TokenType::LESS:
-        return ast::BinaryOp::LT;
-    case TokenType::GREATER:
-        return ast::BinaryOp::GT;
-    case TokenType::LESS_EQUAL:
-        return ast::BinaryOp::LE;
-    case TokenType::GREATER_EQUAL:
-        return ast::BinaryOp::GE;
-    case TokenType::AND:
-        return ast::BinaryOp::AND;
-    case TokenType::OR:
-        return ast::BinaryOp::OR;
-    case TokenType::BIT_AND:
-        return ast::BinaryOp::BIT_AND;
-    case TokenType::BIT_OR:
-        return ast::BinaryOp::BIT_OR;
-    case TokenType::BIT_XOR:
-        return ast::BinaryOp::BIT_XOR;
-    case TokenType::LEFT_SHIFT:
-        return ast::BinaryOp::SHL;
-    case TokenType::RIGHT_SHIFT:
-        return ast::BinaryOp::SHR;
-    }
+	switch (token) {
+	case TokenType::PLUS:
+		return ast::BinaryOp::ADD;
+	case TokenType::MINUS:
+		return ast::BinaryOp::SUB;
+	case TokenType::MULTIPLY:
+		return ast::BinaryOp::MUL;
+	case TokenType::DIVIDE:
+		return ast::BinaryOp::DIV;
+	case TokenType::MODULO:
+		return ast::BinaryOp::MOD;
+	case TokenType::EQUAL:
+		return ast::BinaryOp::EQ;
+	case TokenType::NOT_EQUAL:
+		return ast::BinaryOp::NEQ;
+	case TokenType::LESS:
+		return ast::BinaryOp::LT;
+	case TokenType::GREATER:
+		return ast::BinaryOp::GT;
+	case TokenType::LESS_EQUAL:
+		return ast::BinaryOp::LE;
+	case TokenType::GREATER_EQUAL:
+		return ast::BinaryOp::GE;
+	case TokenType::AND:
+		return ast::BinaryOp::AND;
+	case TokenType::OR:
+		return ast::BinaryOp::OR;
+	case TokenType::BIT_AND:
+		return ast::BinaryOp::BIT_AND;
+	case TokenType::BIT_OR:
+		return ast::BinaryOp::BIT_OR;
+	case TokenType::BIT_XOR:
+		return ast::BinaryOp::BIT_XOR;
+	case TokenType::LEFT_SHIFT:
+		return ast::BinaryOp::SHL;
+	case TokenType::RIGHT_SHIFT:
+		return ast::BinaryOp::SHR;
+	}
 }
 
 std::unique_ptr<ast::ExprAST> Parser::parseMultiplicativeExpr() {
@@ -448,12 +447,228 @@ std::unique_ptr<ast::ExprAST> Parser::parseMultiplicativeExpr() {
 	return lhs;
 }
 
-std::unique_ptr<ast::ExprAST> Parser::parseExpression() {
-	return nullptr;
+std::unique_ptr<ast::ExprAST> Parser::parseAdditiveExpr() {
+	auto lhs = parseMultiplicativeExpr();
+	if (!lhs) {
+		return nullptr;
+	}
+
+	while (current.type == TokenType::PLUS ||
+	       current.type == TokenType::MINUS) {
+
+		ast::BinaryOp op = tokenToBinaryOp(current.type);
+		advance();
+
+		auto rhs = parseMultiplicativeExpr();
+		if (!rhs) {
+			return nullptr;
+		}
+
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs),
+							   std::move(rhs));
+	}
+	return lhs;
 }
 
-std::unique_ptr<ast::StmtAST> Parser::parseVarDecl() {
-	return nullptr;
+std::unique_ptr<ast::ExprAST> Parser::parseShiftExpr() {
+	auto lhs = parseAdditiveExpr();
+	if (!lhs) {
+		return nullptr;
+	}
+
+	while (current.type == TokenType::LEFT_SHIFT ||
+	       current.type == TokenType::RIGHT_SHIFT) {
+
+		ast::BinaryOp op = tokenToBinaryOp(current.type);
+		advance();
+
+		auto rhs = parseAdditiveExpr();
+		if (!rhs) {
+			return nullptr;
+		}
+
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs),
+							   std::move(rhs));
+	}
+	return lhs;
 }
+
+std::unique_ptr<ast::ExprAST> Parser::parseRelationalExpr() {
+	auto lhs = parseShiftExpr();
+	if (!lhs) {
+		return nullptr;
+	}
+
+	while (current.type == TokenType::LESS ||
+	       current.type == TokenType::GREATER ||
+	       current.type == TokenType::LESS_EQUAL ||
+	       current.type == TokenType::GREATER_EQUAL) {
+
+		ast::BinaryOp op = tokenToBinaryOp(current.type);
+		advance();
+
+		auto rhs = parseShiftExpr();
+		if (!rhs) {
+		    return nullptr;
+		}
+
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
+	}
+	return lhs;
+}
+
+std::unique_ptr<ast::ExprAST> Parser::parseEqualityExpr() {
+    auto lhs = parseRelationalExpr();
+    if (!lhs) {
+        return nullptr;
+    }
+
+    while (current.type == TokenType::EQUAL || current.type == TokenType::NOT_EQUAL) {
+
+        ast::BinaryOp op = tokenToBinaryOp(current.type);
+        advance();
+
+        auto rhs = parseRelationalExpr();
+        if (!rhs) {
+            return nullptr;
+        }
+
+        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
+    }
+    return lhs;
+}
+
+std::unique_ptr<ast::ExprAST> Parser::parseAndExpr() {
+    auto lhs = parseEqualityExpr();
+    if (!lhs) {
+        return nullptr;
+    }
+
+    while (current.type == TokenType::BIT_AND) {
+        ast::BinaryOp op = tokenToBinaryOp(current.type);
+        advance();
+
+        auto rhs = parseEqualityExpr();
+        if (!rhs) {
+            return nullptr;
+        }
+
+        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
+    }
+    return lhs;
+}
+
+std::unique_ptr<ast::ExprAST> Parser::parseXORExpr() {
+    auto lhs = parseAndExpr();
+    if (!lhs) {
+        return nullptr;
+    }
+
+    while (current.type == TokenType::BIT_XOR) {
+        ast::BinaryOp op = tokenToBinaryOp(current.type);
+        advance();
+
+        auto rhs = parseAndExpr();
+        if (!rhs) {
+            return nullptr;
+        }
+
+        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
+    }
+    return lhs;
+}
+
+std::unique_ptr<ast::ExprAST> Parser::parseInclusiveOrExpr() {
+    auto lhs = parseXORExpr();
+    if (!lhs) {
+        return nullptr;
+    }
+
+    while (current.type == TokenType::BIT_OR) {
+        ast::BinaryOp op = tokenToBinaryOp(current.type);
+        advance();
+
+        auto rhs = parseXORExpr();
+        if (!rhs) {
+            return nullptr;
+        }
+
+        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
+    }
+    return lhs;
+}
+
+std::unique_ptr<ast::ExprAST> Parser::parseLogicalAndExpr() {
+    auto lhs = parseInclusiveOrExpr();
+    if (!lhs) {
+        return nullptr;
+    }
+
+    while (current.type == TokenType::AND) {
+        ast::BinaryOp op = tokenToBinaryOp(current.type);
+        advance();
+
+        auto rhs = parseInclusiveOrExpr();
+        if (!rhs) {
+            return nullptr;
+        }
+
+        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
+    }
+    return lhs;
+}
+
+std::unique_ptr<ast::ExprAST> Parser::parseLogicalOrExpr() {
+    auto lhs = parseLogicalAndExpr();
+    if (!lhs) {
+        return nullptr;
+    }
+
+    while (current.type == TokenType::OR) {
+        ast::BinaryOp op = tokenToBinaryOp(current.type);
+        advance();
+
+        auto rhs = parseLogicalAndExpr();
+        if (!rhs) {
+            return nullptr;
+        }
+
+        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
+    }
+    return lhs;
+}
+
+std::unique_ptr<ast::ExprAST> Parser::parseExpression() {
+    auto lhs = parseLogicalOrExpr();
+    if (!lhs) {
+        return nullptr;
+    }
+    return parseExpressionTail(std::move(lhs));
+}
+
+std::unique_ptr<ast::ExprAST> Parser::parseExpressionTail(std::unique_ptr<ast::ExprAST> lhs) {
+    if (current.type == TokenType::QUESTION) {
+        advance();
+
+        auto then_branch = parseExpression();
+        if (then_branch != nullptr) {
+            if (current.type == TokenType::COLON) {
+                advance();
+                auto else_branch = parseExpression();
+                if (else_branch != nullptr) {
+                    return std::make_unique<ast::TernaryExprAST>(std::move(lhs), std::move(then_branch), std::move(else_branch));
+                }
+                return nullptr;
+            }
+            errors.error("Expected ':' but got: " + current.lexeme, current.line,
+				     current.column);
+            return nullptr;
+        }
+        return nullptr;
+    }
+    return lhs;
+}
+
+std::unique_ptr<ast::StmtAST> Parser::parseVarDecl() { return nullptr; }
 
 } // namespace frontend
