@@ -52,17 +52,17 @@
 <Stmt-tail> ::= <Stmt> <Stmt-tail>
     ::= ε
 
-<IfStmt> ::= if ( <cond> ) { <body> } <IfStmt-tail>
+<IfStmt> ::= if ( <Expr> ) { <body> } <IfStmt-tail>
 <IfStmt-tail> ::= else <elseStmt>
     ::= ε
 <elseStmt> ::= <IfStmt>
     ::= { <body> }
 
-<ForStmt> ::= for ( <for-init> ; <cond> ; <Expr> ) { <body> }
+<ForStmt> ::= for ( <for-init> ; <Expr> ; <Expr> ) { <body> }
 <for-init> ::= <type> <AssignmentStmt>
     ::= <AssignmentStmt>
 
-<WhileStmt> ::= while ( <cond> ) { <body> }
+<WhileStmt> ::= while ( <Expr> ) { <body> }
 
 <ReturnStmt> ::= return <ReturnStmt-tail>
 <ReturnStmt-tail> ::= ;
@@ -79,10 +79,8 @@
     ::= [ <additive-expression> ] = <Expr>;
     ::= = <Expr>;
 
-<Expr> ::= <cond>
-
-<cond> ::= <logical-or-expression> <cond-tail>
-<cond-tail> ::= ? <Expr> : <cond>
+<Expr> ::= <logical-or-expression> <Expr-tail>
+<Expr-tail> ::= ? <Expr> : <Expr>
 	::= ε
 
 <logical-or-expression> ::= <logical-and-expression> <logical-or-expression-tail>
@@ -146,9 +144,9 @@
     ::= ε
 
 <arg-list> ::= <Expr> <arg-list-tail>
-	::=    ε 
+	::=    ε
 <arg-list-tail> ::= , <Expr> <arg-list-tail>
-	::=    ε 
+	::=    ε
 
 <primary-expression> ::= <ident>
     ::= <literal>
@@ -158,11 +156,11 @@
 	::= static <type>
 	::= struct <ident>
 	::= <primitive-type>
-<primitive-type> ::= int 
-    ::= string 
-    ::= char 
-    ::= bool 
-    ::= float 
+<primitive-type> ::= int
+    ::= string
+    ::= char
+    ::= bool
+    ::= float
     ::= double
     ::= void
 
@@ -190,4 +188,3 @@
     ::= Int_lit
     ::= true
     ::= false
-

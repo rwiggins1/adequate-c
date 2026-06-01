@@ -24,7 +24,7 @@
 
 
 <import-stmt> ::= import <ident> <import-stmt-tail>
-<import-stmt-tail> ::= ; <import-tail> 
+<import-stmt-tail> ::= ; <import-tail>
     ::= . <ident> <import-stmt-tail>
 <import-tail> ::= <import-stmt>
     ::= ε
@@ -103,28 +103,28 @@
 <Stmt-tail> ::= <Stmt> <Stmt-tail>
     ::= ε
 
-<IfStmt> ::= if ( <cond> ) { <body> } <IfStmt-tail>
+<IfStmt> ::= if ( <Expr> ) { <body> } <IfStmt-tail>
 <IfStmt-tail> ::= else <elseStmt>
     ::= ε
 <elseStmt> ::= <IfStmt>
     ::= { <body> }
 
-<ForStmt> ::= for ( <for-init> ; <cond> ; <Expr> ) { <body> }
+<ForStmt> ::= for ( <for-init> ; <Expr> ; <Expr> ) { <body> }
 <for-init> ::= <type> <AssignmentStmt>
     ::= <AssignmentStmt>
 
-<WhileStmt> ::= while ( <cond> ) { <body> }
+<WhileStmt> ::= while ( <Expr> ) { <body> }
 
-<DoStmt> ::= do { <body> } while ( <cond> )
+<DoStmt> ::= do { <body> } while ( <Expr> )
 
 <SwitchStmt> ::= switch ( <Switch_allowed_type> ) { <Switch_body> }
 <Switch_body> ::= <case_list>
 <case_list> ::= <case_clause> <case_list>
 <case_clause> ::= case <Switch_allowed_literal> : <body>
     ::= default : <body>
-<Switch_allowed_type> ::= int 
+<Switch_allowed_type> ::= int
     ::= char
-<Switch_allowed_literal> ::= Int_lit 
+<Switch_allowed_literal> ::= Int_lit
     ::= char_lit
 
 <ReturnStmt> ::= return <ReturnStmt-tail>
@@ -142,10 +142,8 @@
     ::= [ <additive-expression> ] = <Expr>;
     ::= = <Expr>;
 
-<Expr> ::= <cond>
-
-<cond> ::= <logical-or-expression> <cond-tail>
-<cond-tail> ::= ? <Expr> : <cond>
+<Expr> ::= <logical-or-expression> <Expr-tail>
+<Expr-tail> ::= ? <Expr> : <Expr>
     ::= ε
 
 <logical-or-expression> ::= <logical-and-expression> <logical-or-expression-tail>
@@ -209,9 +207,9 @@
     ::= ε
 
 <arg-list> ::= <Expr> <arg-list-tail>
-	::= ε 
+	::= ε
 <arg-list-tail> ::= , <Expr> <arg-list-tail>
-	::= ε 
+	::= ε
 
 <primary-expression> ::= <ident>
     ::= <literal>
@@ -222,11 +220,11 @@
 	::= comptime <type>
 	::= struct <ident>
 	::= <primitive-type>
-<primitive-type> ::= int 
-    ::= string 
-    ::= char 
-    ::= bool 
-    ::= float 
+<primitive-type> ::= int
+    ::= string
+    ::= char
+    ::= bool
+    ::= float
     ::= double
     ::= void
     ::= infer
@@ -257,4 +255,3 @@
     ::= Int_lit
     ::= true
     ::= false
-
