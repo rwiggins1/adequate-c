@@ -8,7 +8,6 @@
 #include <cstddef>
 #include <iostream>
 #include <memory>
-#include <optional>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -30,7 +29,7 @@ bool Parser::isType(TokenType type) {
 }
 
 bool Parser::isLiteral(TokenType type) {
-	return type == TokenType::NUMBER || type == TokenType::STRING_LIT ||
+	return type == TokenType::NUMBER_LIT || type == TokenType::STRING_LIT ||
 	       type == TokenType::CHAR_LIT || type == TokenType::TRUE ||
 	       type == TokenType::FALSE;
 }
@@ -47,7 +46,7 @@ bool Parser::expect(TokenType type) {
 
 std::unique_ptr<ast::ExprAST> Parser::parseLiteral() {
 	switch (current.type) {
-	case TokenType::NUMBER: {
+	case TokenType::NUMBER_LIT: {
 		auto result = std::make_unique<ast::NumberLiteralAST>(
 		    std::stod(current.lexeme));
 		advance();
@@ -84,26 +83,26 @@ std::unique_ptr<ast::ExprAST> Parser::parseLiteral() {
 }
 
 bool Parser::unaryOperator() const {
-	return current.type == TokenType::BIT_AND ||
-	       current.type == TokenType::MULTIPLY ||
+	return current.type == TokenType::AMPERSAND ||
+	       current.type == TokenType::STAR ||
 	       current.type == TokenType::PLUS ||
 	       current.type == TokenType::MINUS ||
-	       current.type == TokenType::BIT_NOT ||
-	       current.type == TokenType::NOT;
+	       current.type == TokenType::TILDE ||
+	       current.type == TokenType::EXCLAMATION;
 }
 
 bool Parser::assignmentOperator() const {
-	return current.type == TokenType::EQUAL ||
-	       current.type == TokenType::MULTIPLY_ASSIGN ||
-	       current.type == TokenType::DIVIDE_ASSIGN ||
-	       current.type == TokenType::MODULO_ASSIGN ||
-	       current.type == TokenType::PLUS_ASSIGN ||
-	       current.type == TokenType::MINUS_ASSIGN ||
-	       current.type == TokenType::LEFT_SHIFT_ASSIGN ||
-	       current.type == TokenType::RIGHT_SHIFT_ASSIGN ||
-	       current.type == TokenType::BIT_AND_ASSIGN ||
-	       current.type == TokenType::BIT_XOR_ASSIGN ||
-	       current.type == TokenType::BIT_OR_ASSIGN;
+	return current.type == TokenType::EQUAL_EQUAL ||
+	       current.type == TokenType::STAR_EQUAL ||
+	       current.type == TokenType::SLASH_EQUAL ||
+	       current.type == TokenType::PERCENT_EQUAL ||
+	       current.type == TokenType::PLUS_EQUAL ||
+	       current.type == TokenType::MINUS_EQUAL ||
+	       current.type == TokenType::LESS_LESS_EQUAL ||
+	       current.type == TokenType::GREATER_GREATER_EQUAL ||
+	       current.type == TokenType::AMPERSAND_EQUAL ||
+	       current.type == TokenType::CARET_EQUAL ||
+	       current.type == TokenType::PIPE_EQUAL;
 }
 
 std::unique_ptr<types::Type> Parser::parsePrimitiveType() {
@@ -196,10 +195,10 @@ std::unique_ptr<ast::ExprAST> Parser::parsePrimaryExpr() {
 	if (auto lit = parseLiteral(); lit) {
 		return lit;
 	}
-	if (current.type == TokenType::OPAREN) {
+	if (current.type == TokenType::LPAREN) {
 		advance();
 		if (auto expr = parseExpression(); expr) {
-			if (current.type == TokenType::CPAREN) {
+			if (current.type == TokenType::RPAREN) {
 				advance();
 				return expr;
 			}
@@ -229,7 +228,7 @@ Parser::parseArgListTail(std::unique_ptr<ast::ExprAST> expr) {
 			return args;
 		}
 	}
-	if (current.type != TokenType::CPAREN) {
+	if (current.type != TokenType::RPAREN) {
 		errors.error("Expected ')' but got " + current.lexeme,
 			     current.line, current.column);
 		return args;
@@ -248,11 +247,11 @@ std::vector<std::unique_ptr<ast::ExprAST>> Parser::parseArgList() {
 
 std::unique_ptr<ast::ExprAST>
 Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
-	if (current.type == TokenType::LSQRBRACKET) {
+	if (current.type == TokenType::LBRACKET) {
 		advance();
 		auto expr = parseExpression();
 		if (expr) {
-			if (current.type == TokenType::RSQRBRACKET) {
+			if (current.type == TokenType::RBRACKET) {
 				return expr;
 			}
 			errors.error("Expected ']' but got " + current.lexeme,
@@ -261,11 +260,11 @@ Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
 		}
 		return nullptr;
 	}
-	if (current.type == TokenType::OPAREN) {
+	if (current.type == TokenType::LPAREN) {
 		advance();
 
 		auto args = parseArgList();
-		if (current.type == TokenType::CPAREN) {
+		if (current.type == TokenType::RPAREN) {
 			advance();
 			return std::make_unique<ast::CallExprAST>(
 			    std::move(primary_expr), std::move(args));
@@ -280,7 +279,7 @@ Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
 			    std::move(name));
 		}
 	}
-	if (current.type == TokenType::SCOPE) {
+	if (current.type == TokenType::COLON_COLON) {
 		advance();
 		if (current.type == TokenType::IDENT) {
 			auto name = std::move(current.lexeme);
@@ -300,28 +299,28 @@ Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
 		    ast::UnaryOp::POST_DECREMENT, std::move(primary_expr));
 	}
 	switch (current.type) {
-	case TokenType::MULTIPLY:
-	case TokenType::DIVIDE:
-	case TokenType::MODULO:
+	case TokenType::STAR:
+	case TokenType::SLASH:
+	case TokenType::PERCENT:
 	case TokenType::PLUS:
 	case TokenType::MINUS:
-	case TokenType::LEFT_SHIFT:
-	case TokenType::RIGHT_SHIFT:
+	case TokenType::LESS_LESS:
+	case TokenType::GREATER_GREATER:
 	case TokenType::LESS:
 	case TokenType::GREATER:
 	case TokenType::LESS_EQUAL:
 	case TokenType::GREATER_EQUAL:
-	case TokenType::EQUAL:
-	case TokenType::NOT_EQUAL:
-	case TokenType::BIT_AND:
-	case TokenType::BIT_XOR:
-	case TokenType::BIT_OR:
-	case TokenType::AND:
-	case TokenType::OR:
+	case TokenType::EQUAL_EQUAL:
+	case TokenType::EXCLAMATION_EQUAL:
+	case TokenType::AMPERSAND:
+	case TokenType::CARET:
+	case TokenType::PIPE:
+	case TokenType::AMPERSAND_AMPERSAND:
+	case TokenType::PIPE_PIPE:
 	case TokenType::QUESTION:
 	case TokenType::COMMA:
-	case TokenType::RSQRBRACKET:
-	case TokenType::CPAREN:
+	case TokenType::RBRACKET:
+	case TokenType::RPAREN:
 	case TokenType::SEMICOLON:
 		return primary_expr;
 	default:
@@ -348,10 +347,10 @@ std::unique_ptr<ast::ExprAST> Parser::parseUnaryExpr() {
 		ast::UnaryOp unary_op{};
 
 		switch (current.type) {
-		case TokenType::AND:
+		case TokenType::AMPERSAND_AMPERSAND:
 			unary_op = ast::UnaryOp::AND;
 			break;
-		case TokenType::MULTIPLY:
+		case TokenType::STAR:
 			unary_op = ast::UnaryOp::MUL;
 			break;
 		case TokenType::PLUS:
@@ -360,10 +359,10 @@ std::unique_ptr<ast::ExprAST> Parser::parseUnaryExpr() {
 		case TokenType::MINUS:
 			unary_op = ast::UnaryOp::MINUS;
 			break;
-		case TokenType::NOT:
+		case TokenType::EXCLAMATION:
 			unary_op = ast::UnaryOp::NOT;
 			break;
-		case TokenType::BIT_NOT:
+		case TokenType::TILDE:
 			unary_op = ast::UnaryOp::BIT_NOT;
 			break;
 		default:
@@ -388,15 +387,15 @@ static ast::BinaryOp tokenToBinaryOp(TokenType token) {
 		return ast::BinaryOp::ADD;
 	case TokenType::MINUS:
 		return ast::BinaryOp::SUB;
-	case TokenType::MULTIPLY:
+	case TokenType::STAR:
 		return ast::BinaryOp::MUL;
-	case TokenType::DIVIDE:
+	case TokenType::SLASH:
 		return ast::BinaryOp::DIV;
-	case TokenType::MODULO:
+	case TokenType::PERCENT:
 		return ast::BinaryOp::MOD;
-	case TokenType::EQUAL:
+	case TokenType::EQUAL_EQUAL:
 		return ast::BinaryOp::EQ;
-	case TokenType::NOT_EQUAL:
+	case TokenType::EXCLAMATION_EQUAL:
 		return ast::BinaryOp::NEQ;
 	case TokenType::LESS:
 		return ast::BinaryOp::LT;
@@ -406,19 +405,19 @@ static ast::BinaryOp tokenToBinaryOp(TokenType token) {
 		return ast::BinaryOp::LE;
 	case TokenType::GREATER_EQUAL:
 		return ast::BinaryOp::GE;
-	case TokenType::AND:
+	case TokenType::AMPERSAND_AMPERSAND:
 		return ast::BinaryOp::AND;
-	case TokenType::OR:
+	case TokenType::PIPE_PIPE:
 		return ast::BinaryOp::OR;
-	case TokenType::BIT_AND:
+	case TokenType::AMPERSAND:
 		return ast::BinaryOp::BIT_AND;
-	case TokenType::BIT_OR:
+	case TokenType::PIPE:
 		return ast::BinaryOp::BIT_OR;
-	case TokenType::BIT_XOR:
+	case TokenType::CARET:
 		return ast::BinaryOp::BIT_XOR;
-	case TokenType::LEFT_SHIFT:
+	case TokenType::LESS_LESS:
 		return ast::BinaryOp::SHL;
-	case TokenType::RIGHT_SHIFT:
+	case TokenType::GREATER_GREATER:
 		return ast::BinaryOp::SHR;
 	}
 }
@@ -429,9 +428,9 @@ std::unique_ptr<ast::ExprAST> Parser::parseMultiplicativeExpr() {
 		return nullptr;
 	}
 
-	while (current.type == TokenType::MULTIPLY ||
-	       current.type == TokenType::DIVIDE ||
-	       current.type == TokenType::MODULO) {
+	while (current.type == TokenType::STAR ||
+	       current.type == TokenType::SLASH ||
+	       current.type == TokenType::PERCENT) {
 
 		ast::BinaryOp op = tokenToBinaryOp(current.type);
 		advance();
@@ -476,8 +475,8 @@ std::unique_ptr<ast::ExprAST> Parser::parseShiftExpr() {
 		return nullptr;
 	}
 
-	while (current.type == TokenType::LEFT_SHIFT ||
-	       current.type == TokenType::RIGHT_SHIFT) {
+	while (current.type == TokenType::LESS_LESS ||
+	       current.type == TokenType::GREATER_GREATER) {
 
 		ast::BinaryOp op = tokenToBinaryOp(current.type);
 		advance();
@@ -523,7 +522,7 @@ std::unique_ptr<ast::ExprAST> Parser::parseEqualityExpr() {
         return nullptr;
     }
 
-    while (current.type == TokenType::EQUAL || current.type == TokenType::NOT_EQUAL) {
+    while (current.type == TokenType::EQUAL_EQUAL || current.type == TokenType::EXCLAMATION_EQUAL) {
 
         ast::BinaryOp op = tokenToBinaryOp(current.type);
         advance();
@@ -544,7 +543,7 @@ std::unique_ptr<ast::ExprAST> Parser::parseAndExpr() {
         return nullptr;
     }
 
-    while (current.type == TokenType::BIT_AND) {
+    while (current.type == TokenType::AMPERSAND) {
         ast::BinaryOp op = tokenToBinaryOp(current.type);
         advance();
 
@@ -564,7 +563,7 @@ std::unique_ptr<ast::ExprAST> Parser::parseXORExpr() {
         return nullptr;
     }
 
-    while (current.type == TokenType::BIT_XOR) {
+    while (current.type == TokenType::CARET) {
         ast::BinaryOp op = tokenToBinaryOp(current.type);
         advance();
 
@@ -584,7 +583,7 @@ std::unique_ptr<ast::ExprAST> Parser::parseInclusiveOrExpr() {
         return nullptr;
     }
 
-    while (current.type == TokenType::BIT_OR) {
+    while (current.type == TokenType::PIPE) {
         ast::BinaryOp op = tokenToBinaryOp(current.type);
         advance();
 
@@ -604,7 +603,7 @@ std::unique_ptr<ast::ExprAST> Parser::parseLogicalAndExpr() {
         return nullptr;
     }
 
-    while (current.type == TokenType::AND) {
+    while (current.type == TokenType::AMPERSAND_AMPERSAND) {
         ast::BinaryOp op = tokenToBinaryOp(current.type);
         advance();
 
@@ -624,7 +623,7 @@ std::unique_ptr<ast::ExprAST> Parser::parseLogicalOrExpr() {
         return nullptr;
     }
 
-    while (current.type == TokenType::OR) {
+    while (current.type == TokenType::PIPE_PIPE) {
         ast::BinaryOp op = tokenToBinaryOp(current.type);
         advance();
 

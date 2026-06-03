@@ -13,11 +13,11 @@ TEST(lexerTest, Get) {
 	token = lexer.get();
 	ASSERT_EQ(token.type, TokenType::IDENT);
 	token = lexer.get();
-	ASSERT_EQ(token.type, TokenType::ASSIGN);
+	ASSERT_EQ(token.type, TokenType::EQUAL);
 	token = lexer.get();
-	ASSERT_EQ(token.type, TokenType::NUMBER);
+	ASSERT_EQ(token.type, TokenType::NUMBER_LIT);
 	token = lexer.get();
 	ASSERT_EQ(token.type, TokenType::PLUS);
 	token = lexer.get();
-	ASSERT_EQ(token.type, TokenType::NUMBER);
+	ASSERT_EQ(token.type, TokenType::NUMBER_LIT);
 }
