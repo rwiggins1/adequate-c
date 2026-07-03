@@ -20,6 +20,7 @@ private:
 	// Initialize keyword map
 	static inline const std::unordered_map<std::string, TokenType> KEYWORDS = {
 		{"func", TokenType::FUNC},
+		{"var", TokenType::VAR},
 		{"infer", TokenType::INFER},
 		{"if", TokenType::IF},
 		{"else", TokenType::ELSE},
