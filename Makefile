@@ -1,12 +1,13 @@
 # Configuration
 BUILD_DIR := build
+COVERAGE_DIR := build-coverage
 EXECUTABLE := adequatec
 TEST_LEXER := test_lexer
 TEST_AST := test_ast
 SRC_DIR := src
 TEST_DIR := tests
 
-.PHONY: all build clean format run help lint test-lexer test-ast test-gtest test-all
+.PHONY: all build clean format run help lint test-lexer test-ast test-gtest test-all coverage
 
 # Default target
 all: build
@@ -20,8 +21,8 @@ build:
 
 # Clean build
 clean:
-	@echo "Cleaning $(BUILD_DIR) directory..."
-	@rm -rf $(BUILD_DIR)
+	@echo "Cleaning $(BUILD_DIR) and $(COVERAGE_DIR) directories..."
+	@rm -rf $(BUILD_DIR) $(COVERAGE_DIR)
 	@echo "Clean complete!"
 
 # Format source code
@@ -68,6 +69,13 @@ test-all: test-lexer test-ast test-gtest
 	@echo ""
 	@echo "All tests complete!"
 
+# Build with --coverage, run tests, and generate a gcovr report (requires gcovr)
+coverage:
+	@echo "Building with coverage instrumentation..."
+	@mkdir -p $(COVERAGE_DIR)
+	@cd $(COVERAGE_DIR) && cmake -DCMAKE_BUILD_TYPE=Debug -DADQ_ENABLE_COVERAGE=ON .. && $(MAKE) -j4 coverage
+	@echo "Coverage report: $(COVERAGE_DIR)/coverage/index.html"
+
 # Show help
 help:
 	@echo "Adequate-C Build System"
@@ -78,6 +86,7 @@ help:
 	@echo "  make format  - Format all source code"
 	@echo "  make run     - Build and run $(EXECUTABLE)"
 	@echo "  make lint      - Run clang-tidy checks"
+	@echo "  make coverage  - Build with --coverage, run tests, generate gcovr report"
 	@echo "  make help    - Show this help message"
 
 .DEFAULT_GOAL := build
