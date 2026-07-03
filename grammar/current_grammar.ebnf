@@ -64,6 +64,8 @@
 
 <WhileStmt> ::= while ( <Expr> ) { <body> }
 
+<AssignmentStmt> ::= <ident> <assignment-operator> <Expr> ;
+
 <ReturnStmt> ::= return <ReturnStmt-tail>
 <ReturnStmt-tail> ::= ;
     ::= <Expr> ;
@@ -72,11 +74,10 @@
 
 <ContinueStmt> ::= continue ;
 
-<AssignmentStmt> ::= <ident> <assignment-operator> <Expr> ;
 
-<VarDec> ::= <type> <ident> <VarDec-tail>
+<VarDec> ::= var <type> <ident> <VarDec-tail>
 <VarDec-tail> ::= ;
-    ::= [ <additive-expression> ] = <Expr>;
+    ::= [ <Expr> ] <VarDec-tail>
     ::= = <Expr>;
 
 <Expr> ::= <logical-or-expression> <Expr-tail>
