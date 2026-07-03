@@ -32,8 +32,8 @@
 
 <main-function>::= func main (<paramList>) <main-function-tail>
 
-<main-function-tail> ::= -> void { <body> }
-    ::= { <body> }
+<main-function-tail> ::= -> void { <Stmt> }
+    ::= { <Stmt> }
 
 <namespace> ::= namespace <ident> { <declaration> }
 
@@ -42,7 +42,7 @@
     ::= <struct-function> <struct_body>
     ::= ε
 <struct-function> ::= <prototype> <struct-function-tail>
-<struct-function-tail> ::= { <body> }
+<struct-function-tail> ::= { <Stmt> }
     ::= ;
 
 <Enum> ::= enum <ident> : <Enum_allowed_type> { <Enum_body> }
@@ -66,7 +66,7 @@
     ::= comparable
     ::= orderable
 
-<function> ::= <prototype> { <body> }
+<function> ::= <prototype> { <Stmt> }
 <prototype> ::= func <function-name> <generic> ( <param-list> ) -> <return-list>
 <function-name> ::= <ident> <function-name-tail>
 <function-name-tail> ::= :: <ident> <function-name-tail>
@@ -86,10 +86,6 @@
 <generic-tail> ::= , <ident> <generic-tail>
     ::= ε
 
-<body> ::= <Stmt> <body>
-    ::= <VarDec> <body>
-    ::= ε
-
 <Stmt> ::= <IfStmt> <Stmt-tail>
     ::= <ForStmt> <Stmt-tail>
     ::= <WhileStmt> <Stmt-tail>
@@ -99,33 +95,36 @@
     ::= <ReturnStmt>
     ::= <BreakStmt> <Stmt-tail>
     ::= <ContinueStmt> <Stmt-tail>
+    ::= <VarDec> <Stmt-tail>
 
 <Stmt-tail> ::= <Stmt> <Stmt-tail>
     ::= ε
 
-<IfStmt> ::= if ( <Expr> ) { <body> } <IfStmt-tail>
+<IfStmt> ::= if ( <Expr> ) { <Stmt> } <IfStmt-tail>
 <IfStmt-tail> ::= else <elseStmt>
     ::= ε
 <elseStmt> ::= <IfStmt>
-    ::= { <body> }
+    ::= { <Stmt> }
 
-<ForStmt> ::= for ( <for-init> ; <Expr> ; <Expr> ) { <body> }
+<ForStmt> ::= for ( <for-init> ; <Expr> ; <Expr> ) { <Stmt> }
 <for-init> ::= <type> <AssignmentStmt>
     ::= <AssignmentStmt>
 
-<WhileStmt> ::= while ( <Expr> ) { <body> }
+<WhileStmt> ::= while ( <Expr> ) { <Stmt> }
 
-<DoStmt> ::= do { <body> } while ( <Expr> )
+<DoStmt> ::= do { <Stmt> } while ( <Expr> )
 
 <SwitchStmt> ::= switch ( <Switch_allowed_type> ) { <Switch_body> }
 <Switch_body> ::= <case_list>
 <case_list> ::= <case_clause> <case_list>
-<case_clause> ::= case <Switch_allowed_literal> : <body>
-    ::= default : <body>
+<case_clause> ::= case <Switch_allowed_literal> : <Stmt>
+    ::= default : <Stmt>
 <Switch_allowed_type> ::= int
     ::= char
 <Switch_allowed_literal> ::= Int_lit
     ::= char_lit
+
+<AssignmentStmt> ::= <ident> <assignment-operator> <Expr> ;
 
 <ReturnStmt> ::= return <ReturnStmt-tail>
 <ReturnStmt-tail> ::= ;
@@ -135,11 +134,9 @@
 
 <ContinueStmt> ::= continue ;
 
-<AssignmentStmt> ::= <ident> <assignment-operator> <Expr> ;
-
-<VarDec> ::= <type> <ident> <VarDec-tail>
+<VarDec> ::= var <type> <ident> <VarDec-tail>
 <VarDec-tail> ::= ;
-    ::= [ <additive-expression> ] = <Expr>;
+    ::= [ <Expr> ] <VarDec-tail>
     ::= = <Expr>;
 
 <Expr> ::= <logical-or-expression> <Expr-tail>

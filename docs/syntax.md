@@ -2,8 +2,8 @@
 
 ### Variable Declaration
 ```cpp
-int x = 5;              // Explicit type
-infer y = 10;           // Type inference
+var int x = 5;           // Explicit type (requires `var`)
+infer y = 10;            // Type inference (`infer` implies `var`, omit it)
 ```
 
 ### Function
@@ -52,26 +52,26 @@ x = 5;
 
 ### Data Types
 ```cpp
-int x = 42;
-float f = 3.14;
-double d = 3.14159;
-bool flag = true;
-char c = 'a';
-string s = "hello";
+var int x = 42;
+var float f = 3.14;
+var double d = 3.14159;
+var bool flag = true;
+var char c = 'a';
+var string s = "hello";
 ```
 ## Comments
 
 ### Single-line Comments
 ```cpp
 // This is a single-line comment
-int x = 5;  // Comment after code
+var int x = 5;  // Comment after code
 ```
 
 ### Multi-line Comments
 ```cpp
 /* This is a multi-line comment
    spanning multiple lines */
-int y = 10;
+var int y = 10;
 
 /* Can also be on one line */
 ```
