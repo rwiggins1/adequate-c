@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.13)
 
 # Project name
 project(Adequate-C CXX)
@@ -9,6 +9,9 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 # Use C++23
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# gcov/gcovr coverage instrumentation
+option(ADQ_ENABLE_COVERAGE "Instrument source and test targets with --coverage (gcov/gcovr)" OFF)
 
 # Warning flags for g++
 add_compile_options(-Wall -Wextra -pedantic)
@@ -84,6 +87,47 @@ target_link_libraries(ast_gtest GTest::gtest_main)
 # Register test
 include(GoogleTest)
 gtest_discover_tests(ast_gtest)
+
+# =======================================================================
+# Coverage (gcov/gcovr)
+# =======================================================================
+if(ADQ_ENABLE_COVERAGE)
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        message(WARNING "ADQ_ENABLE_COVERAGE requires GCC or Clang; ${CMAKE_CXX_COMPILER_ID} is unsupported")
+    endif()
+    if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+        message(WARNING "ADQ_ENABLE_COVERAGE is on but CMAKE_BUILD_TYPE is not Debug; "
+                         "optimizations can make gcov line/branch data unreliable")
+    endif()
+
+    set(COVERAGE_TARGETS adequatec test_lexer test_ast ast_gtest)
+    foreach(cov_target ${COVERAGE_TARGETS})
+        target_compile_options(${cov_target} PRIVATE --coverage -O0 -g)
+        target_link_options(${cov_target} PRIVATE --coverage)
+    endforeach()
+
+    find_program(GCOVR_EXECUTABLE gcovr)
+    if(NOT GCOVR_EXECUTABLE)
+        message(WARNING "gcovr not found; 'coverage' target will not be available")
+    else()
+        set(COVERAGE_HTML_DIR ${CMAKE_BINARY_DIR}/coverage)
+        add_custom_target(coverage
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${COVERAGE_HTML_DIR}
+            COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
+            COMMAND ${GCOVR_EXECUTABLE}
+                    --root ${CMAKE_SOURCE_DIR}
+                    --filter ${CMAKE_SOURCE_DIR}/src/
+                    --exclude-unreachable-branches
+                    --print-summary
+                    --html-details ${COVERAGE_HTML_DIR}/index.html
+                    ${CMAKE_BINARY_DIR}
+            WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+            DEPENDS ${COVERAGE_TARGETS}
+            COMMENT "Running tests and generating gcovr coverage report"
+            VERBATIM
+        )
+    endif()
+endif()
 
 # print useful info
 message(STATUS "Building Adequate-C compiler")
