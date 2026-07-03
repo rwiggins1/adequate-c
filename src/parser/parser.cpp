@@ -5,6 +5,7 @@
 #include "diagnostics/diagnostics.hpp"
 #include "lexer/token.hpp"
 #include "types/type.hpp"
+#include <cassert>
 #include <cstddef>
 #include <iostream>
 #include <memory>
@@ -419,6 +420,9 @@ static ast::BinaryOp tokenToBinaryOp(TokenType token) {
 		return ast::BinaryOp::SHL;
 	case TokenType::GREATER_GREATER:
 		return ast::BinaryOp::SHR;
+	default:
+		assert(false && "tokenToBinaryOp: token is not a binary operator");
+		std::unreachable();
 	}
 }
 
