@@ -6,8 +6,8 @@ project(Adequate-C CXX)
 # Generate compile_commands.json for language servers
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# Use C++17
-set(CMAKE_CXX_STANDARD 17)
+# Use C++23
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Warning flags for g++
