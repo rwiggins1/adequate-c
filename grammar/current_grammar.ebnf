@@ -24,10 +24,10 @@
     ::= <struct-function> <struct-body>
     ::= ε
 <struct-function> ::= <prototype> <struct-function-tail>
-<struct-function-tail> ::= { <body> }
+<struct-function-tail> ::= { <Stmt> }
     ::= ;
 
-<function> ::= <prototype> { <body> }
+<function> ::= <prototype> { <Stmt> }
 <prototype> ::= func <function-name> ( <param-list> ) -> <type>
 <function-name> ::= <ident> <function-name-tail>
 <function-name-tail> ::= :: <ident> <function-name-tail>
@@ -37,10 +37,6 @@
 <param-list-tail> ::= , <type> <ident> <param-list-tail>
     ::= ε
 
-<body> ::= <Stmt> <body>
-    ::= <VarDec> <body>
-    ::= ε
-
 <Stmt> ::= <IfStmt> <Stmt-tail>
     ::= <ForStmt> <Stmt-tail>
     ::= <WhileStmt> <Stmt-tail>
@@ -48,21 +44,23 @@
     ::= <ReturnStmt>
     ::= <BreakStmt> <Stmt-tail>
     ::= <ContinueStmt> <Stmt-tail>
+    ::= <VarDec> <Stmt-tail>
+    ::= ε
 
 <Stmt-tail> ::= <Stmt> <Stmt-tail>
     ::= ε
 
-<IfStmt> ::= if ( <Expr> ) { <body> } <IfStmt-tail>
+<IfStmt> ::= if ( <Expr> ) { <Stmt> } <IfStmt-tail>
 <IfStmt-tail> ::= else <elseStmt>
     ::= ε
 <elseStmt> ::= <IfStmt>
-    ::= { <body> }
+    ::= { <Stmt> }
 
-<ForStmt> ::= for ( <for-init> ; <Expr> ; <Expr> ) { <body> }
+<ForStmt> ::= for ( <for-init> ; <Expr> ; <Expr> ) { <Stmt> }
 <for-init> ::= <type> <AssignmentStmt>
     ::= <AssignmentStmt>
 
-<WhileStmt> ::= while ( <Expr> ) { <body> }
+<WhileStmt> ::= while ( <Expr> ) { <Stmt> }
 
 <AssignmentStmt> ::= <ident> <assignment-operator> <Expr> ;
 
@@ -73,7 +71,6 @@
 <BreakStmt> ::= break ;
 
 <ContinueStmt> ::= continue ;
-
 
 <VarDec> ::= var <type> <ident> <VarDec-tail>
 <VarDec-tail> ::= ;
