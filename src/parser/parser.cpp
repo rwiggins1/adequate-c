@@ -77,8 +77,6 @@ std::unique_ptr<ast::ExprAST> Parser::parseLiteral() {
 		return result;
 	}
 	default:
-		errors.error("Expected literal but got " + current.lexeme,
-			     current.line, current.column);
 		return nullptr;
 	}
 }
@@ -193,9 +191,6 @@ std::unique_ptr<ast::ExprAST> Parser::parsePrimaryExpr() {
 		advance();
 		return name;
 	}
-	if (auto lit = parseLiteral(); lit) {
-		return lit;
-	}
 	if (current.type == TokenType::LPAREN) {
 		advance();
 		if (auto expr = parseExpression(); expr) {
@@ -203,10 +198,14 @@ std::unique_ptr<ast::ExprAST> Parser::parsePrimaryExpr() {
 				advance();
 				return expr;
 			}
-			errors.error("Expected '}' but got " + current.lexeme,
+			errors.error("Expected ')' but got " + current.lexeme,
 				     current.line, current.column);
 			return nullptr;
 		}
+		return nullptr;
+	}
+	if (auto lit = parseLiteral(); lit) {
+		return lit;
 	}
 	errors.error("Expected identifier, literal or '(' but got " +
 			 current.lexeme,
