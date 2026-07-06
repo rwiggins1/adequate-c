@@ -9,10 +9,11 @@
 
 namespace frontend::ast {
 class DeclStmtAST : public StmtAST {
-        std::unique_ptr<DeclAST> decl;
+	std::unique_ptr<DeclAST> decl;
+
 public:
-        explicit DeclStmtAST(std::unique_ptr<DeclAST> decl);
-        [[nodiscard]] DeclAST *getDecl() const { return decl.get(); }
+	explicit DeclStmtAST(std::unique_ptr<DeclAST> decl);
+	[[nodiscard]] DeclAST *getDecl() const { return decl.get(); }
 };
 
 // Variable Declaration
@@ -25,7 +26,7 @@ class VariableDeclarationAST : public DeclAST {
 public:
 	VariableDeclarationAST(std::unique_ptr<types::Type> type,
 			       std::string name,
-				   std::unique_ptr<ExprAST> size = nullptr,
+			       std::unique_ptr<ExprAST> size = nullptr,
 			       std::unique_ptr<ExprAST> initializer = nullptr);
 
 	[[nodiscard]] types::Type *getType() const noexcept {

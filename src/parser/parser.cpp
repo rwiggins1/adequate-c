@@ -421,7 +421,8 @@ static ast::BinaryOp tokenToBinaryOp(TokenType token) {
 	case TokenType::GREATER_GREATER:
 		return ast::BinaryOp::SHR;
 	default:
-		assert(false && "tokenToBinaryOp: token is not a binary operator");
+		assert(false &&
+		       "tokenToBinaryOp: token is not a binary operator");
 		std::unreachable();
 	}
 }
@@ -512,248 +513,272 @@ std::unique_ptr<ast::ExprAST> Parser::parseRelationalExpr() {
 
 		auto rhs = parseShiftExpr();
 		if (!rhs) {
-		    return nullptr;
+			return nullptr;
 		}
 
-		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs),
+							   std::move(rhs));
 	}
 	return lhs;
 }
 
 std::unique_ptr<ast::ExprAST> Parser::parseEqualityExpr() {
-    auto lhs = parseRelationalExpr();
-    if (!lhs) {
-        return nullptr;
-    }
+	auto lhs = parseRelationalExpr();
+	if (!lhs) {
+		return nullptr;
+	}
 
-    while (current.type == TokenType::EQUAL_EQUAL || current.type == TokenType::EXCLAMATION_EQUAL) {
+	while (current.type == TokenType::EQUAL_EQUAL ||
+	       current.type == TokenType::EXCLAMATION_EQUAL) {
 
-        ast::BinaryOp op = tokenToBinaryOp(current.type);
-        advance();
+		ast::BinaryOp op = tokenToBinaryOp(current.type);
+		advance();
 
-        auto rhs = parseRelationalExpr();
-        if (!rhs) {
-            return nullptr;
-        }
+		auto rhs = parseRelationalExpr();
+		if (!rhs) {
+			return nullptr;
+		}
 
-        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
-    }
-    return lhs;
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs),
+							   std::move(rhs));
+	}
+	return lhs;
 }
 
 std::unique_ptr<ast::ExprAST> Parser::parseAndExpr() {
-    auto lhs = parseEqualityExpr();
-    if (!lhs) {
-        return nullptr;
-    }
+	auto lhs = parseEqualityExpr();
+	if (!lhs) {
+		return nullptr;
+	}
 
-    while (current.type == TokenType::AMPERSAND) {
-        ast::BinaryOp op = tokenToBinaryOp(current.type);
-        advance();
+	while (current.type == TokenType::AMPERSAND) {
+		ast::BinaryOp op = tokenToBinaryOp(current.type);
+		advance();
 
-        auto rhs = parseEqualityExpr();
-        if (!rhs) {
-            return nullptr;
-        }
+		auto rhs = parseEqualityExpr();
+		if (!rhs) {
+			return nullptr;
+		}
 
-        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
-    }
-    return lhs;
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs),
+							   std::move(rhs));
+	}
+	return lhs;
 }
 
 std::unique_ptr<ast::ExprAST> Parser::parseXORExpr() {
-    auto lhs = parseAndExpr();
-    if (!lhs) {
-        return nullptr;
-    }
+	auto lhs = parseAndExpr();
+	if (!lhs) {
+		return nullptr;
+	}
 
-    while (current.type == TokenType::CARET) {
-        ast::BinaryOp op = tokenToBinaryOp(current.type);
-        advance();
+	while (current.type == TokenType::CARET) {
+		ast::BinaryOp op = tokenToBinaryOp(current.type);
+		advance();
 
-        auto rhs = parseAndExpr();
-        if (!rhs) {
-            return nullptr;
-        }
+		auto rhs = parseAndExpr();
+		if (!rhs) {
+			return nullptr;
+		}
 
-        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
-    }
-    return lhs;
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs),
+							   std::move(rhs));
+	}
+	return lhs;
 }
 
 std::unique_ptr<ast::ExprAST> Parser::parseInclusiveOrExpr() {
-    auto lhs = parseXORExpr();
-    if (!lhs) {
-        return nullptr;
-    }
+	auto lhs = parseXORExpr();
+	if (!lhs) {
+		return nullptr;
+	}
 
-    while (current.type == TokenType::PIPE) {
-        ast::BinaryOp op = tokenToBinaryOp(current.type);
-        advance();
+	while (current.type == TokenType::PIPE) {
+		ast::BinaryOp op = tokenToBinaryOp(current.type);
+		advance();
 
-        auto rhs = parseXORExpr();
-        if (!rhs) {
-            return nullptr;
-        }
+		auto rhs = parseXORExpr();
+		if (!rhs) {
+			return nullptr;
+		}
 
-        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
-    }
-    return lhs;
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs),
+							   std::move(rhs));
+	}
+	return lhs;
 }
 
 std::unique_ptr<ast::ExprAST> Parser::parseLogicalAndExpr() {
-    auto lhs = parseInclusiveOrExpr();
-    if (!lhs) {
-        return nullptr;
-    }
+	auto lhs = parseInclusiveOrExpr();
+	if (!lhs) {
+		return nullptr;
+	}
 
-    while (current.type == TokenType::AMPERSAND_AMPERSAND) {
-        ast::BinaryOp op = tokenToBinaryOp(current.type);
-        advance();
+	while (current.type == TokenType::AMPERSAND_AMPERSAND) {
+		ast::BinaryOp op = tokenToBinaryOp(current.type);
+		advance();
 
-        auto rhs = parseInclusiveOrExpr();
-        if (!rhs) {
-            return nullptr;
-        }
+		auto rhs = parseInclusiveOrExpr();
+		if (!rhs) {
+			return nullptr;
+		}
 
-        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
-    }
-    return lhs;
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs),
+							   std::move(rhs));
+	}
+	return lhs;
 }
 
 std::unique_ptr<ast::ExprAST> Parser::parseLogicalOrExpr() {
-    auto lhs = parseLogicalAndExpr();
-    if (!lhs) {
-        return nullptr;
-    }
+	auto lhs = parseLogicalAndExpr();
+	if (!lhs) {
+		return nullptr;
+	}
 
-    while (current.type == TokenType::PIPE_PIPE) {
-        ast::BinaryOp op = tokenToBinaryOp(current.type);
-        advance();
+	while (current.type == TokenType::PIPE_PIPE) {
+		ast::BinaryOp op = tokenToBinaryOp(current.type);
+		advance();
 
-        auto rhs = parseLogicalAndExpr();
-        if (!rhs) {
-            return nullptr;
-        }
+		auto rhs = parseLogicalAndExpr();
+		if (!rhs) {
+			return nullptr;
+		}
 
-        lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs), std::move(rhs));
-    }
-    return lhs;
+		lhs = std::make_unique<ast::BinaryExprAST>(op, std::move(lhs),
+							   std::move(rhs));
+	}
+	return lhs;
 }
 
 std::unique_ptr<ast::ExprAST> Parser::parseExpression() {
-    auto lhs = parseLogicalOrExpr();
-    if (!lhs) {
-        return nullptr;
-    }
-    return parseExpressionTail(std::move(lhs));
+	auto lhs = parseLogicalOrExpr();
+	if (!lhs) {
+		return nullptr;
+	}
+	return parseExpressionTail(std::move(lhs));
 }
 
-std::unique_ptr<ast::ExprAST> Parser::parseExpressionTail(std::unique_ptr<ast::ExprAST> lhs) {
-    if (current.type == TokenType::QUESTION) {
-        advance();
+std::unique_ptr<ast::ExprAST>
+Parser::parseExpressionTail(std::unique_ptr<ast::ExprAST> lhs) {
+	if (current.type == TokenType::QUESTION) {
+		advance();
 
-        auto then_branch = parseExpression();
-        if (then_branch != nullptr) {
-            if (current.type == TokenType::COLON) {
-                advance();
-                auto else_branch = parseExpression();
-                if (else_branch != nullptr) {
-                    return std::make_unique<ast::TernaryExprAST>(std::move(lhs), std::move(then_branch), std::move(else_branch));
-                }
-                return nullptr;
-            }
-            errors.error("Expected ':' but got: " + current.lexeme, current.line,
-				     current.column);
-            return nullptr;
-        }
-        return nullptr;
-    }
-    return lhs;
+		auto then_branch = parseExpression();
+		if (then_branch != nullptr) {
+			if (current.type == TokenType::COLON) {
+				advance();
+				auto else_branch = parseExpression();
+				if (else_branch != nullptr) {
+					return std::make_unique<
+					    ast::TernaryExprAST>(
+					    std::move(lhs),
+					    std::move(then_branch),
+					    std::move(else_branch));
+				}
+				return nullptr;
+			}
+			errors.error("Expected ':' but got: " + current.lexeme,
+				     current.line, current.column);
+			return nullptr;
+		}
+		return nullptr;
+	}
+	return lhs;
 }
 
 std::unique_ptr<ast::DeclAST> Parser::parseVarDecl() {
-    if (current.type != TokenType::VAR) {
-        errors.error("Expected 'var' got: " + current.lexeme, current.line, current.column);
-        advance();
-        return nullptr;
-    }
-    advance();
-    auto type = parseType();
-    if (type == nullptr) {
-        return nullptr;
-    }
-    if (current.type != TokenType::IDENT) {
-        errors.error("Expected identifier got: " + current.lexeme, current.line, current.column);
-        advance();
-        return nullptr;
-    }
-    std::string name = current.lexeme;
-    advance();
+	if (current.type != TokenType::VAR) {
+		errors.error("Expected 'var' got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+	auto type = parseType();
+	if (type == nullptr) {
+		return nullptr;
+	}
+	if (current.type != TokenType::IDENT) {
+		errors.error("Expected identifier got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	std::string name = current.lexeme;
+	advance();
 
-    // variable declaration tail
-    if (current.type == TokenType::SEMICOLON) {
-        advance();
-        return std::make_unique<ast::VariableDeclarationAST>(std::move(type), std::move(name));
-    }
-    if (current.type == TokenType::EQUAL) {
-        advance();
-        auto expr = parseExpression();
-        if (current.type != TokenType::SEMICOLON) {
-            errors.error("Expected ';' but got: " + current.lexeme, current.line, current.column);
-            advance();
-            return nullptr;
-        }
-        advance();
-        return std::make_unique<ast::VariableDeclarationAST>(std::move(type), std::move(name), nullptr, std::move(expr));
-    }
-    // array variable
-    if (current.type != TokenType::LBRACKET) {
-        errors.error("Expected '[' but got: " + current.lexeme, current.line, current.column);
-        advance();
-        return nullptr;
-    }
-    advance();
-    auto array_size = parseExpression();
-    if (current.type != TokenType::RBRACKET) {
-        errors.error("Expected ']' but got: " + current.lexeme, current.line, current.column);
-        advance();
-        return nullptr;
-    }
-    advance();
-    if (current.type != TokenType::SEMICOLON) {
-        errors.error("Expected ';' but got: " + current.lexeme, current.line, current.column);
-        advance();
-        return nullptr;
-    }
-    advance();
-    return std::make_unique<ast::VariableDeclarationAST>(std::move(type), std::move(name), std::move(array_size));
+	// variable declaration tail
+	if (current.type == TokenType::SEMICOLON) {
+		advance();
+		return std::make_unique<ast::VariableDeclarationAST>(
+		    std::move(type), std::move(name));
+	}
+	if (current.type == TokenType::EQUAL) {
+		advance();
+		auto expr = parseExpression();
+		if (current.type != TokenType::SEMICOLON) {
+			errors.error("Expected ';' but got: " + current.lexeme,
+				     current.line, current.column);
+			advance();
+			return nullptr;
+		}
+		advance();
+		return std::make_unique<ast::VariableDeclarationAST>(
+		    std::move(type), std::move(name), nullptr, std::move(expr));
+	}
+	// array variable
+	if (current.type != TokenType::LBRACKET) {
+		errors.error("Expected '[' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+	auto array_size = parseExpression();
+	if (current.type != TokenType::RBRACKET) {
+		errors.error("Expected ']' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+	if (current.type != TokenType::SEMICOLON) {
+		errors.error("Expected ';' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+	return std::make_unique<ast::VariableDeclarationAST>(
+	    std::move(type), std::move(name), std::move(array_size));
 }
 
 std::unique_ptr<ast::StmtAST> Parser::parseContinueStmt() {
-    assert(current.type == TokenType::CONTINUE);
-    advance();
+	assert(current.type == TokenType::CONTINUE);
+	advance();
 
-    if (current.type != TokenType::SEMICOLON) {
-        errors.error("Expected ';' but got: " + current.lexeme, current.line, current.column);
-        advance();
-        return nullptr;
-    }
-    advance();
-    return std::make_unique<ast::ContinueStmtAST>();
+	if (current.type != TokenType::SEMICOLON) {
+		errors.error("Expected ';' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+	return std::make_unique<ast::ContinueStmtAST>();
 }
 
 std::unique_ptr<ast::StmtAST> Parser::parseBreakStmt() {
-    assert(current.type == TokenType::BREAK);
-    advance();
+	assert(current.type == TokenType::BREAK);
+	advance();
 
-    if (current.type != TokenType::SEMICOLON) {
-        errors.error("Expected ';' but got: " + current.lexeme, current.line, current.column);
-        advance();
-        return nullptr;
-    }
-    advance();
-    return std::make_unique<ast::BreakStmtAST>();
+	if (current.type != TokenType::SEMICOLON) {
+		errors.error("Expected ';' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+	return std::make_unique<ast::BreakStmtAST>();
 }
 
 std::unique_ptr<ast::StmtAST> Parser::parseReturnStmt() { return nullptr; }
@@ -763,40 +788,41 @@ std::unique_ptr<ast::StmtAST> Parser::parseForStmt() { return nullptr; }
 std::unique_ptr<ast::StmtAST> Parser::parseIfStmt() { return nullptr; }
 
 std::unique_ptr<ast::StmtAST> Parser::parseStmt() {
-    switch (current.type) {
-        case TokenType::IF: {
-            return parseIfStmt();
-        }
-        case TokenType::FOR: {
-            return parseForStmt();
-        }
-        case TokenType::WHILE: {
-            return parseWhileStmt();
-        }
-        case TokenType::IDENT: {
-            return parseAssignmentStmt();
-        }
-        case TokenType::RETURN: {
-            return parseReturnStmt();
-        }
-        case TokenType::BREAK: {
-            return parseBreakStmt();
-        }
-        case TokenType::CONTINUE: {
-            return parseContinueStmt();
-        }
-        case TokenType::VAR: {
-            auto variable = parseVarDecl();
-            if (variable == nullptr) {
-                return nullptr;
-            }
-            return std::make_unique<ast::DeclStmtAST>(std::move(variable));
-        }
-        default: {
-            errors.error("Expected statement but got: " + current.lexeme, current.line, current.column);
-            return nullptr;
-        }
-    }
+	switch (current.type) {
+	case TokenType::IF: {
+		return parseIfStmt();
+	}
+	case TokenType::FOR: {
+		return parseForStmt();
+	}
+	case TokenType::WHILE: {
+		return parseWhileStmt();
+	}
+	case TokenType::IDENT: {
+		return parseAssignmentStmt();
+	}
+	case TokenType::RETURN: {
+		return parseReturnStmt();
+	}
+	case TokenType::BREAK: {
+		return parseBreakStmt();
+	}
+	case TokenType::CONTINUE: {
+		return parseContinueStmt();
+	}
+	case TokenType::VAR: {
+		auto variable = parseVarDecl();
+		if (variable == nullptr) {
+			return nullptr;
+		}
+		return std::make_unique<ast::DeclStmtAST>(std::move(variable));
+	}
+	default: {
+		errors.error("Expected statement but got: " + current.lexeme,
+			     current.line, current.column);
+		return nullptr;
+	}
+	}
 }
 
 } // namespace frontend

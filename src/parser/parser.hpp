@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ast/ast.hpp"
-#include "diagnostics/diagnostics.hpp"
 #include "ast/expr.hpp"
+#include "diagnostics/diagnostics.hpp"
 #include "lexer/lexer.hpp"
 #include "lexer/token.hpp"
 #include "types/type.hpp"
@@ -45,7 +45,8 @@ public:
 	std::unique_ptr<ast::ExprAST> parseLogicalOrExpr();
 
 	std::unique_ptr<ast::ExprAST> parseExpression();
-	std::unique_ptr<ast::ExprAST> parseExpressionTail(std::unique_ptr<ast::ExprAST>);
+	std::unique_ptr<ast::ExprAST>
+	    parseExpressionTail(std::unique_ptr<ast::ExprAST>);
 
 	std::unique_ptr<ast::DeclAST> parseVarDecl();
 	std::unique_ptr<ast::StmtAST> parseContinueStmt();
