@@ -5,6 +5,7 @@
 #include "stmt.hpp"
 
 namespace frontend::ast {
+DeclStmtAST::DeclStmtAST(std::unique_ptr<DeclAST> decl) : decl(std::move(decl)) {}
 
 VariableDeclarationAST::VariableDeclarationAST(std::unique_ptr<types::Type> type,
 					       std::string name,

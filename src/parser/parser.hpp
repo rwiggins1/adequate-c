@@ -48,6 +48,15 @@ public:
 	std::unique_ptr<ast::ExprAST> parseExpressionTail(std::unique_ptr<ast::ExprAST>);
 
 	std::unique_ptr<ast::DeclAST> parseVarDecl();
+	std::unique_ptr<ast::StmtAST> parseContinueStmt();
+	std::unique_ptr<ast::StmtAST> parseBreakStmt();
+	std::unique_ptr<ast::StmtAST> parseReturnStmt();
+	std::unique_ptr<ast::StmtAST> parseAssignmentStmt();
+	std::unique_ptr<ast::StmtAST> parseWhileStmt();
+	std::unique_ptr<ast::StmtAST> parseForStmt();
+	std::unique_ptr<ast::StmtAST> parseIfStmt();
+
+	std::unique_ptr<ast::StmtAST> parseStmt();
 
 private:
 	Lexer &lexer;

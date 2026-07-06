@@ -8,6 +8,13 @@
 #include <vector>
 
 namespace frontend::ast {
+class DeclStmtAST : public StmtAST {
+        std::unique_ptr<DeclAST> decl;
+public:
+        explicit DeclStmtAST(std::unique_ptr<DeclAST> decl);
+        [[nodiscard]] DeclAST *getDecl() const { return decl.get(); }
+};
+
 // Variable Declaration
 class VariableDeclarationAST : public DeclAST {
 	std::unique_ptr<types::Type> type;

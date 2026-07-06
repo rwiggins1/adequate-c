@@ -730,4 +730,73 @@ std::unique_ptr<ast::DeclAST> Parser::parseVarDecl() {
     return std::make_unique<ast::VariableDeclarationAST>(std::move(type), std::move(name), std::move(array_size));
 }
 
+std::unique_ptr<ast::StmtAST> Parser::parseContinueStmt() {
+    assert(current.type == TokenType::CONTINUE);
+    advance();
+
+    if (current.type != TokenType::SEMICOLON) {
+        errors.error("Expected ';' but got: " + current.lexeme, current.line, current.column);
+        advance();
+        return nullptr;
+    }
+    advance();
+    return std::make_unique<ast::ContinueStmtAST>();
+}
+
+std::unique_ptr<ast::StmtAST> Parser::parseBreakStmt() {
+    assert(current.type == TokenType::BREAK);
+    advance();
+
+    if (current.type != TokenType::SEMICOLON) {
+        errors.error("Expected ';' but got: " + current.lexeme, current.line, current.column);
+        advance();
+        return nullptr;
+    }
+    advance();
+    return std::make_unique<ast::BreakStmtAST>();
+}
+
+std::unique_ptr<ast::StmtAST> Parser::parseReturnStmt() { return nullptr; }
+std::unique_ptr<ast::StmtAST> Parser::parseAssignmentStmt() { return nullptr; }
+std::unique_ptr<ast::StmtAST> Parser::parseWhileStmt() { return nullptr; }
+std::unique_ptr<ast::StmtAST> Parser::parseForStmt() { return nullptr; }
+std::unique_ptr<ast::StmtAST> Parser::parseIfStmt() { return nullptr; }
+
+std::unique_ptr<ast::StmtAST> Parser::parseStmt() {
+    switch (current.type) {
+        case TokenType::IF: {
+            return parseIfStmt();
+        }
+        case TokenType::FOR: {
+            return parseForStmt();
+        }
+        case TokenType::WHILE: {
+            return parseWhileStmt();
+        }
+        case TokenType::IDENT: {
+            return parseAssignmentStmt();
+        }
+        case TokenType::RETURN: {
+            return parseReturnStmt();
+        }
+        case TokenType::BREAK: {
+            return parseBreakStmt();
+        }
+        case TokenType::CONTINUE: {
+            return parseContinueStmt();
+        }
+        case TokenType::VAR: {
+            auto variable = parseVarDecl();
+            if (variable == nullptr) {
+                return nullptr;
+            }
+            return std::make_unique<ast::DeclStmtAST>(std::move(variable));
+        }
+        default: {
+            errors.error("Expected statement but got: " + current.lexeme, current.line, current.column);
+            return nullptr;
+        }
+    }
+}
+
 } // namespace frontend
