@@ -88,11 +88,122 @@ TEST(astTest, FunctionCallExpr) {
 	ASSERT_EQ(TwelveLiteral->getValue(), 12);
 }
 
+// cond ? 1 : 2
+TEST(astTest, TernaryExpr) {
+	auto cond = std::make_unique<BoolLiteralAST>(true);
+	auto then_branch = std::make_unique<NumberLiteralAST>(1);
+	auto else_branch = std::make_unique<NumberLiteralAST>(2);
+
+	auto ternary = std::make_unique<TernaryExprAST>(
+	    std::move(cond), std::move(then_branch), std::move(else_branch));
+
+	auto *cond_check =
+	    dynamic_cast<BoolLiteralAST *>(ternary->getCondition());
+	ASSERT_NE(cond_check, nullptr);
+	ASSERT_EQ(cond_check->getValue(), true);
+
+	auto *then_check =
+	    dynamic_cast<NumberLiteralAST *>(ternary->getThenBranch());
+	ASSERT_NE(then_check, nullptr);
+	ASSERT_EQ(then_check->getValue(), 1.0);
+
+	auto *else_check =
+	    dynamic_cast<NumberLiteralAST *>(ternary->getElseBranch());
+	ASSERT_NE(else_check, nullptr);
+	ASSERT_EQ(else_check->getValue(), 2.0);
+}
+
+TEST(astTest, ReturnStmt) {
+	auto value = std::make_unique<NumberLiteralAST>(7);
+	auto ret = std::make_unique<ReturnStmtAST>(std::move(value));
+
+	auto *value_check = dynamic_cast<NumberLiteralAST *>(ret->getValue());
+	ASSERT_NE(value_check, nullptr);
+	ASSERT_EQ(value_check->getValue(), 7.0);
+
+	// return without a value
+	auto bare_ret = std::make_unique<ReturnStmtAST>(nullptr);
+	ASSERT_EQ(bare_ret->getValue(), nullptr);
+}
+
+TEST(astTest, BlockStmt) {
+	std::vector<std::unique_ptr<StmtAST>> stmts;
+	stmts.emplace_back(std::make_unique<BreakStmtAST>());
+	stmts.emplace_back(std::make_unique<ContinueStmtAST>());
+
+	auto block = std::make_unique<BlockStmtAST>(std::move(stmts));
+	const auto &block_stmts = block->getStmts();
+	ASSERT_EQ(block_stmts.size(), 2);
+
+	ASSERT_NE(dynamic_cast<BreakStmtAST *>(block_stmts[0].get()), nullptr);
+	ASSERT_NE(dynamic_cast<ContinueStmtAST *>(block_stmts[1].get()),
+		  nullptr);
+}
+
+// if (true) { break; } else { continue; }
+TEST(astTest, IfStmt) {
+	auto cond = std::make_unique<BoolLiteralAST>(true);
+
+	std::vector<std::unique_ptr<StmtAST>> then_stmts;
+	then_stmts.emplace_back(std::make_unique<BreakStmtAST>());
+	auto then_block = std::make_unique<BlockStmtAST>(std::move(then_stmts));
+
+	std::vector<std::unique_ptr<StmtAST>> else_stmts;
+	else_stmts.emplace_back(std::make_unique<ContinueStmtAST>());
+	auto else_block = std::make_unique<BlockStmtAST>(std::move(else_stmts));
+
+	auto if_stmt = std::make_unique<IfStmtAST>(
+	    std::move(cond), std::move(then_block), std::move(else_block));
+	ASSERT_NE(if_stmt, nullptr);
+
+	// else branch defaults to nullptr
+	auto if_no_else = std::make_unique<IfStmtAST>(
+	    std::make_unique<BoolLiteralAST>(false),
+	    std::make_unique<BlockStmtAST>(
+		std::vector<std::unique_ptr<StmtAST>>{}));
+	ASSERT_NE(if_no_else, nullptr);
+}
+
+// while (true) { break; }
+TEST(astTest, WhileStmt) {
+	auto cond = std::make_unique<BoolLiteralAST>(true);
+
+	std::vector<std::unique_ptr<StmtAST>> body_stmts;
+	body_stmts.emplace_back(std::make_unique<BreakStmtAST>());
+	auto body = std::make_unique<BlockStmtAST>(std::move(body_stmts));
+
+	auto while_stmt =
+	    std::make_unique<WhileStmtAST>(std::move(cond), std::move(body));
+	ASSERT_NE(while_stmt, nullptr);
+}
+
+// for (int i = 0; i < 10; i++) {}
+TEST(astTest, ForStmt) {
+	auto init = std::make_unique<VariableDeclarationAST>(
+	    std::make_unique<IntType>(), "i",
+	    std::make_unique<NumberLiteralAST>(0));
+
+	auto cond = std::make_unique<BinaryExprAST>(
+	    BinaryOp::LT, std::make_unique<VariableExprAST>("i"),
+	    std::make_unique<NumberLiteralAST>(10));
+
+	auto update = std::make_unique<UnaryExprAST>(
+	    UnaryOp::POST_INCREMENT, std::make_unique<VariableExprAST>("i"));
+
+	auto body = std::make_unique<BlockStmtAST>(
+	    std::vector<std::unique_ptr<StmtAST>>{});
+
+	auto for_stmt = std::make_unique<ForStmtAST>(
+	    std::move(init), std::move(cond), std::move(update),
+	    std::move(body));
+	ASSERT_NE(for_stmt, nullptr);
+}
+
 TEST(astTest, VarDec) {
 	auto expr = std::make_unique<NumberLiteralAST>(42.0);
 	auto integer_type = std::make_unique<frontend::types::IntType>();
 	auto var_dec = std::make_unique<VariableDeclarationAST>(
-	    std::move(integer_type), "x", std::move(expr));
+	    std::move(integer_type), "x", nullptr, std::move(expr));
 	ASSERT_NE(var_dec, nullptr);
 	ASSERT_NE(var_dec->getType(), nullptr);
 	ASSERT_EQ(var_dec->getName(), "x");
@@ -257,12 +368,12 @@ TEST(astTest, Comprehensive) {
 	std::vector<std::unique_ptr<ExprAST>> args;
 	args.emplace_back(std::make_unique<NumberLiteralAST>(5));
 	args.emplace_back(std::make_unique<NumberLiteralAST>(3));
-	
+
 	auto sum_callee = std::make_unique<VariableExprAST>("add");
 	auto sum_call = std::make_unique<CallExprAST>(std::move(sum_callee), std::move(args));
 
 	auto sum = std::make_unique<VariableDeclarationAST>(
-	    std::make_unique<IntType>(), "sum", std::move(sum_call));
+	    std::make_unique<IntType>(), "sum", nullptr, std::move(sum_call));
 
 	// ===== TEST SUM VARIABLE =====
 	ASSERT_NE(sum, nullptr);
@@ -299,7 +410,7 @@ TEST(astTest, Comprehensive) {
 	    std::make_unique<CallExprAST>(std::move(mul_var), std::move(args2));
 
 	auto product = std::make_unique<VariableDeclarationAST>(
-	    std::make_unique<IntType>(), "product", std::move(mul_call));
+	    std::make_unique<IntType>(), "product", nullptr, std::move(mul_call));
 
 	// ===== TEST PRODUCT VARIABLE =====
 	ASSERT_NE(product, nullptr);
