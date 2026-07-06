@@ -9,39 +9,46 @@ namespace frontend::ast {
 
 class BlockStmtAST : public StmtAST {
 	std::vector<std::unique_ptr<StmtAST>> statements;
+
 public:
 	BlockStmtAST(std::vector<std::unique_ptr<StmtAST>> stmts);
-	[[nodiscard]] const std::vector<std::unique_ptr<StmtAST>>& getStmts() const { return statements; }
+	[[nodiscard]] const std::vector<std::unique_ptr<StmtAST>> &
+	getStmts() const {
+		return statements;
+	}
 };
 
 class ReturnStmtAST : public StmtAST {
 	std::unique_ptr<ExprAST> value;
+
 public:
 	ReturnStmtAST(std::unique_ptr<ExprAST> value);
-	[[nodiscard]] ExprAST* getValue() const { return value.get(); }
+	[[nodiscard]] ExprAST *getValue() const { return value.get(); }
 };
 
 class BreakStmtAST : public StmtAST {};
 
 class ContinueStmtAST : public StmtAST {};
 
-class AssignmentStmtAST: public StmtAST {
+class AssignmentStmtAST : public StmtAST {
 	std::string varName;
 	std::unique_ptr<ExprAST> value;
+
 public:
-	AssignmentStmtAST(std::string varName, std::unique_ptr<ExprAST>value);
-	[[nodiscard]] std::string getVariableName() const {return varName; }
-	[[nodiscard]] ExprAST* getValue() const { return value.get(); }
+	AssignmentStmtAST(std::string varName, std::unique_ptr<ExprAST> value);
+	[[nodiscard]] std::string getVariableName() const { return varName; }
+	[[nodiscard]] ExprAST *getValue() const { return value.get(); }
 };
 
 class IfStmtAST : public StmtAST {
 	std::unique_ptr<ExprAST> condition;
 	std::unique_ptr<BlockStmtAST> thenBranch;
 	std::unique_ptr<BlockStmtAST> elseBranch;
+
 public:
-	IfStmtAST(std::unique_ptr<ExprAST> condition, 
-	       std::unique_ptr<BlockStmtAST> thenBranch,
-	       std::unique_ptr<BlockStmtAST> elseBranch = nullptr);
+	IfStmtAST(std::unique_ptr<ExprAST> condition,
+		  std::unique_ptr<BlockStmtAST> thenBranch,
+		  std::unique_ptr<BlockStmtAST> elseBranch = nullptr);
 };
 
 class ForStmtAST : public StmtAST {
@@ -49,26 +56,30 @@ class ForStmtAST : public StmtAST {
 	std::unique_ptr<ExprAST> condition;
 	std::unique_ptr<ExprAST> update;
 	std::unique_ptr<BlockStmtAST> body;
+
 public:
 	ForStmtAST(std::unique_ptr<VariableDeclarationAST> initialization,
-		std::unique_ptr<ExprAST> condition, std::unique_ptr<ExprAST> update,
-	        std::unique_ptr<BlockStmtAST> body);
+		   std::unique_ptr<ExprAST> condition,
+		   std::unique_ptr<ExprAST> update,
+		   std::unique_ptr<BlockStmtAST> body);
 };
 
 class WhileStmtAST : public StmtAST {
 	std::unique_ptr<ExprAST> condition;
 	std::unique_ptr<BlockStmtAST> body;
+
 public:
 	WhileStmtAST(std::unique_ptr<ExprAST> condition,
-	      std::unique_ptr<BlockStmtAST> body);
+		     std::unique_ptr<BlockStmtAST> body);
 };
 
 class DoStmtAST : public StmtAST {
 	std::unique_ptr<BlockStmtAST> body;
 	std::unique_ptr<ExprAST> condition;
+
 public:
 	DoStmtAST(std::unique_ptr<BlockStmtAST> body,
-	       std::unique_ptr<ExprAST> condition);
+		  std::unique_ptr<ExprAST> condition);
 };
 
-}
+} // namespace frontend::ast

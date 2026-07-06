@@ -7,9 +7,10 @@
 #include <string>
 
 namespace frontend {
-Lexer::Lexer(std::string src, ErrorReporter& errors)
-    : source(std::move(src)), errors(errors), src_length(source.length()), position(0), line(1),
-      column(1), current(source.empty() ? '\0' : source[0]) {}
+Lexer::Lexer(std::string src, ErrorReporter &errors)
+    : source(std::move(src)), errors(errors), src_length(source.length()),
+      position(0), line(1), column(1),
+      current(source.empty() ? '\0' : source[0]) {}
 
 void Lexer::advance() noexcept {
 	if (current == '\n') {
@@ -49,8 +50,8 @@ void Lexer::skipSingleLineComment() noexcept {
 }
 
 void Lexer::skipMultiLineComment() {
-    size_t start_line = line;
-    size_t start_column = column;
+	size_t start_line = line;
+	size_t start_column = column;
 
 	advance(); // consume '/'
 	advance(); // consume '*'
@@ -65,8 +66,8 @@ void Lexer::skipMultiLineComment() {
 		advance(); // consume '/'
 	}
 	else {
-    	errors.error("unterminated block comment",
-                    start_line, start_column, ErrorPhase::LEXER);
+		errors.error("unterminated block comment", start_line,
+			     start_column, ErrorPhase::LEXER);
 	}
 }
 
@@ -161,12 +162,14 @@ Token Lexer::char_lit() {
 		if (current == '\'') {
 			text += current;
 			advance();
-			errors.error("character literal must contain exactly one character",
-                 startLine, startColumn, ErrorPhase::LEXER);
-			return {TokenType::INVALID, text, startLine, startColumn};
+			errors.error("character literal must contain exactly "
+				     "one character",
+				     startLine, startColumn, ErrorPhase::LEXER);
+			return {TokenType::INVALID, text, startLine,
+				startColumn};
 		}
-		errors.error("unterminated char literal",
-                 startLine, startColumn, ErrorPhase::LEXER);
+		errors.error("unterminated char literal", startLine,
+			     startColumn, ErrorPhase::LEXER);
 		return {TokenType::INVALID, text, startLine, startColumn};
 	}
 
@@ -190,16 +193,18 @@ Token Lexer::string_lit() {
 		advance();
 	}
 	if (position >= src_length) {
-        errors.error("unterminated string literal", startLine, startColumn, ErrorPhase::LEXER);
-        return {TokenType::INVALID, text, startLine, startColumn};
-    }
+		errors.error("unterminated string literal", startLine,
+			     startColumn, ErrorPhase::LEXER);
+		return {TokenType::INVALID, text, startLine, startColumn};
+	}
 	text += current; // add closing qoutes
 	advance();
 	return {TokenType::STRING_LIT, text, startLine, startColumn};
 }
 
 // Constructs token
-Token Lexer::makeToken(TokenType type, const std::string &lexme, size_t start_column) {
+Token Lexer::makeToken(TokenType type, const std::string &lexme,
+		       size_t start_column) {
 	Token token(type, lexme, line, start_column);
 	advance();
 	return token;
@@ -231,19 +236,23 @@ Token Lexer::tokenize() {
 	case '+':
 		advance();
 		if (current == '+') {
-			return makeToken(TokenType::PLUS_PLUS, "++", start_column);
+			return makeToken(TokenType::PLUS_PLUS, "++",
+					 start_column);
 		}
 		if (current == '=') {
-			return makeToken(TokenType::PLUS_EQUAL, "+=", start_column);
+			return makeToken(TokenType::PLUS_EQUAL,
+					 "+=", start_column);
 		}
 		return {TokenType::PLUS, "+", start_line, start_column};
 	case '-':
 		advance();
 		if (current == '-') {
-			return makeToken(TokenType::MINUS_MINUS, "--", start_column);
+			return makeToken(TokenType::MINUS_MINUS, "--",
+					 start_column);
 		}
 		if (current == '=') {
-			return makeToken(TokenType::MINUS_EQUAL, "-=", start_column);
+			return makeToken(TokenType::MINUS_EQUAL,
+					 "-=", start_column);
 		}
 		if (current == '>') {
 			return makeToken(TokenType::ARROW, "->", start_column);
@@ -252,43 +261,50 @@ Token Lexer::tokenize() {
 	case '*':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::STAR_EQUAL, "*=", start_column);
+			return makeToken(TokenType::STAR_EQUAL,
+					 "*=", start_column);
 		}
 		return {TokenType::STAR, "*", start_line, start_column};
 	case '/':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::SLASH_EQUAL, "/=", start_column);
+			return makeToken(TokenType::SLASH_EQUAL,
+					 "/=", start_column);
 		}
 		return {TokenType::SLASH, "/", start_line, start_column};
 	case '%':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::PERCENT_EQUAL, "%=", start_column);
+			return makeToken(TokenType::PERCENT_EQUAL,
+					 "%=", start_column);
 		}
 		return {TokenType::PERCENT, "%", start_line, start_column};
 	case '=':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::EQUAL_EQUAL, "==", start_column);
+			return makeToken(TokenType::EQUAL_EQUAL,
+					 "==", start_column);
 		}
 		return {TokenType::EQUAL, "=", start_line, start_column};
 	case '!':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::EXCLAMATION_EQUAL, "!=", start_column);
+			return makeToken(TokenType::EXCLAMATION_EQUAL,
+					 "!=", start_column);
 		}
 		return {TokenType::EXCLAMATION, "!", start_line, start_column};
 	case '>':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::GREATER_EQUAL, ">=", start_column);
+			return makeToken(TokenType::GREATER_EQUAL,
+					 ">=", start_column);
 		}
 		if (current == '>') {
 			advance();
 			if (current == '=') {
-				return makeToken(TokenType::GREATER_GREATER_EQUAL,
-						 ">>=", start_column);
+				return makeToken(
+				    TokenType::GREATER_GREATER_EQUAL,
+				    ">>=", start_column);
 			}
 			return {TokenType::GREATER_GREATER, ">>", start_line,
 				start_column};
@@ -297,7 +313,8 @@ Token Lexer::tokenize() {
 	case '<':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::LESS_EQUAL, "<=", start_column);
+			return makeToken(TokenType::LESS_EQUAL,
+					 "<=", start_column);
 		}
 		if (current == '<') {
 			advance();
@@ -312,25 +329,30 @@ Token Lexer::tokenize() {
 	case '&':
 		advance();
 		if (current == '&') {
-			return makeToken(TokenType::AMPERSAND_AMPERSAND, "&&", start_column);
+			return makeToken(TokenType::AMPERSAND_AMPERSAND, "&&",
+					 start_column);
 		}
 		if (current == '=') {
-			return makeToken(TokenType::AMPERSAND_EQUAL, "&=", start_column);
+			return makeToken(TokenType::AMPERSAND_EQUAL,
+					 "&=", start_column);
 		}
 		return {TokenType::AMPERSAND, "&", start_line, start_column};
 	case '|':
 		advance();
 		if (current == '|') {
-			return makeToken(TokenType::PIPE_PIPE, "||", start_column);
+			return makeToken(TokenType::PIPE_PIPE, "||",
+					 start_column);
 		}
 		if (current == '=') {
-			return makeToken(TokenType::PIPE_EQUAL, "|=", start_column);
+			return makeToken(TokenType::PIPE_EQUAL,
+					 "|=", start_column);
 		}
 		return {TokenType::PIPE, "|", start_line, start_column};
 	case '^':
 		advance();
 		if (current == '=') {
-			return makeToken(TokenType::CARET_EQUAL, "^=", start_column);
+			return makeToken(TokenType::CARET_EQUAL,
+					 "^=", start_column);
 		}
 		return {TokenType::CARET, "^", start_line, start_column};
 	case '~':
@@ -345,7 +367,8 @@ Token Lexer::tokenize() {
 	case ':':
 		advance();
 		if (current == ':') {
-			return makeToken(TokenType::COLON_COLON, "::", start_column);
+			return makeToken(TokenType::COLON_COLON,
+					 "::", start_column);
 		}
 		return {TokenType::COLON, ":", start_line, start_column};
 	case ';':
@@ -365,9 +388,11 @@ Token Lexer::tokenize() {
 	case '}':
 		return makeToken(TokenType::RBRACE, "}", start_column);
 	default:
-    	errors.error("unexpected character '" + std::string(1, current) + "'",
-                    line, column, ErrorPhase::LEXER);
-		return makeToken(TokenType::INVALID, std::string(1, current), start_column);
+		errors.error("unexpected character '" +
+				 std::string(1, current) + "'",
+			     line, column, ErrorPhase::LEXER);
+		return makeToken(TokenType::INVALID, std::string(1, current),
+				 start_column);
 	}
 }
 

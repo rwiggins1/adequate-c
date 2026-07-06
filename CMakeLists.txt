@@ -73,6 +73,7 @@ add_executable(ast_gtest
     tests/unit/test_ast.cpp
     tests/unit/test_lexer.cpp
     tests/unit/test_parser_expr.cpp
+    tests/unit/test_parser_decl.cpp
     tests/unit/test_types.cpp
 
     src/ast/expr.cpp
@@ -84,9 +85,23 @@ add_executable(ast_gtest
 target_include_directories(ast_gtest PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(ast_gtest GTest::gtest_main)
 
+# Google Test for lexer -> parser integration
+add_executable(integration_gtest
+    tests/integration/test_lexer_parser.cpp
+
+    src/ast/expr.cpp
+    src/ast/stmt.cpp
+    src/ast/decl.cpp
+    src/lexer/lexer.cpp
+    src/parser/parser.cpp
+)
+target_include_directories(integration_gtest PRIVATE ${CMAKE_SOURCE_DIR}/src)
+target_link_libraries(integration_gtest GTest::gtest_main)
+
 # Register test
 include(GoogleTest)
 gtest_discover_tests(ast_gtest)
+gtest_discover_tests(integration_gtest)
 
 # =======================================================================
 # Coverage (gcov/gcovr)
@@ -100,7 +115,7 @@ if(ADQ_ENABLE_COVERAGE)
                          "optimizations can make gcov line/branch data unreliable")
     endif()
 
-    set(COVERAGE_TARGETS adequatec test_lexer test_ast ast_gtest)
+    set(COVERAGE_TARGETS adequatec test_lexer test_ast ast_gtest integration_gtest)
     foreach(cov_target ${COVERAGE_TARGETS})
         target_compile_options(${cov_target} PRIVATE --coverage -O0 -g)
         target_link_options(${cov_target} PRIVATE --coverage)
