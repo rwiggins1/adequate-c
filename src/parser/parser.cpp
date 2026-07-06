@@ -1,5 +1,6 @@
 #include "parser.hpp"
 #include "ast/ast.hpp"
+#include "ast/decl.hpp"
 #include "ast/expr.hpp"
 #include "ast/stmt.hpp"
 #include "diagnostics/diagnostics.hpp"
@@ -671,6 +672,62 @@ std::unique_ptr<ast::ExprAST> Parser::parseExpressionTail(std::unique_ptr<ast::E
     return lhs;
 }
 
-std::unique_ptr<ast::StmtAST> Parser::parseVarDecl() { return nullptr; }
+std::unique_ptr<ast::DeclAST> Parser::parseVarDecl() {
+    if (current.type != TokenType::VAR) {
+        errors.error("Expected 'var' got: " + current.lexeme, current.line, current.column);
+        advance();
+        return nullptr;
+    }
+    advance();
+    auto type = parseType();
+    if (type == nullptr) {
+        return nullptr;
+    }
+    if (current.type != TokenType::IDENT) {
+        errors.error("Expected identifier got: " + current.lexeme, current.line, current.column);
+        advance();
+        return nullptr;
+    }
+    std::string name = current.lexeme;
+    advance();
+
+    // variable declaration tail
+    if (current.type == TokenType::SEMICOLON) {
+        advance();
+        return std::make_unique<ast::VariableDeclarationAST>(std::move(type), std::move(name));
+    }
+    if (current.type == TokenType::EQUAL) {
+        advance();
+        auto expr = parseExpression();
+        if (current.type != TokenType::SEMICOLON) {
+            errors.error("Expected ';' but got: " + current.lexeme, current.line, current.column);
+            advance();
+            return nullptr;
+        }
+        advance();
+        return std::make_unique<ast::VariableDeclarationAST>(std::move(type), std::move(name), nullptr, std::move(expr));
+    }
+    // array variable
+    if (current.type != TokenType::LBRACKET) {
+        errors.error("Expected '[' but got: " + current.lexeme, current.line, current.column);
+        advance();
+        return nullptr;
+    }
+    advance();
+    auto array_size = parseExpression();
+    if (current.type != TokenType::RBRACKET) {
+        errors.error("Expected ']' but got: " + current.lexeme, current.line, current.column);
+        advance();
+        return nullptr;
+    }
+    advance();
+    if (current.type != TokenType::SEMICOLON) {
+        errors.error("Expected ';' but got: " + current.lexeme, current.line, current.column);
+        advance();
+        return nullptr;
+    }
+    advance();
+    return std::make_unique<ast::VariableDeclarationAST>(std::move(type), std::move(name), std::move(array_size));
+}
 
 } // namespace frontend

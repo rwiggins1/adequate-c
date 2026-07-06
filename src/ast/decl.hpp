@@ -12,11 +12,13 @@ namespace frontend::ast {
 class VariableDeclarationAST : public DeclAST {
 	std::unique_ptr<types::Type> type;
 	std::string name;
+	std::unique_ptr<ExprAST> size; // array[length + 1]
 	std::unique_ptr<ExprAST> initializer;
 
 public:
 	VariableDeclarationAST(std::unique_ptr<types::Type> type,
 			       std::string name,
+				   std::unique_ptr<ExprAST> size = nullptr,
 			       std::unique_ptr<ExprAST> initializer = nullptr);
 
 	[[nodiscard]] types::Type *getType() const noexcept {
@@ -27,6 +29,10 @@ public:
 	[[nodiscard]] bool hasInit() const noexcept {
 		return initializer != nullptr;
 	}
+	[[nodiscard]] ExprAST *getArraySize() const noexcept {
+		return size.get();
+	}
+	[[nodiscard]] bool isArray() const noexcept { return size != nullptr; }
 };
 
 /// PrototypeAST - Function signature

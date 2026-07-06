@@ -47,6 +47,7 @@ private:
 		{"int", TokenType::INT},
 		{"float", TokenType::FLOAT},
 		{"double", TokenType::DOUBLE},
+		{"char", TokenType::CHAR},
 		{"bool", TokenType::BOOL},
 		{"void", TokenType::VOID},
 		{"string", TokenType::STRING},

@@ -136,8 +136,8 @@
 
 <VarDec> ::= var <type> <ident> <VarDec-tail>
 <VarDec-tail> ::= ;
-    ::= [ <Expr> ] <VarDec-tail>
     ::= = <Expr>;
+    ::= [ <Expr> ] <VarDec-tail>
 
 <Expr> ::= <logical-or-expression> <Expr-tail>
 <Expr-tail> ::= ? <Expr> : <Expr>

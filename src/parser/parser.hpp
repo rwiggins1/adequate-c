@@ -47,7 +47,7 @@ public:
 	std::unique_ptr<ast::ExprAST> parseExpression();
 	std::unique_ptr<ast::ExprAST> parseExpressionTail(std::unique_ptr<ast::ExprAST>);
 
-	std::unique_ptr<ast::StmtAST> parseVarDecl();
+	std::unique_ptr<ast::DeclAST> parseVarDecl();
 
 private:
 	Lexer &lexer;
