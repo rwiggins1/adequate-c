@@ -333,7 +333,7 @@ std::unique_ptr<ast::ExprAST> Parser::parseUnaryExpr() {
 		ast::UnaryOp unary_op{};
 
 		switch (current.type) {
-		case TokenType::AMPERSAND_AMPERSAND:
+		case TokenType::AMPERSAND:
 			unary_op = ast::UnaryOp::AND;
 			break;
 		case TokenType::STAR:
