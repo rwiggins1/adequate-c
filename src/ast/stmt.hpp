@@ -2,6 +2,8 @@
 
 #include "ast.hpp"
 #include "decl.hpp"
+#include "lexer/token.hpp"
+#include <cstdint>
 #include <memory>
 #include <string>
 
@@ -22,7 +24,7 @@ class ReturnStmtAST : public StmtAST {
 	std::unique_ptr<ExprAST> value;
 
 public:
-	ReturnStmtAST(std::unique_ptr<ExprAST> value);
+	ReturnStmtAST(std::unique_ptr<ExprAST> value = nullptr);
 	[[nodiscard]] ExprAST *getValue() const { return value.get(); }
 };
 
@@ -30,12 +32,27 @@ class BreakStmtAST : public StmtAST {};
 
 class ContinueStmtAST : public StmtAST {};
 
+enum class AssignOp : uint8_t {
+      ASSIGN,     // =
+      ADD_ASSIGN, // +=
+      SUB_ASSIGN, // -=
+      MUL_ASSIGN, // *=
+      DIV_ASSIGN, // /=
+      MOD_ASSIGN, // %=
+      SHL_ASSIGN, // <<=
+      SHR_ASSIGN, // >>=
+      BIT_AND_ASSIGN, // &=
+      BIT_XOR_ASSIGN, // ^=
+      BIT_OR_ASSIGN,  // |=
+};
+
 class AssignmentStmtAST : public StmtAST {
 	std::string varName;
+	AssignOp op;
 	std::unique_ptr<ExprAST> value;
 
 public:
-	AssignmentStmtAST(std::string varName, std::unique_ptr<ExprAST> value);
+	AssignmentStmtAST(std::string varName, AssignOp op, std::unique_ptr<ExprAST> value);
 	[[nodiscard]] std::string getVariableName() const { return varName; }
 	[[nodiscard]] ExprAST *getValue() const { return value.get(); }
 };
