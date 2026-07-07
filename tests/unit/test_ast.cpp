@@ -448,9 +448,9 @@ TEST(astTest, Comprehensive) {
 
 	// Assignment statements
 	auto px = std::make_unique<AssignmentStmtAST>(
-	    "p", std::make_unique<VariableExprAST>("sum"));
+	    "p", AssignOp::ASSIGN, std::make_unique<VariableExprAST>("sum"));
 	auto py = std::make_unique<AssignmentStmtAST>(
-	    "y", std::make_unique<VariableExprAST>("product"));
+	    "y", AssignOp::ASSIGN, std::make_unique<VariableExprAST>("product"));
 
 	// ===== TEST ASSIGNMENTS =====
 	ASSERT_NE(px, nullptr);

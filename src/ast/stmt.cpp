@@ -10,9 +10,9 @@ BlockStmtAST::BlockStmtAST(std::vector<std::unique_ptr<StmtAST>> stmts)
 ReturnStmtAST::ReturnStmtAST(std::unique_ptr<ExprAST> value)
     : value(std::move(value)) {}
 
-AssignmentStmtAST::AssignmentStmtAST(std::string varName,
+AssignmentStmtAST::AssignmentStmtAST(std::string varName, AssignOp op,
 				     std::unique_ptr<ExprAST> value)
-    : varName(std::move(varName)), value(std::move(value)) {}
+    : varName(std::move(varName)), op(op), value(std::move(value)) {}
 
 IfStmtAST::IfStmtAST(std::unique_ptr<ExprAST> condition,
 		     std::unique_ptr<BlockStmtAST> thenBranch,

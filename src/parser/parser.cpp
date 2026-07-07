@@ -21,23 +21,8 @@ Parser::Parser(Lexer &lex, ErrorReporter &errors)
 
 void Parser::advance() { current = lexer.get(); }
 
-bool Parser::match(TokenType type) { return current.type == type; }
-
-bool Parser::isType(TokenType type) {
-	return type == TokenType::INT || type == TokenType::FLOAT ||
-	       type == TokenType::DOUBLE || type == TokenType::BOOL ||
-	       type == TokenType::CHAR || type == TokenType::STRING ||
-	       type == TokenType::VOID || type == TokenType::INFER;
-}
-
-bool Parser::isLiteral(TokenType type) {
-	return type == TokenType::NUMBER_LIT || type == TokenType::STRING_LIT ||
-	       type == TokenType::CHAR_LIT || type == TokenType::TRUE ||
-	       type == TokenType::FALSE;
-}
-
 bool Parser::expect(TokenType type) {
-	if (!match(type)) {
+	if (type != current.type) {
 		std::cerr << "Expected " << static_cast<int>(type)
 			  << " but got " << static_cast<int>(current.type)
 			  << "\n";
@@ -92,7 +77,7 @@ bool Parser::unaryOperator() const {
 }
 
 bool Parser::assignmentOperator() const {
-	return current.type == TokenType::EQUAL_EQUAL ||
+	return current.type == TokenType::EQUAL ||
 	       current.type == TokenType::STAR_EQUAL ||
 	       current.type == TokenType::SLASH_EQUAL ||
 	       current.type == TokenType::PERCENT_EQUAL ||
@@ -781,8 +766,94 @@ std::unique_ptr<ast::StmtAST> Parser::parseBreakStmt() {
 	return std::make_unique<ast::BreakStmtAST>();
 }
 
-std::unique_ptr<ast::StmtAST> Parser::parseReturnStmt() { return nullptr; }
-std::unique_ptr<ast::StmtAST> Parser::parseAssignmentStmt() { return nullptr; }
+std::unique_ptr<ast::StmtAST> Parser::parseReturnStmt() {
+	assert(current.type == TokenType::RETURN);
+	advance();
+
+	if (current.type == TokenType::SEMICOLON) {
+		advance();
+		return std::make_unique<ast::ReturnStmtAST>();
+	}
+
+	auto ret_value = parseExpression();
+	if (current.type != TokenType::SEMICOLON) {
+		errors.error("Expected ';' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+	return std::make_unique<ast::ReturnStmtAST>(std::move(ret_value));
+}
+
+std::unique_ptr<ast::StmtAST> Parser::parseAssignmentStmt() {
+	assert(current.type == TokenType::IDENT);
+	std::string var_name = std::move(current.lexeme);
+	advance();
+
+	if (auto is_assignmement_op = assignmentOperator();
+	    is_assignmement_op) {
+		ast::AssignOp assignment_op{};
+
+		switch (current.type) {
+		case TokenType::EQUAL:
+			assignment_op = ast::AssignOp::ASSIGN;
+			break;
+		case TokenType::PLUS_EQUAL:
+			assignment_op = ast::AssignOp::ADD_ASSIGN;
+			break;
+		case TokenType::MINUS_EQUAL:
+			assignment_op = ast::AssignOp::SUB_ASSIGN;
+			break;
+		case TokenType::STAR_EQUAL:
+			assignment_op = ast::AssignOp::MUL_ASSIGN;
+			break;
+		case TokenType::SLASH_EQUAL:
+			assignment_op = ast::AssignOp::DIV_ASSIGN;
+			break;
+		case TokenType::PERCENT_EQUAL:
+			assignment_op = ast::AssignOp::MOD_ASSIGN;
+			break;
+		case TokenType::LESS_LESS_EQUAL:
+			assignment_op = ast::AssignOp::SHL_ASSIGN;
+			break;
+		case TokenType::GREATER_GREATER_EQUAL:
+			assignment_op = ast::AssignOp::SHR_ASSIGN;
+			break;
+		case TokenType::AMPERSAND_EQUAL:
+			assignment_op = ast::AssignOp::BIT_AND_ASSIGN;
+			break;
+		case TokenType::CARET_EQUAL:
+			assignment_op = ast::AssignOp::BIT_XOR_ASSIGN;
+			break;
+		case TokenType::PIPE_EQUAL:
+			assignment_op = ast::AssignOp::BIT_OR_ASSIGN;
+			break;
+		default:
+			errors.error("Invalid assignment operator: " +
+					 current.lexeme,
+				     current.line, current.column);
+			advance();
+			return nullptr;
+		}
+		advance();
+
+		auto expr = parseExpression();
+
+		if (current.type != TokenType::SEMICOLON) {
+            errors.error("Expected ';' but got: " + current.lexeme, current.line, current.column);
+            advance();
+            return nullptr;
+		}
+		advance();
+		return std::make_unique<ast::AssignmentStmtAST>(
+		    std::move(var_name), assignment_op, std::move(expr));
+	}
+	errors.error("Expected an assignment operator but got: " +
+			 current.lexeme,
+		     current.line, current.column);
+	return nullptr;
+}
 std::unique_ptr<ast::StmtAST> Parser::parseWhileStmt() { return nullptr; }
 std::unique_ptr<ast::StmtAST> Parser::parseForStmt() { return nullptr; }
 std::unique_ptr<ast::StmtAST> Parser::parseIfStmt() { return nullptr; }
