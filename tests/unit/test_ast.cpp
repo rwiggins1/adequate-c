@@ -1,3 +1,4 @@
+#include "../test_helpers.hpp"
 #include "ast/ast.hpp"
 #include "ast/decl.hpp"
 #include "ast/expr.hpp"
@@ -6,7 +7,6 @@
 #include "gtest/gtest.h"
 #include <algorithm>
 #include <filesystem>
-#include <gtest/gtest.h>
 #include <memory>
 #include <utility>
 #include <vector>
@@ -45,7 +45,7 @@ TEST(astTest, UnaryExpr) {
 	ASSERT_EQ(unary->getOperator(), UnaryOp::NOT);
 
 	ExprAST *literal = unary->getOperand();
-	auto *boolLiteral = dynamic_cast<BoolLiteralAST *>(literal);
+	auto *boolLiteral = expectNode<BoolLiteralAST>(literal);
 
 	ASSERT_EQ(boolLiteral->getValue(), true);
 }
@@ -59,11 +59,11 @@ TEST(astTest, BinaryExpr) {
 	ASSERT_EQ(add->getOperator(), BinaryOp::ADD);
 
 	ExprAST *lhs = add->getLhs();
-	auto *lhsLiteral = dynamic_cast<NumberLiteralAST *>(lhs);
+	auto *lhsLiteral = expectNode<NumberLiteralAST>(lhs);
 	ASSERT_EQ(lhsLiteral->getValue(), 2);
 
 	ExprAST *rhs = add->getRhs();
-	auto *rhsLiteral = dynamic_cast<NumberLiteralAST *>(rhs);
+	auto *rhsLiteral = expectNode<NumberLiteralAST>(rhs);
 
 	ASSERT_EQ(rhsLiteral->getValue(), 3);
 }
@@ -80,10 +80,11 @@ TEST(astTest, FunctionCallExpr) {
 	args.push_back(std::move(testStr));
 	args.push_back(std::move(bool_lit));
 
-	auto funcCall = std::make_unique<CallExprAST>(std::move(callee), std::move(args));
+	auto funcCall =
+	    std::make_unique<CallExprAST>(std::move(callee), std::move(args));
 	const auto &Args = funcCall->getArgs();
 
-	auto *TwelveLiteral = dynamic_cast<NumberLiteralAST *>(Args[0].get());
+	auto *TwelveLiteral = expectNode<NumberLiteralAST>(Args[0].get());
 
 	ASSERT_EQ(TwelveLiteral->getValue(), 12);
 }
@@ -97,18 +98,17 @@ TEST(astTest, TernaryExpr) {
 	auto ternary = std::make_unique<TernaryExprAST>(
 	    std::move(cond), std::move(then_branch), std::move(else_branch));
 
-	auto *cond_check =
-	    dynamic_cast<BoolLiteralAST *>(ternary->getCondition());
+	auto *cond_check = expectNode<BoolLiteralAST>(ternary->getCondition());
 	ASSERT_NE(cond_check, nullptr);
 	ASSERT_EQ(cond_check->getValue(), true);
 
 	auto *then_check =
-	    dynamic_cast<NumberLiteralAST *>(ternary->getThenBranch());
+	    expectNode<NumberLiteralAST>(ternary->getThenBranch());
 	ASSERT_NE(then_check, nullptr);
 	ASSERT_EQ(then_check->getValue(), 1.0);
 
 	auto *else_check =
-	    dynamic_cast<NumberLiteralAST *>(ternary->getElseBranch());
+	    expectNode<NumberLiteralAST>(ternary->getElseBranch());
 	ASSERT_NE(else_check, nullptr);
 	ASSERT_EQ(else_check->getValue(), 2.0);
 }
@@ -117,7 +117,7 @@ TEST(astTest, ReturnStmt) {
 	auto value = std::make_unique<NumberLiteralAST>(7);
 	auto ret = std::make_unique<ReturnStmtAST>(std::move(value));
 
-	auto *value_check = dynamic_cast<NumberLiteralAST *>(ret->getValue());
+	auto *value_check = expectNode<NumberLiteralAST>(ret->getValue());
 	ASSERT_NE(value_check, nullptr);
 	ASSERT_EQ(value_check->getValue(), 7.0);
 
@@ -135,9 +135,8 @@ TEST(astTest, BlockStmt) {
 	const auto &block_stmts = block->getStmts();
 	ASSERT_EQ(block_stmts.size(), 2);
 
-	ASSERT_NE(dynamic_cast<BreakStmtAST *>(block_stmts[0].get()), nullptr);
-	ASSERT_NE(dynamic_cast<ContinueStmtAST *>(block_stmts[1].get()),
-		  nullptr);
+	ASSERT_NE(expectNode<BreakStmtAST>(block_stmts[0].get()), nullptr);
+	ASSERT_NE(expectNode<ContinueStmtAST>(block_stmts[1].get()), nullptr);
 }
 
 // if (true) { break; } else { continue; }
@@ -194,9 +193,9 @@ TEST(astTest, ForStmt) {
 	auto body = std::make_unique<BlockStmtAST>(
 	    std::vector<std::unique_ptr<StmtAST>>{});
 
-	auto for_stmt = std::make_unique<ForStmtAST>(
-	    std::move(init), std::move(cond), std::move(update),
-	    std::move(body));
+	auto for_stmt =
+	    std::make_unique<ForStmtAST>(std::move(init), std::move(cond),
+					 std::move(update), std::move(body));
 	ASSERT_NE(for_stmt, nullptr);
 }
 
@@ -270,8 +269,7 @@ TEST(astTest, Comprehensive) {
 	    << "Namespace should contain 2 functions";
 
 	// Test first function (add)
-	auto *add_func_ptr =
-	    dynamic_cast<FunctionAST *>(namespace_decls[0].get());
+	auto *add_func_ptr = expectNode<FunctionAST>(namespace_decls[0].get());
 	ASSERT_NE(add_func_ptr, nullptr)
 	    << "First declaration should be a function";
 	EXPECT_EQ(add_func_ptr->getProto()->getName(), "add");
@@ -293,29 +291,26 @@ TEST(astTest, Comprehensive) {
 	ASSERT_EQ(add_body_check.size(), 1)
 	    << "add() body should have 1 statement";
 
-	auto *add_return =
-	    dynamic_cast<ReturnStmtAST *>(add_body_check[0].get());
+	auto *add_return = expectNode<ReturnStmtAST>(add_body_check[0].get());
 	ASSERT_NE(add_return, nullptr) << "First statement should be return";
 	ASSERT_NE(add_return->getValue(), nullptr)
 	    << "Return should have a value";
 
-	auto *add_binary =
-	    dynamic_cast<BinaryExprAST *>(add_return->getValue());
+	auto *add_binary = expectNode<BinaryExprAST>(add_return->getValue());
 	ASSERT_NE(add_binary, nullptr)
 	    << "Return value should be binary expression";
 	EXPECT_EQ(add_binary->getOperator(), BinaryOp::ADD)
 	    << "Should be ADD operation";
 
-	auto *add_left = dynamic_cast<VariableExprAST *>(add_binary->getLhs());
-	auto *add_right = dynamic_cast<VariableExprAST *>(add_binary->getRhs());
+	auto *add_left = expectNode<VariableExprAST>(add_binary->getLhs());
+	auto *add_right = expectNode<VariableExprAST>(add_binary->getRhs());
 	ASSERT_NE(add_left, nullptr) << "Left operand should be variable";
 	ASSERT_NE(add_right, nullptr) << "Right operand should be variable";
 	EXPECT_EQ(add_left->getName(), "a");
 	EXPECT_EQ(add_right->getName(), "b");
 
 	// Test second function (multiply)
-	auto *mul_func_ptr =
-	    dynamic_cast<FunctionAST *>(namespace_decls[1].get());
+	auto *mul_func_ptr = expectNode<FunctionAST>(namespace_decls[1].get());
 	ASSERT_NE(mul_func_ptr, nullptr)
 	    << "Second declaration should be a function";
 	EXPECT_EQ(mul_func_ptr->getProto()->getName(), "multiply");
@@ -330,12 +325,10 @@ TEST(astTest, Comprehensive) {
 	ASSERT_EQ(mul_body_check.size(), 1)
 	    << "multiply() body should have 1 statement";
 
-	auto *mul_return =
-	    dynamic_cast<ReturnStmtAST *>(mul_body_check[0].get());
+	auto *mul_return = expectNode<ReturnStmtAST>(mul_body_check[0].get());
 	ASSERT_NE(mul_return, nullptr);
 
-	auto *mul_binary =
-	    dynamic_cast<BinaryExprAST *>(mul_return->getValue());
+	auto *mul_binary = expectNode<BinaryExprAST>(mul_return->getValue());
 	ASSERT_NE(mul_binary, nullptr);
 	EXPECT_EQ(mul_binary->getOperator(), BinaryOp::MUL)
 	    << "Should be MUL operation";
@@ -371,7 +364,8 @@ TEST(astTest, Comprehensive) {
 	args.emplace_back(std::make_unique<NumberLiteralAST>(3));
 
 	auto sum_callee = std::make_unique<VariableExprAST>("add");
-	auto sum_call = std::make_unique<CallExprAST>(std::move(sum_callee), std::move(args));
+	auto sum_call = std::make_unique<CallExprAST>(std::move(sum_callee),
+						      std::move(args));
 
 	auto sum = std::make_unique<VariableDeclarationAST>(
 	    std::make_unique<IntType>(), "sum", nullptr, std::move(sum_call));
@@ -382,19 +376,20 @@ TEST(astTest, Comprehensive) {
 	EXPECT_EQ(sum->getType()->toString(), "int");
 	ASSERT_NE(sum->getInit(), nullptr) << "sum should have initializer";
 
-	auto *sum_call_check = dynamic_cast<CallExprAST *>(sum->getInit());
+	auto *sum_call_check = expectNode<CallExprAST>(sum->getInit());
 	ASSERT_NE(sum_call_check, nullptr)
 	    << "Initializer should be function call";
 
 	auto sum_callee_check = sum_call_check->getCallee();
-	auto sum_calle = dynamic_cast<VariableExprAST*>(std::move(sum_callee_check));
+	auto sum_calle =
+	    expectNode<VariableExprAST>(std::move(sum_callee_check));
 	EXPECT_EQ(sum_calle->getName(), "add");
 
 	const auto &sum_args = sum_call_check->getArgs();
 	ASSERT_EQ(sum_args.size(), 2) << "add() call should have 2 arguments";
 
-	auto *sum_arg1 = dynamic_cast<NumberLiteralAST *>(sum_args[0].get());
-	auto *sum_arg2 = dynamic_cast<NumberLiteralAST *>(sum_args[1].get());
+	auto *sum_arg1 = expectNode<NumberLiteralAST>(sum_args[0].get());
+	auto *sum_arg2 = expectNode<NumberLiteralAST>(sum_args[1].get());
 	ASSERT_NE(sum_arg1, nullptr);
 	ASSERT_NE(sum_arg2, nullptr);
 	EXPECT_DOUBLE_EQ(sum_arg1->getValue(), 5.0);
@@ -411,7 +406,8 @@ TEST(astTest, Comprehensive) {
 	    std::make_unique<CallExprAST>(std::move(mul_var), std::move(args2));
 
 	auto product = std::make_unique<VariableDeclarationAST>(
-	    std::make_unique<IntType>(), "product", nullptr, std::move(mul_call));
+	    std::make_unique<IntType>(), "product", nullptr,
+	    std::move(mul_call));
 
 	// ===== TEST PRODUCT VARIABLE =====
 	ASSERT_NE(product, nullptr);
@@ -419,19 +415,19 @@ TEST(astTest, Comprehensive) {
 	EXPECT_EQ(product->getType()->toString(), "int");
 	ASSERT_NE(product->getInit(), nullptr);
 
-	auto *prod_call_check = dynamic_cast<CallExprAST *>(product->getInit());
+	auto *prod_call_check = expectNode<CallExprAST>(product->getInit());
 	ASSERT_NE(prod_call_check, nullptr);
 
 	auto prod_callee_check = prod_call_check->getCallee();
-	auto prod_callee_var = dynamic_cast<VariableExprAST*>(prod_callee_check);
+	auto prod_callee_var = expectNode<VariableExprAST>(prod_callee_check);
 	std::string prod_callee = prod_callee_var->getName();
 	EXPECT_EQ(prod_callee, "multiply");
 
 	const auto &prod_args = prod_call_check->getArgs();
 	ASSERT_EQ(prod_args.size(), 2);
 
-	auto *prod_arg1 = dynamic_cast<NumberLiteralAST *>(prod_args[0].get());
-	auto *prod_arg2 = dynamic_cast<NumberLiteralAST *>(prod_args[1].get());
+	auto *prod_arg1 = expectNode<NumberLiteralAST>(prod_args[0].get());
+	auto *prod_arg2 = expectNode<NumberLiteralAST>(prod_args[1].get());
 	ASSERT_NE(prod_arg1, nullptr);
 	ASSERT_NE(prod_arg2, nullptr);
 	EXPECT_DOUBLE_EQ(prod_arg1->getValue(), 4.0);
@@ -451,18 +447,19 @@ TEST(astTest, Comprehensive) {
 	auto px = std::make_unique<AssignmentStmtAST>(
 	    "p", AssignOp::ASSIGN, std::make_unique<VariableExprAST>("sum"));
 	auto py = std::make_unique<AssignmentStmtAST>(
-	    "y", AssignOp::ASSIGN, std::make_unique<VariableExprAST>("product"));
+	    "y", AssignOp::ASSIGN,
+	    std::make_unique<VariableExprAST>("product"));
 
 	// ===== TEST ASSIGNMENTS =====
 	ASSERT_NE(px, nullptr);
 	EXPECT_EQ(px->getVariableName(), "p");
-	auto *px_value = dynamic_cast<VariableExprAST *>(px->getValue());
+	auto *px_value = expectNode<VariableExprAST>(px->getValue());
 	ASSERT_NE(px_value, nullptr);
 	EXPECT_EQ(px_value->getName(), "sum");
 
 	ASSERT_NE(py, nullptr);
 	EXPECT_EQ(py->getVariableName(), "y");
-	auto *py_value = dynamic_cast<VariableExprAST *>(py->getValue());
+	auto *py_value = expectNode<VariableExprAST>(py->getValue());
 	ASSERT_NE(py_value, nullptr);
 	EXPECT_EQ(py_value->getName(), "product");
 

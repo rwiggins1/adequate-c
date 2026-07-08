@@ -1,3 +1,4 @@
+#include "../test_helpers.hpp"
 #include "ast/ast.hpp"
 #include "ast/decl.hpp"
 #include "ast/expr.hpp"
@@ -38,7 +39,7 @@ void expectBinaryOp(const std::string &src, BinaryOp expected_op) {
 	ErrorReporter errors;
 	auto expr = parseExpr(src, errors);
 
-	auto *binary = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *binary = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(binary, nullptr) << src;
 	EXPECT_EQ(binary->getOperator(), expected_op) << src;
 	EXPECT_NE(binary->getLhs(), nullptr) << src;
@@ -51,7 +52,7 @@ void expectUnaryOp(const std::string &src, UnaryOp expected_op) {
 	ErrorReporter errors;
 	auto expr = parseExpr(src, errors);
 
-	auto *unary = dynamic_cast<UnaryExprAST *>(expr.get());
+	auto *unary = expectNode<UnaryExprAST>(expr.get());
 	ASSERT_NE(unary, nullptr) << src;
 	EXPECT_EQ(unary->getOperator(), expected_op) << src;
 	EXPECT_NE(unary->getOperand(), nullptr) << src;
@@ -61,15 +62,16 @@ void expectUnaryOp(const std::string &src, UnaryOp expected_op) {
 
 TEST(ParserExpr, ParseLiteral) {
 	{
-	    ErrorReporter errors;
+		ErrorReporter errors;
 		Lexer lexer("2", errors);
 
 		Parser parser(lexer, errors);
 
 		// get std::unique_ptr<ExprAST>
-		auto expr_ast =  parser.parseLiteral();
+		auto expr_ast = parser.parseLiteral();
 
-		auto literal_ast = dynamic_cast<ast::NumberLiteralAST*>(expr_ast.get());
+		auto literal_ast =
+		    expectNode<ast::NumberLiteralAST>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
 
 		double val = literal_ast->getValue();
@@ -81,11 +83,11 @@ TEST(ParserExpr, ParseLiteral) {
 
 		Parser parser(lexer, errors);
 
-
 		// get std::unique_ptr<ExprAST>
-		auto expr_ast =  parser.parseLiteral();
+		auto expr_ast = parser.parseLiteral();
 
-		auto literal_ast = dynamic_cast<ast::CharLiteralAST*>(expr_ast.get());
+		auto literal_ast =
+		    expectNode<ast::CharLiteralAST>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
 
 		char val = literal_ast->getValue();
@@ -97,11 +99,11 @@ TEST(ParserExpr, ParseLiteral) {
 
 		Parser parser(lexer, errors);
 
-
 		// get std::unique_ptr<ExprAST>
-		auto expr_ast =  parser.parseLiteral();
+		auto expr_ast = parser.parseLiteral();
 
-		auto literal_ast = dynamic_cast<ast::StringLiteralAST*>(expr_ast.get());
+		auto literal_ast =
+		    expectNode<ast::StringLiteralAST>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
 
 		std::string val = literal_ast->getValue();
@@ -113,11 +115,11 @@ TEST(ParserExpr, ParseLiteral) {
 
 		Parser parser(lexer, errors);
 
-
 		// get std::unique_ptr<ExprAST>
-		auto expr_ast =  parser.parseLiteral();
+		auto expr_ast = parser.parseLiteral();
 
-		auto literal_ast = dynamic_cast<ast::BoolLiteralAST*>(expr_ast.get());
+		auto literal_ast =
+		    expectNode<ast::BoolLiteralAST>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
 
 		bool val = literal_ast->getValue();
@@ -129,11 +131,11 @@ TEST(ParserExpr, ParseLiteral) {
 
 		Parser parser(lexer, errors);
 
-
 		// get std::unique_ptr<ExprAST>
-		auto expr_ast =  parser.parseLiteral();
+		auto expr_ast = parser.parseLiteral();
 
-		auto literal_ast = dynamic_cast<ast::BoolLiteralAST*>(expr_ast.get());
+		auto literal_ast =
+		    expectNode<ast::BoolLiteralAST>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
 
 		bool val = literal_ast->getValue();
@@ -142,9 +144,8 @@ TEST(ParserExpr, ParseLiteral) {
 }
 
 TEST(ParserExpr, ParserPrimitiveType) {
-	std::vector<std::string> primitives = {"int",  "float",  "double",
-					       "bool", "char",   "string",
-					       "void"};
+	std::vector<std::string> primitives = {
+	    "int", "float", "double", "bool", "char", "string", "void"};
 	for (const auto &name : primitives) {
 		ErrorReporter errors;
 		Lexer lexer(name, errors);
@@ -171,7 +172,7 @@ TEST(ParserExpr, ParseTypeConst) {
 	ErrorReporter errors;
 	auto type = parseType("const int", errors);
 
-	auto *const_type = dynamic_cast<types::ConstType *>(type.get());
+	auto *const_type = expectNode<types::ConstType>(type.get());
 	ASSERT_NE(const_type, nullptr);
 	EXPECT_EQ(const_type->toString(), "const int");
 	EXPECT_FALSE(errors.hasErrors());
@@ -181,7 +182,7 @@ TEST(ParserExpr, ParseTypeStatic) {
 	ErrorReporter errors;
 	auto type = parseType("static bool", errors);
 
-	auto *static_type = dynamic_cast<types::StaticType *>(type.get());
+	auto *static_type = expectNode<types::StaticType>(type.get());
 	ASSERT_NE(static_type, nullptr);
 	EXPECT_EQ(static_type->toString(), "static bool");
 	EXPECT_FALSE(errors.hasErrors());
@@ -200,7 +201,7 @@ TEST(ParserExpr, ParseTypeStruct) {
 	ErrorReporter errors;
 	auto type = parseType("struct Point", errors);
 
-	auto *struct_type = dynamic_cast<types::StructType *>(type.get());
+	auto *struct_type = expectNode<types::StructType>(type.get());
 	ASSERT_NE(struct_type, nullptr);
 	EXPECT_EQ(struct_type->getName(), "Point");
 	EXPECT_FALSE(errors.hasErrors());
@@ -241,8 +242,8 @@ TEST(ParserExpr, UnaryOperatorPredicate) {
 }
 
 TEST(ParserExpr, AssignmentOperatorPredicate) {
-	std::vector<std::string> assign_ops = {"*=", "/=",  "%=",  "+=", "-=",
-					       "<<=", ">>=", "&=", "^=", "|="};
+	std::vector<std::string> assign_ops = {
+	    "*=", "/=", "%=", "+=", "-=", "<<=", ">>=", "&=", "^=", "|="};
 	for (const auto &op : assign_ops) {
 		ErrorReporter errors;
 		Lexer lexer(op, errors);
@@ -268,7 +269,8 @@ TEST(ParserExpr, ParserPrimaryExpr) {
 		// get std::unique_ptr<ExprAST>
 		auto prim_expr_ast = parser.parsePrimaryExpr();
 
-		auto prim_expr = dynamic_cast<ast::NumberLiteralAST*>(prim_expr_ast.get());
+		auto prim_expr =
+		    expectNode<ast::NumberLiteralAST>(prim_expr_ast.get());
 		ASSERT_NE(prim_expr, nullptr);
 	}
 	{
@@ -279,7 +281,7 @@ TEST(ParserExpr, ParserPrimaryExpr) {
 		auto prim_expr_ast = parser.parsePrimaryExpr();
 
 		auto *var_expr =
-		    dynamic_cast<ast::VariableExprAST *>(prim_expr_ast.get());
+		    expectNode<ast::VariableExprAST>(prim_expr_ast.get());
 		ASSERT_NE(var_expr, nullptr);
 		EXPECT_EQ(var_expr->getName(), "some_variable");
 	}
@@ -292,7 +294,7 @@ TEST(ParserExpr, ParserPrimaryExpr) {
 		auto prim_expr_ast = parser.parsePrimaryExpr();
 
 		auto *binary =
-		    dynamic_cast<ast::BinaryExprAST *>(prim_expr_ast.get());
+		    expectNode<ast::BinaryExprAST>(prim_expr_ast.get());
 		ASSERT_NE(binary, nullptr);
 		EXPECT_EQ(binary->getOperator(), BinaryOp::ADD);
 		EXPECT_FALSE(errors.hasErrors());
@@ -331,7 +333,8 @@ TEST(ParserExpr, ParserPostfixExpr) {
 		// get std::unique_ptr<ExprAST>
 		auto postfix_ast = parser.parsePostfixExpr();
 
-		auto prim_expr = dynamic_cast<ast::NumberLiteralAST*>(postfix_ast.get());
+		auto prim_expr =
+		    expectNode<ast::NumberLiteralAST>(postfix_ast.get());
 		ASSERT_NE(prim_expr, nullptr);
 	}
 }
@@ -340,17 +343,17 @@ TEST(ParserExpr, PostfixCall) {
 	ErrorReporter errors;
 	auto expr = parseExpr("add(5, 3);", errors);
 
-	auto *call = dynamic_cast<CallExprAST *>(expr.get());
+	auto *call = expectNode<CallExprAST>(expr.get());
 	ASSERT_NE(call, nullptr);
 
-	auto *callee = dynamic_cast<VariableExprAST *>(call->getCallee());
+	auto *callee = expectNode<VariableExprAST>(call->getCallee());
 	ASSERT_NE(callee, nullptr);
 	EXPECT_EQ(callee->getName(), "add");
 
 	const auto &args = call->getArgs();
 	ASSERT_EQ(args.size(), 2);
-	auto *arg0 = dynamic_cast<NumberLiteralAST *>(args[0].get());
-	auto *arg1 = dynamic_cast<NumberLiteralAST *>(args[1].get());
+	auto *arg0 = expectNode<NumberLiteralAST>(args[0].get());
+	auto *arg1 = expectNode<NumberLiteralAST>(args[1].get());
 	ASSERT_NE(arg0, nullptr);
 	ASSERT_NE(arg1, nullptr);
 	EXPECT_DOUBLE_EQ(arg0->getValue(), 5.0);
@@ -362,13 +365,13 @@ TEST(ParserExpr, PostfixCallWithExprArgs) {
 	ErrorReporter errors;
 	auto expr = parseExpr("f(1 + 2, g(3));", errors);
 
-	auto *call = dynamic_cast<CallExprAST *>(expr.get());
+	auto *call = expectNode<CallExprAST>(expr.get());
 	ASSERT_NE(call, nullptr);
 
 	const auto &args = call->getArgs();
 	ASSERT_EQ(args.size(), 2);
-	EXPECT_NE(dynamic_cast<BinaryExprAST *>(args[0].get()), nullptr);
-	EXPECT_NE(dynamic_cast<CallExprAST *>(args[1].get()), nullptr);
+	EXPECT_NE(expectNode<BinaryExprAST>(args[0].get()), nullptr);
+	EXPECT_NE(expectNode<CallExprAST>(args[1].get()), nullptr);
 	EXPECT_FALSE(errors.hasErrors());
 }
 
@@ -377,12 +380,12 @@ TEST(ParserExpr, PostfixIncrementDecrement) {
 		ErrorReporter errors;
 		auto expr = parseExpr("x++;", errors);
 
-		auto *unary = dynamic_cast<UnaryExprAST *>(expr.get());
+		auto *unary = expectNode<UnaryExprAST>(expr.get());
 		ASSERT_NE(unary, nullptr);
 		EXPECT_EQ(unary->getOperator(), UnaryOp::POST_INCREMENT);
 
 		auto *operand =
-		    dynamic_cast<VariableExprAST *>(unary->getOperand());
+		    expectNode<VariableExprAST>(unary->getOperand());
 		ASSERT_NE(operand, nullptr);
 		EXPECT_EQ(operand->getName(), "x");
 		EXPECT_FALSE(errors.hasErrors());
@@ -391,7 +394,7 @@ TEST(ParserExpr, PostfixIncrementDecrement) {
 		ErrorReporter errors;
 		auto expr = parseExpr("y--;", errors);
 
-		auto *unary = dynamic_cast<UnaryExprAST *>(expr.get());
+		auto *unary = expectNode<UnaryExprAST>(expr.get());
 		ASSERT_NE(unary, nullptr);
 		EXPECT_EQ(unary->getOperator(), UnaryOp::POST_DECREMENT);
 		EXPECT_FALSE(errors.hasErrors());
@@ -436,18 +439,18 @@ TEST(ParserExpr, ParserMultiplicative) {
 		// get std::unique_ptr<types::Type>
 		auto mult_ast = parser.parseMultiplicativeExpr();
 
-		auto mult_expr = dynamic_cast<ast::BinaryExprAST*>(mult_ast.get());
+		auto mult_expr = expectNode<ast::BinaryExprAST>(mult_ast.get());
 		ASSERT_NE(mult_expr, nullptr);
 
-		ast::ExprAST* lhs_expr = mult_expr->getLhs();
-		auto lhs = dynamic_cast<ast::NumberLiteralAST*>(lhs_expr);
+		ast::ExprAST *lhs_expr = mult_expr->getLhs();
+		auto lhs = expectNode<ast::NumberLiteralAST>(lhs_expr);
 		ASSERT_NE(lhs, nullptr);
 
 		BinaryOp op = mult_expr->getOperator();
 		ASSERT_EQ(op, BinaryOp::MUL);
 
-		ast::ExprAST* rhs_expr = mult_expr->getRhs();
-		auto rhs = dynamic_cast<ast::NumberLiteralAST*>(rhs_expr);
+		ast::ExprAST *rhs_expr = mult_expr->getRhs();
+		auto rhs = expectNode<ast::NumberLiteralAST>(rhs_expr);
 		ASSERT_NE(rhs, nullptr);
 	}
 }
@@ -477,15 +480,15 @@ TEST(ParserExpr, LeftAssociativity) {
 	ErrorReporter errors;
 	auto expr = parseExpr("10 - 4 - 3;", errors);
 
-	auto *outer = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *outer = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(outer, nullptr);
 	EXPECT_EQ(outer->getOperator(), BinaryOp::SUB);
 
-	auto *inner = dynamic_cast<BinaryExprAST *>(outer->getLhs());
+	auto *inner = expectNode<BinaryExprAST>(outer->getLhs());
 	ASSERT_NE(inner, nullptr);
 	EXPECT_EQ(inner->getOperator(), BinaryOp::SUB);
 
-	auto *rhs = dynamic_cast<NumberLiteralAST *>(outer->getRhs());
+	auto *rhs = expectNode<NumberLiteralAST>(outer->getRhs());
 	ASSERT_NE(rhs, nullptr);
 	EXPECT_DOUBLE_EQ(rhs->getValue(), 3.0);
 }
@@ -495,15 +498,15 @@ TEST(ParserExpr, MultiplicationBindsTighterThanAddition) {
 	ErrorReporter errors;
 	auto expr = parseExpr("2 + 3 * 4;", errors);
 
-	auto *add = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *add = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(add, nullptr);
 	EXPECT_EQ(add->getOperator(), BinaryOp::ADD);
 
-	auto *lhs = dynamic_cast<NumberLiteralAST *>(add->getLhs());
+	auto *lhs = expectNode<NumberLiteralAST>(add->getLhs());
 	ASSERT_NE(lhs, nullptr);
 	EXPECT_DOUBLE_EQ(lhs->getValue(), 2.0);
 
-	auto *mul = dynamic_cast<BinaryExprAST *>(add->getRhs());
+	auto *mul = expectNode<BinaryExprAST>(add->getRhs());
 	ASSERT_NE(mul, nullptr);
 	EXPECT_EQ(mul->getOperator(), BinaryOp::MUL);
 }
@@ -513,11 +516,11 @@ TEST(ParserExpr, ParensOverridePrecedence) {
 	ErrorReporter errors;
 	auto expr = parseExpr("(2 + 3) * 4;", errors);
 
-	auto *mul = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *mul = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(mul, nullptr);
 	EXPECT_EQ(mul->getOperator(), BinaryOp::MUL);
 
-	auto *add = dynamic_cast<BinaryExprAST *>(mul->getLhs());
+	auto *add = expectNode<BinaryExprAST>(mul->getLhs());
 	ASSERT_NE(add, nullptr);
 	EXPECT_EQ(add->getOperator(), BinaryOp::ADD);
 }
@@ -527,15 +530,15 @@ TEST(ParserExpr, BitwisePrecedence) {
 	ErrorReporter errors;
 	auto expr = parseExpr("1 | 2 ^ 3 & 4;", errors);
 
-	auto *bit_or = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *bit_or = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(bit_or, nullptr);
 	EXPECT_EQ(bit_or->getOperator(), BinaryOp::BIT_OR);
 
-	auto *bit_xor = dynamic_cast<BinaryExprAST *>(bit_or->getRhs());
+	auto *bit_xor = expectNode<BinaryExprAST>(bit_or->getRhs());
 	ASSERT_NE(bit_xor, nullptr);
 	EXPECT_EQ(bit_xor->getOperator(), BinaryOp::BIT_XOR);
 
-	auto *bit_and = dynamic_cast<BinaryExprAST *>(bit_xor->getRhs());
+	auto *bit_and = expectNode<BinaryExprAST>(bit_xor->getRhs());
 	ASSERT_NE(bit_and, nullptr);
 	EXPECT_EQ(bit_and->getOperator(), BinaryOp::BIT_AND);
 }
@@ -545,20 +548,19 @@ TEST(ParserExpr, LogicalPrecedence) {
 	ErrorReporter errors;
 	auto expr = parseExpr("a || b && c;", errors);
 
-	auto *logical_or = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *logical_or = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(logical_or, nullptr);
 	EXPECT_EQ(logical_or->getOperator(), BinaryOp::OR);
 
-	auto *logical_and = dynamic_cast<BinaryExprAST *>(logical_or->getRhs());
+	auto *logical_and = expectNode<BinaryExprAST>(logical_or->getRhs());
 	ASSERT_NE(logical_and, nullptr);
 	EXPECT_EQ(logical_and->getOperator(), BinaryOp::AND);
 }
 
 TEST(ParserExpr, IncompleteExpressionErrors) {
 	std::vector<std::string> bad_inputs = {
-	    "1 + ;", "2 * ;", "1 << ;", "1 < ;", "1 == ;",
-	    "1 & ;", "1 ^ ;", "1 | ;",  "a && ;", "a || ;",
-	    "a ? ;"};
+	    "1 + ;", "2 * ;", "1 << ;", "1 < ;",  "1 == ;", "1 & ;",
+	    "1 ^ ;", "1 | ;", "a && ;", "a || ;", "a ? ;"};
 	for (const auto &src : bad_inputs) {
 		ErrorReporter errors;
 		auto expr = parseExpr(src, errors);

@@ -1,4 +1,5 @@
 
+#include "../test_helpers.hpp"
 #include "types/type.hpp"
 #include "gtest/gtest.h"
 #include <memory>
@@ -22,8 +23,7 @@ TEST(Types, IntegerType) {
 }
 
 TEST(Types, PrimitiveToStringAndPredicates) {
-	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>>
-	    cases;
+	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> cases;
 	cases.emplace_back(std::make_unique<types::IntType>(), "int");
 	cases.emplace_back(std::make_unique<types::FloatType>(), "float");
 	cases.emplace_back(std::make_unique<types::DoubleType>(), "double");
@@ -140,15 +140,14 @@ TEST(Types, StaticType) {
 }
 
 TEST(Types, NestedQualifiers) {
-	types::StaticType static_const_int(
-	    std::make_unique<types::ConstType>(
-		std::make_unique<types::IntType>()));
+	types::StaticType static_const_int(std::make_unique<types::ConstType>(
+	    std::make_unique<types::IntType>()));
 
 	EXPECT_EQ(static_const_int.toString(), "static const int");
 
 	auto *inner = static_const_int.getInnerType();
 	ASSERT_NE(inner, nullptr);
-	auto *const_inner = dynamic_cast<types::ConstType *>(inner);
+	auto *const_inner = expectNode<types::ConstType>(inner);
 	ASSERT_NE(const_inner, nullptr);
 	EXPECT_EQ(const_inner->getInnerType()->toString(), "int");
 }

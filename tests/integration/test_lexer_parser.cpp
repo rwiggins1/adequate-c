@@ -1,6 +1,7 @@
 // Integration tests: run real source text through the full
 // Lexer -> Parser pipeline and validate the resulting AST shape
 // and the diagnostics produced along the way.
+#include "../test_helpers.hpp"
 #include "ast/ast.hpp"
 #include "ast/expr.hpp"
 #include "diagnostics/diagnostics.hpp"
@@ -28,26 +29,26 @@ TEST(LexerParserIntegration, CallInsideArithmetic) {
 	ErrorReporter errors;
 	auto expr = parsePipeline("result + compute(x, y) * 2;", errors);
 
-	auto *add = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *add = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(add, nullptr);
 	EXPECT_EQ(add->getOperator(), BinaryOp::ADD);
 
-	auto *lhs = dynamic_cast<VariableExprAST *>(add->getLhs());
+	auto *lhs = expectNode<VariableExprAST>(add->getLhs());
 	ASSERT_NE(lhs, nullptr);
 	EXPECT_EQ(lhs->getName(), "result");
 
-	auto *mul = dynamic_cast<BinaryExprAST *>(add->getRhs());
+	auto *mul = expectNode<BinaryExprAST>(add->getRhs());
 	ASSERT_NE(mul, nullptr);
 	EXPECT_EQ(mul->getOperator(), BinaryOp::MUL);
 
-	auto *call = dynamic_cast<CallExprAST *>(mul->getLhs());
+	auto *call = expectNode<CallExprAST>(mul->getLhs());
 	ASSERT_NE(call, nullptr);
-	auto *callee = dynamic_cast<VariableExprAST *>(call->getCallee());
+	auto *callee = expectNode<VariableExprAST>(call->getCallee());
 	ASSERT_NE(callee, nullptr);
 	EXPECT_EQ(callee->getName(), "compute");
 	ASSERT_EQ(call->getArgs().size(), 2);
 
-	auto *two = dynamic_cast<NumberLiteralAST *>(mul->getRhs());
+	auto *two = expectNode<NumberLiteralAST>(mul->getRhs());
 	ASSERT_NE(two, nullptr);
 	EXPECT_DOUBLE_EQ(two->getValue(), 2.0);
 
@@ -59,15 +60,15 @@ TEST(LexerParserIntegration, ParenthesizedGroups) {
 	ErrorReporter errors;
 	auto expr = parsePipeline("(a + b) * (c - d);", errors);
 
-	auto *mul = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *mul = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(mul, nullptr);
 	EXPECT_EQ(mul->getOperator(), BinaryOp::MUL);
 
-	auto *add = dynamic_cast<BinaryExprAST *>(mul->getLhs());
+	auto *add = expectNode<BinaryExprAST>(mul->getLhs());
 	ASSERT_NE(add, nullptr);
 	EXPECT_EQ(add->getOperator(), BinaryOp::ADD);
 
-	auto *sub = dynamic_cast<BinaryExprAST *>(mul->getRhs());
+	auto *sub = expectNode<BinaryExprAST>(mul->getRhs());
 	ASSERT_NE(sub, nullptr);
 	EXPECT_EQ(sub->getOperator(), BinaryOp::SUB);
 
@@ -80,7 +81,7 @@ TEST(LexerParserIntegration, CommentsAndWhitespaceAreSkipped) {
 	auto expr =
 	    parsePipeline("1 /* mid */ + // to end of line\n\t 2;", errors);
 
-	auto *add = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *add = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(add, nullptr);
 	EXPECT_EQ(add->getOperator(), BinaryOp::ADD);
 	EXPECT_FALSE(errors.hasErrors());
@@ -91,7 +92,7 @@ TEST(LexerParserIntegration, DeeplyNestedParens) {
 	ErrorReporter errors;
 	auto expr = parsePipeline("((((42))));", errors);
 
-	auto *literal = dynamic_cast<NumberLiteralAST *>(expr.get());
+	auto *literal = expectNode<NumberLiteralAST>(expr.get());
 	ASSERT_NE(literal, nullptr);
 	EXPECT_DOUBLE_EQ(literal->getValue(), 42.0);
 	EXPECT_FALSE(errors.hasErrors());
@@ -102,15 +103,15 @@ TEST(LexerParserIntegration, RelationalBindsTighterThanEquality) {
 	ErrorReporter errors;
 	auto expr = parsePipeline("a < b == c < d;", errors);
 
-	auto *eq = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *eq = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(eq, nullptr);
 	EXPECT_EQ(eq->getOperator(), BinaryOp::EQ);
 
-	auto *lhs = dynamic_cast<BinaryExprAST *>(eq->getLhs());
+	auto *lhs = expectNode<BinaryExprAST>(eq->getLhs());
 	ASSERT_NE(lhs, nullptr);
 	EXPECT_EQ(lhs->getOperator(), BinaryOp::LT);
 
-	auto *rhs = dynamic_cast<BinaryExprAST *>(eq->getRhs());
+	auto *rhs = expectNode<BinaryExprAST>(eq->getRhs());
 	ASSERT_NE(rhs, nullptr);
 	EXPECT_EQ(rhs->getOperator(), BinaryOp::LT);
 
@@ -122,15 +123,15 @@ TEST(LexerParserIntegration, UnaryInsideBinary) {
 	ErrorReporter errors;
 	auto expr = parsePipeline("-a * !b;", errors);
 
-	auto *mul = dynamic_cast<BinaryExprAST *>(expr.get());
+	auto *mul = expectNode<BinaryExprAST>(expr.get());
 	ASSERT_NE(mul, nullptr);
 	EXPECT_EQ(mul->getOperator(), BinaryOp::MUL);
 
-	auto *neg = dynamic_cast<UnaryExprAST *>(mul->getLhs());
+	auto *neg = expectNode<UnaryExprAST>(mul->getLhs());
 	ASSERT_NE(neg, nullptr);
 	EXPECT_EQ(neg->getOperator(), UnaryOp::MINUS);
 
-	auto *not_expr = dynamic_cast<UnaryExprAST *>(mul->getRhs());
+	auto *not_expr = expectNode<UnaryExprAST>(mul->getRhs());
 	ASSERT_NE(not_expr, nullptr);
 	EXPECT_EQ(not_expr->getOperator(), UnaryOp::NOT);
 
@@ -163,16 +164,16 @@ TEST(LexerParserIntegration, MixedLiteralArguments) {
 	auto expr =
 	    parsePipeline("log(42, 3.14, 'c', \"msg\", true, false);", errors);
 
-	auto *call = dynamic_cast<CallExprAST *>(expr.get());
+	auto *call = expectNode<CallExprAST>(expr.get());
 	ASSERT_NE(call, nullptr);
 
 	const auto &args = call->getArgs();
 	ASSERT_EQ(args.size(), 6);
-	EXPECT_NE(dynamic_cast<NumberLiteralAST *>(args[0].get()), nullptr);
-	EXPECT_NE(dynamic_cast<NumberLiteralAST *>(args[1].get()), nullptr);
-	EXPECT_NE(dynamic_cast<CharLiteralAST *>(args[2].get()), nullptr);
-	EXPECT_NE(dynamic_cast<StringLiteralAST *>(args[3].get()), nullptr);
-	EXPECT_NE(dynamic_cast<BoolLiteralAST *>(args[4].get()), nullptr);
-	EXPECT_NE(dynamic_cast<BoolLiteralAST *>(args[5].get()), nullptr);
+	EXPECT_NE(expectNode<NumberLiteralAST>(args[0].get()), nullptr);
+	EXPECT_NE(expectNode<NumberLiteralAST>(args[1].get()), nullptr);
+	EXPECT_NE(expectNode<CharLiteralAST>(args[2].get()), nullptr);
+	EXPECT_NE(expectNode<StringLiteralAST>(args[3].get()), nullptr);
+	EXPECT_NE(expectNode<BoolLiteralAST>(args[4].get()), nullptr);
+	EXPECT_NE(expectNode<BoolLiteralAST>(args[5].get()), nullptr);
 	EXPECT_FALSE(errors.hasErrors());
 }

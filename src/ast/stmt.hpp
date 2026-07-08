@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast.hpp"
+#include "visitor.hpp"
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -16,6 +17,7 @@ public:
 	getStmts() const {
 		return statements;
 	}
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class ReturnStmtAST : public StmtAST {
@@ -24,24 +26,31 @@ class ReturnStmtAST : public StmtAST {
 public:
 	ReturnStmtAST(std::unique_ptr<ExprAST> value = nullptr);
 	[[nodiscard]] ExprAST *getValue() const { return value.get(); }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
-class BreakStmtAST : public StmtAST {};
+class BreakStmtAST : public StmtAST {
+public:
+	void accept(ASTVisitor &v) override { v.visit(*this); }
+};
 
-class ContinueStmtAST : public StmtAST {};
+class ContinueStmtAST : public StmtAST {
+public:
+	void accept(ASTVisitor &v) override { v.visit(*this); }
+};
 
 enum class AssignOp : uint8_t {
-      ASSIGN,     // =
-      ADD_ASSIGN, // +=
-      SUB_ASSIGN, // -=
-      MUL_ASSIGN, // *=
-      DIV_ASSIGN, // /=
-      MOD_ASSIGN, // %=
-      SHL_ASSIGN, // <<=
-      SHR_ASSIGN, // >>=
-      BIT_AND_ASSIGN, // &=
-      BIT_XOR_ASSIGN, // ^=
-      BIT_OR_ASSIGN,  // |=
+	ASSIGN,		// =
+	ADD_ASSIGN,	// +=
+	SUB_ASSIGN,	// -=
+	MUL_ASSIGN,	// *=
+	DIV_ASSIGN,	// /=
+	MOD_ASSIGN,	// %=
+	SHL_ASSIGN,	// <<=
+	SHR_ASSIGN,	// >>=
+	BIT_AND_ASSIGN, // &=
+	BIT_XOR_ASSIGN, // ^=
+	BIT_OR_ASSIGN,	// |=
 };
 
 class AssignmentStmtAST : public StmtAST {
@@ -50,9 +59,11 @@ class AssignmentStmtAST : public StmtAST {
 	std::unique_ptr<ExprAST> value;
 
 public:
-	AssignmentStmtAST(std::string varName, AssignOp op, std::unique_ptr<ExprAST> value);
+	AssignmentStmtAST(std::string varName, AssignOp op,
+			  std::unique_ptr<ExprAST> value);
 	[[nodiscard]] std::string getVariableName() const { return varName; }
 	[[nodiscard]] ExprAST *getValue() const { return value.get(); }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class IfStmtAST : public StmtAST {
@@ -64,6 +75,7 @@ public:
 	IfStmtAST(std::unique_ptr<ExprAST> condition,
 		  std::unique_ptr<BlockStmtAST> thenBranch,
 		  std::unique_ptr<BlockStmtAST> elseBranch = nullptr);
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class ForStmtAST : public StmtAST {
@@ -87,6 +99,7 @@ public:
 		return update != nullptr;
 	}
 	[[nodiscard]] BlockStmtAST *getBody() const { return body.get(); }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class WhileStmtAST : public StmtAST {
@@ -98,6 +111,7 @@ public:
 		     std::unique_ptr<BlockStmtAST> body);
 	[[nodiscard]] ExprAST *getCondition() const { return condition.get(); }
 	[[nodiscard]] BlockStmtAST *getBody() const { return body.get(); }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class DoStmtAST : public StmtAST {
@@ -107,6 +121,7 @@ class DoStmtAST : public StmtAST {
 public:
 	DoStmtAST(std::unique_ptr<BlockStmtAST> body,
 		  std::unique_ptr<ExprAST> condition);
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 } // namespace frontend::ast

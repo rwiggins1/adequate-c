@@ -2,6 +2,7 @@
 
 #include "../types/type.hpp"
 #include "ast.hpp"
+#include "visitor.hpp"
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -14,6 +15,7 @@ class DeclStmtAST : public StmtAST {
 public:
 	explicit DeclStmtAST(std::unique_ptr<DeclAST> decl);
 	[[nodiscard]] DeclAST *getDecl() const { return decl.get(); }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 // Variable Declaration
@@ -41,6 +43,7 @@ public:
 		return size.get();
 	}
 	[[nodiscard]] bool isArray() const noexcept { return size != nullptr; }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 /// PrototypeAST - Function signature
@@ -80,6 +83,7 @@ public:
 	getBody() const {
 		return body;
 	}
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class StructAST : public DeclAST {
@@ -105,6 +109,7 @@ public:
 	getMethods() const {
 		return methods;
 	}
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class NamespaceAST : public DeclAST {
@@ -119,6 +124,7 @@ public:
 	getDeclarations() const {
 		return declarations;
 	}
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 } // namespace frontend::ast

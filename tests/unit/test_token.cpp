@@ -1,7 +1,7 @@
-#include <gtest/gtest.h>
 #include "lexer/token.hpp"
+#include <gtest/gtest.h>
 
-using namespace::frontend;
+using namespace ::frontend;
 
 TEST(tokenTest, token) {
 	Token token(TokenType::INT, "int", 2, 4);

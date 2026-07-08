@@ -6,6 +6,9 @@
 #include <vector>
 
 namespace frontend::ast {
+
+class ASTVisitor;
+
 // Base Class
 class ASTNode {
 public:
@@ -16,6 +19,8 @@ public:
 
 	ASTNode(ASTNode &&) = default;
 	ASTNode &operator=(ASTNode &&) = default;
+
+	virtual void accept(ASTVisitor &V) = 0;
 
 protected:
 	ASTNode() = default;

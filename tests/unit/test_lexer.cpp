@@ -1,11 +1,11 @@
-#include <gtest/gtest.h>
+#include "diagnostics/diagnostics.hpp"
 #include "lexer/lexer.hpp"
 #include "lexer/token.hpp"
-#include "diagnostics/diagnostics.hpp"
+#include <gtest/gtest.h>
 #include <string>
 #include <vector>
 
-using namespace::frontend;
+using namespace ::frontend;
 
 namespace {
 // Lex the whole source, stopping at EOF
@@ -24,7 +24,7 @@ std::vector<Token> lexAll(const std::string &src, ErrorReporter &errors) {
 } // namespace
 
 TEST(lexerTest, Get) {
-    ErrorReporter errors;
+	ErrorReporter errors;
 	Lexer lexer("int variable = 2 + 3", errors);
 	Token token = lexer.get();
 	ASSERT_EQ(token.type, TokenType::INT);
@@ -49,16 +49,16 @@ TEST(lexerTest, Keywords) {
 	    errors);
 
 	std::vector<TokenType> expected = {
-	    TokenType::FUNC,      TokenType::VAR,      TokenType::INFER,
-	    TokenType::IF,        TokenType::ELSE,     TokenType::FOR,
-	    TokenType::DO,        TokenType::WHILE,    TokenType::RETURN,
-	    TokenType::BREAK,     TokenType::CONTINUE, TokenType::SWITCH,
-	    TokenType::CASE,      TokenType::DEFAULT,  TokenType::STRUCT,
-	    TokenType::ENUM,      TokenType::CONST,    TokenType::STATIC,
+	    TokenType::FUNC,	  TokenType::VAR,      TokenType::INFER,
+	    TokenType::IF,	  TokenType::ELSE,     TokenType::FOR,
+	    TokenType::DO,	  TokenType::WHILE,    TokenType::RETURN,
+	    TokenType::BREAK,	  TokenType::CONTINUE, TokenType::SWITCH,
+	    TokenType::CASE,	  TokenType::DEFAULT,  TokenType::STRUCT,
+	    TokenType::ENUM,	  TokenType::CONST,    TokenType::STATIC,
 	    TokenType::NAMESPACE, TokenType::IMPORT,   TokenType::INT,
-	    TokenType::FLOAT,     TokenType::DOUBLE,   TokenType::CHAR,
-	    TokenType::BOOL,      TokenType::VOID,     TokenType::STRING,
-	    TokenType::TRUE,      TokenType::FALSE};
+	    TokenType::FLOAT,	  TokenType::DOUBLE,   TokenType::CHAR,
+	    TokenType::BOOL,	  TokenType::VOID,     TokenType::STRING,
+	    TokenType::TRUE,	  TokenType::FALSE};
 
 	ASSERT_EQ(tokens.size(), expected.size());
 	for (size_t i = 0; i < expected.size(); i++) {
@@ -74,18 +74,14 @@ TEST(lexerTest, SingleCharOperatorsAndDelimiters) {
 	    lexAll("+ - * / % = ! > < & | ^ ~ @ . ? : ; , [ ] ( ) { }", errors);
 
 	std::vector<TokenType> expected = {
-	    TokenType::PLUS,        TokenType::MINUS,
-	    TokenType::STAR,        TokenType::SLASH,
-	    TokenType::PERCENT,     TokenType::EQUAL,
-	    TokenType::EXCLAMATION, TokenType::GREATER,
-	    TokenType::LESS,        TokenType::AMPERSAND,
-	    TokenType::PIPE,        TokenType::CARET,
-	    TokenType::TILDE,       TokenType::AT,
-	    TokenType::DOT,         TokenType::QUESTION,
-	    TokenType::COLON,       TokenType::SEMICOLON,
-	    TokenType::COMMA,       TokenType::LBRACKET,
-	    TokenType::RBRACKET,    TokenType::LPAREN,
-	    TokenType::RPAREN,      TokenType::LBRACE,
+	    TokenType::PLUS,	    TokenType::MINUS,	 TokenType::STAR,
+	    TokenType::SLASH,	    TokenType::PERCENT,	 TokenType::EQUAL,
+	    TokenType::EXCLAMATION, TokenType::GREATER,	 TokenType::LESS,
+	    TokenType::AMPERSAND,   TokenType::PIPE,	 TokenType::CARET,
+	    TokenType::TILDE,	    TokenType::AT,	 TokenType::DOT,
+	    TokenType::QUESTION,    TokenType::COLON,	 TokenType::SEMICOLON,
+	    TokenType::COMMA,	    TokenType::LBRACKET, TokenType::RBRACKET,
+	    TokenType::LPAREN,	    TokenType::RPAREN,	 TokenType::LBRACE,
 	    TokenType::RBRACE};
 
 	ASSERT_EQ(tokens.size(), expected.size());
@@ -98,9 +94,9 @@ TEST(lexerTest, SingleCharOperatorsAndDelimiters) {
 
 TEST(lexerTest, MultiCharOperators) {
 	ErrorReporter errors;
-	auto tokens = lexAll(
-	    "++ -- += -= -> *= /= %= == != >= <= >> << >>= <<= && || &= |= ^= ::",
-	    errors);
+	auto tokens = lexAll("++ -- += -= -> *= /= %= == != >= <= >> << >>= "
+			     "<<= && || &= |= ^= ::",
+			     errors);
 
 	std::vector<std::pair<TokenType, std::string>> expected = {
 	    {TokenType::PLUS_PLUS, "++"},
