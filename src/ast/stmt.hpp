@@ -13,7 +13,7 @@ class BlockStmtAST : public StmtAST {
 	std::vector<std::unique_ptr<StmtAST>> statements;
 
 public:
-	BlockStmtAST(std::vector<std::unique_ptr<StmtAST>> stmts);
+	BlockStmtAST(std::vector<std::unique_ptr<StmtAST>> stmts = {});
 	[[nodiscard]] const std::vector<std::unique_ptr<StmtAST>> &
 	getStmts() const {
 		return statements;
@@ -88,6 +88,8 @@ class WhileStmtAST : public StmtAST {
 public:
 	WhileStmtAST(std::unique_ptr<ExprAST> condition,
 		     std::unique_ptr<BlockStmtAST> body);
+	[[nodiscard]] ExprAST *getCondition() const { return condition.get(); }
+	[[nodiscard]] BlockStmtAST *getBody() const { return body.get(); }
 };
 
 class DoStmtAST : public StmtAST {
