@@ -35,6 +35,6 @@ make
 ```
 
 ## Requirements
-- C++17
-- CMake 3.10+
+- C++23 compatible compiler (GCC 14+ / Clang 17+)
+- CMake 3.13+
 - clang-format (for code formatting)
