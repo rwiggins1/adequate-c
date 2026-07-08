@@ -1,8 +1,6 @@
 #pragma once
 
 #include "ast.hpp"
-#include "decl.hpp"
-#include "lexer/token.hpp"
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -69,16 +67,26 @@ public:
 };
 
 class ForStmtAST : public StmtAST {
-	std::unique_ptr<VariableDeclarationAST> initialization;
+	std::unique_ptr<StmtAST> initialization;
 	std::unique_ptr<ExprAST> condition;
 	std::unique_ptr<ExprAST> update;
 	std::unique_ptr<BlockStmtAST> body;
 
 public:
-	ForStmtAST(std::unique_ptr<VariableDeclarationAST> initialization,
+	ForStmtAST(std::unique_ptr<StmtAST> initialization,
 		   std::unique_ptr<ExprAST> condition,
 		   std::unique_ptr<ExprAST> update,
 		   std::unique_ptr<BlockStmtAST> body);
+	[[nodiscard]] StmtAST *getInit() const { return initialization.get(); }
+	[[nodiscard]] bool hasInit() const noexcept {
+		return initialization != nullptr;
+	}
+	[[nodiscard]] ExprAST *getCondition() const { return condition.get(); }
+	[[nodiscard]] ExprAST *getUpdate() const { return update.get(); }
+	[[nodiscard]] bool hasUpdate() const noexcept {
+		return update != nullptr;
+	}
+	[[nodiscard]] BlockStmtAST *getBody() const { return body.get(); }
 };
 
 class WhileStmtAST : public StmtAST {

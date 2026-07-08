@@ -179,9 +179,10 @@ TEST(astTest, WhileStmt) {
 
 // for (int i = 0; i < 10; i++) {}
 TEST(astTest, ForStmt) {
-	auto init = std::make_unique<VariableDeclarationAST>(
-	    std::make_unique<IntType>(), "i",
-	    std::make_unique<NumberLiteralAST>(0));
+	auto init = std::make_unique<DeclStmtAST>(
+	    std::make_unique<VariableDeclarationAST>(
+		std::make_unique<IntType>(), "i",
+		std::make_unique<NumberLiteralAST>(0)));
 
 	auto cond = std::make_unique<BinaryExprAST>(
 	    BinaryOp::LT, std::make_unique<VariableExprAST>("i"),
