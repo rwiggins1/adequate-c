@@ -59,7 +59,6 @@
 <for-init> ::= <VarDec>
     ::= <AssignmentStmt>
 <for-update> ::= <Expr>
-    ::= ε
 
 <WhileStmt> ::= while ( <Expr> ) { <Stmt-list> }
 

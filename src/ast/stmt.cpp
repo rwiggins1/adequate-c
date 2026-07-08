@@ -20,7 +20,7 @@ IfStmtAST::IfStmtAST(std::unique_ptr<ExprAST> condition,
     : condition(std::move(condition)), thenBranch(std::move(thenBranch)),
       elseBranch(std::move(elseBranch)) {}
 
-ForStmtAST::ForStmtAST(std::unique_ptr<VariableDeclarationAST> initialization,
+ForStmtAST::ForStmtAST(std::unique_ptr<StmtAST> initialization,
 		       std::unique_ptr<ExprAST> condition,
 		       std::unique_ptr<ExprAST> update,
 		       std::unique_ptr<BlockStmtAST> body)

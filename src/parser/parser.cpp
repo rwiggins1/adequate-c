@@ -869,7 +869,7 @@ std::unique_ptr<ast::StmtAST> Parser::parseWhileStmt() {
 
 	auto condition = parseExpression();
 	if (condition == nullptr) {
-	    return nullptr;
+		return nullptr;
 	}
 
 	if (current.type != TokenType::RPAREN) {
@@ -890,7 +890,7 @@ std::unique_ptr<ast::StmtAST> Parser::parseWhileStmt() {
 
 	auto stmt_list = parseStmtList();
 	if (stmt_list == nullptr) {
-	    return nullptr;
+		return nullptr;
 	}
 
 	if (current.type != TokenType::RBRACE) {
@@ -900,9 +900,110 @@ std::unique_ptr<ast::StmtAST> Parser::parseWhileStmt() {
 		return nullptr;
 	}
 	advance();
-	return std::make_unique<ast::WhileStmtAST>(std::move(condition), std::move(stmt_list));
+	return std::make_unique<ast::WhileStmtAST>(std::move(condition),
+						   std::move(stmt_list));
 }
-std::unique_ptr<ast::StmtAST> Parser::parseForStmt() { return nullptr; }
+
+std::unique_ptr<ast::StmtAST> Parser::parseForInit() {
+	switch (current.type) {
+	case TokenType::VAR: {
+		auto var_dec = parseVarDecl();
+		if (var_dec == nullptr) {
+			return nullptr;
+		}
+		return std::make_unique<ast::DeclStmtAST>(std::move(var_dec));
+	}
+	case TokenType::IDENT: {
+		auto assignment = parseAssignmentStmt();
+		if (assignment == nullptr) {
+			return nullptr;
+		}
+		return assignment;
+	}
+	default: {
+		errors.error("Expected variable declaration or assignment in "
+			     "for-loop initializer but got: " +
+				 current.lexeme,
+			     current.line, current.column);
+		return nullptr;
+	}
+	}
+}
+
+std::unique_ptr<ast::ExprAST> Parser::parseForUpdate() {
+	auto expr = parseExpression();
+	if (expr == nullptr) {
+		return nullptr;
+	}
+	return expr;
+}
+
+std::unique_ptr<ast::StmtAST> Parser::parseForStmt() {
+	assert(current.type == TokenType::FOR);
+	advance();
+
+	if (current.type != TokenType::LPAREN) {
+		errors.error("Expected '(' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	auto for_init = parseForInit();
+	if (for_init == nullptr) {
+		return nullptr;
+	}
+
+	auto expr = parseExpression();
+	if (expr == nullptr) {
+		return nullptr;
+	}
+
+	if (current.type != TokenType::SEMICOLON) {
+		errors.error("Expected ';' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	auto for_update = parseForUpdate();
+	if (for_update == nullptr) {
+		return nullptr;
+	}
+	if (current.type != TokenType::RPAREN) {
+		errors.error("Expected ')' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	if (current.type != TokenType::LBRACE) {
+		errors.error("Expected '{' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	auto stmt_list = parseStmtList();
+	if (stmt_list == nullptr) {
+		return nullptr;
+	}
+	if (current.type != TokenType::RBRACE) {
+		errors.error("Expected '}' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	return std::make_unique<ast::ForStmtAST>(
+	    std::move(for_init), std::move(expr), std::move(for_update),
+	    std::move(stmt_list));
+}
 std::unique_ptr<ast::StmtAST> Parser::parseIfStmt() { return nullptr; }
 
 std::unique_ptr<ast::StmtAST> Parser::parseStmt() {

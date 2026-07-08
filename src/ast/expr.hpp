@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ast/ast.hpp>
+#include <ast/visitor.hpp>
 #include <cstdint>
 #include <memory>
 
@@ -12,6 +13,7 @@ class NumberLiteralAST : public ExprAST {
 public:
 	NumberLiteralAST(double val);
 	[[nodiscard]] double getValue() const noexcept { return value; }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class StringLiteralAST : public ExprAST {
@@ -20,6 +22,7 @@ class StringLiteralAST : public ExprAST {
 public:
 	StringLiteralAST(std::string value);
 	[[nodiscard]] std::string getValue() const { return value; };
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class CharLiteralAST : public ExprAST {
@@ -28,6 +31,7 @@ class CharLiteralAST : public ExprAST {
 public:
 	CharLiteralAST(const char &value);
 	[[nodiscard]] char getValue() const noexcept { return value; }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class BoolLiteralAST : public ExprAST {
@@ -36,6 +40,7 @@ class BoolLiteralAST : public ExprAST {
 public:
 	BoolLiteralAST(bool value);
 	[[nodiscard]] bool getValue() const noexcept { return value; }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 enum class UnaryOp : uint8_t {
@@ -57,6 +62,7 @@ public:
 	UnaryExprAST(UnaryOp op, std::unique_ptr<ExprAST> operand);
 	[[nodiscard]] UnaryOp getOperator() const noexcept { return op; }
 	[[nodiscard]] ExprAST *getOperand() const { return operand.get(); }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 enum class BinaryOp : uint8_t {
@@ -91,6 +97,7 @@ public:
 	[[nodiscard]] BinaryOp getOperator() const noexcept { return op; }
 	[[nodiscard]] ExprAST *getLhs() const { return lhs.get(); }
 	[[nodiscard]] ExprAST *getRhs() const { return rhs.get(); }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class TernaryExprAST : public ExprAST {
@@ -108,6 +115,7 @@ public:
 	[[nodiscard]] ExprAST *getElseBranch() const {
 		return elseBranch.get();
 	}
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class VariableExprAST : public ExprAST {
@@ -116,6 +124,7 @@ class VariableExprAST : public ExprAST {
 public:
 	VariableExprAST(std::string name);
 	[[nodiscard]] std::string getName() const noexcept { return name; }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 class CallExprAST : public ExprAST {
@@ -132,6 +141,7 @@ public:
 	getArgs() const {
 		return args;
 	}
+	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
 } // namespace frontend::ast

@@ -106,9 +106,10 @@
 <elseStmt> ::= <IfStmt>
     ::= { <Stmt-list> }
 
-<ForStmt> ::= for ( <for-init> ; <Expr> ; <Expr> ) { <Stmt-list> }
-<for-init> ::= <type> <AssignmentStmt>
+<ForStmt> ::= for ( <for-init> <Expr> ; <for-update> ) { <Stmt-list> }
+<for-init> ::= <VarDec>
     ::= <AssignmentStmt>
+<for-update> ::= <Expr>
 
 <WhileStmt> ::= while ( <Expr> ) { <Stmt-list> }
 

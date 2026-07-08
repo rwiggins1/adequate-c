@@ -55,7 +55,11 @@ public:
 	std::unique_ptr<ast::StmtAST> parseReturnStmt();
 	std::unique_ptr<ast::StmtAST> parseAssignmentStmt();
 	std::unique_ptr<ast::StmtAST> parseWhileStmt();
+
 	std::unique_ptr<ast::StmtAST> parseForStmt();
+	std::unique_ptr<ast::StmtAST> parseForInit();
+	std::unique_ptr<ast::ExprAST> parseForUpdate();
+
 	std::unique_ptr<ast::StmtAST> parseIfStmt();
 
 	std::unique_ptr<ast::StmtAST> parseStmt();

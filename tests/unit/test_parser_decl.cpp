@@ -1,3 +1,4 @@
+#include "../test_helpers.hpp"
 #include "ast/ast.hpp"
 #include "ast/decl.hpp"
 #include "ast/expr.hpp"
@@ -28,7 +29,7 @@ std::unique_ptr<VariableDeclarationAST> expectVarDecl(const std::string &src,
 	// parseVarDecl only ever produces VariableDeclarationAST or null,
 	// so the failed-cast leak case cannot occur.
 	return std::unique_ptr<VariableDeclarationAST>(
-	    dynamic_cast<VariableDeclarationAST *>(decl.release()));
+	    expectNode<VariableDeclarationAST>(decl.release()));
 }
 
 // Parse a declaration expected to fail: null result plus an error.
@@ -62,7 +63,7 @@ TEST(ParserVarDecl, LiteralInitializer) {
 	EXPECT_TRUE(decl->hasInit());
 	EXPECT_FALSE(decl->isArray());
 
-	auto *literal = dynamic_cast<NumberLiteralAST *>(decl->getInit());
+	auto *literal = expectNode<NumberLiteralAST>(decl->getInit());
 	ASSERT_NE(literal, nullptr);
 	EXPECT_EQ(literal->getValue(), 42.0);
 }
@@ -76,7 +77,7 @@ TEST(ParserVarDecl, ExpressionInitializer) {
 	ASSERT_TRUE(decl->hasInit());
 	EXPECT_FALSE(decl->isArray());
 
-	auto *binary = dynamic_cast<BinaryExprAST *>(decl->getInit());
+	auto *binary = expectNode<BinaryExprAST>(decl->getInit());
 	ASSERT_NE(binary, nullptr);
 	EXPECT_EQ(binary->getOperator(), BinaryOp::ADD);
 }
@@ -91,7 +92,7 @@ TEST(ParserVarDecl, ArrayLiteralSize) {
 	EXPECT_FALSE(decl->hasInit());
 	ASSERT_TRUE(decl->isArray());
 
-	auto *literal = dynamic_cast<NumberLiteralAST *>(decl->getArraySize());
+	auto *literal = expectNode<NumberLiteralAST>(decl->getArraySize());
 	ASSERT_NE(literal, nullptr);
 	EXPECT_EQ(literal->getValue(), 10.0);
 }
@@ -105,7 +106,7 @@ TEST(ParserVarDecl, ArrayExpressionSize) {
 	ASSERT_TRUE(decl->isArray());
 	EXPECT_FALSE(decl->hasInit());
 
-	auto *binary = dynamic_cast<BinaryExprAST *>(decl->getArraySize());
+	auto *binary = expectNode<BinaryExprAST>(decl->getArraySize());
 	ASSERT_NE(binary, nullptr);
 	EXPECT_EQ(binary->getOperator(), BinaryOp::ADD);
 }
@@ -117,7 +118,7 @@ TEST(ParserVarDecl, ConstQualifiedType) {
 	ASSERT_NE(decl, nullptr);
 	EXPECT_FALSE(errors.hasErrors());
 
-	auto *const_type = dynamic_cast<ConstType *>(decl->getType());
+	auto *const_type = expectNode<ConstType>(decl->getType());
 	ASSERT_NE(const_type, nullptr);
 	EXPECT_EQ(const_type->getInnerType()->toString(), "int");
 }
