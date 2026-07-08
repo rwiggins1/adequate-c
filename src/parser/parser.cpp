@@ -841,9 +841,10 @@ std::unique_ptr<ast::StmtAST> Parser::parseAssignmentStmt() {
 		auto expr = parseExpression();
 
 		if (current.type != TokenType::SEMICOLON) {
-            errors.error("Expected ';' but got: " + current.lexeme, current.line, current.column);
-            advance();
-            return nullptr;
+			errors.error("Expected ';' but got: " + current.lexeme,
+				     current.line, current.column);
+			advance();
+			return nullptr;
 		}
 		advance();
 		return std::make_unique<ast::AssignmentStmtAST>(
@@ -854,7 +855,53 @@ std::unique_ptr<ast::StmtAST> Parser::parseAssignmentStmt() {
 		     current.line, current.column);
 	return nullptr;
 }
-std::unique_ptr<ast::StmtAST> Parser::parseWhileStmt() { return nullptr; }
+std::unique_ptr<ast::StmtAST> Parser::parseWhileStmt() {
+	assert(current.type == TokenType::WHILE);
+	advance();
+
+	if (current.type != TokenType::LPAREN) {
+		errors.error("Expected '(' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	auto condition = parseExpression();
+	if (condition == nullptr) {
+	    return nullptr;
+	}
+
+	if (current.type != TokenType::RPAREN) {
+		errors.error("Expected ')' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	if (current.type != TokenType::LBRACE) {
+		errors.error("Expected '{' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	auto stmt_list = parseStmtList();
+	if (stmt_list == nullptr) {
+	    return nullptr;
+	}
+
+	if (current.type != TokenType::RBRACE) {
+		errors.error("Expected '}' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+	return std::make_unique<ast::WhileStmtAST>(std::move(condition), std::move(stmt_list));
+}
 std::unique_ptr<ast::StmtAST> Parser::parseForStmt() { return nullptr; }
 std::unique_ptr<ast::StmtAST> Parser::parseIfStmt() { return nullptr; }
 
@@ -894,6 +941,20 @@ std::unique_ptr<ast::StmtAST> Parser::parseStmt() {
 		return nullptr;
 	}
 	}
+}
+
+std::unique_ptr<ast::BlockStmtAST> Parser::parseStmtList() {
+	std::vector<std::unique_ptr<ast::StmtAST>> stmts;
+
+	while (current.type != TokenType::RBRACE &&
+	       current.type != TokenType::T_EOF) {
+		auto stmt = parseStmt();
+		if (stmt == nullptr) {
+			return nullptr;
+		}
+		stmts.push_back(std::move(stmt));
+	}
+	return std::make_unique<ast::BlockStmtAST>(std::move(stmts));
 }
 
 } // namespace frontend

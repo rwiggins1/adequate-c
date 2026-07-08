@@ -2,6 +2,7 @@
 
 #include "ast/ast.hpp"
 #include "ast/expr.hpp"
+#include "ast/stmt.hpp"
 #include "diagnostics/diagnostics.hpp"
 #include "lexer/lexer.hpp"
 #include "lexer/token.hpp"
@@ -58,6 +59,7 @@ public:
 	std::unique_ptr<ast::StmtAST> parseIfStmt();
 
 	std::unique_ptr<ast::StmtAST> parseStmt();
+	std::unique_ptr<ast::BlockStmtAST> parseStmtList();
 
 private:
 	Lexer &lexer;
