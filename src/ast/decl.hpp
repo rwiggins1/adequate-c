@@ -127,4 +127,17 @@ public:
 	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
+class ProgramAST : public DeclAST {
+	std::vector<std::unique_ptr<DeclAST>> declarations;
+
+public:
+	explicit ProgramAST(
+	    std::vector<std::unique_ptr<DeclAST>> declarations = {});
+	[[nodiscard]] const std::vector<std::unique_ptr<DeclAST>> &
+	getDeclarations() const {
+		return declarations;
+	}
+	void accept(ASTVisitor &v) override { v.visit(*this); }
+};
+
 } // namespace frontend::ast

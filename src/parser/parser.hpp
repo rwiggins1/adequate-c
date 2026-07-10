@@ -61,9 +61,20 @@ public:
 	std::unique_ptr<ast::ExprAST> parseForUpdate();
 
 	std::unique_ptr<ast::StmtAST> parseIfStmt();
+	std::unique_ptr<ast::BlockStmtAST> parseIfStmtTail();
+	std::unique_ptr<ast::BlockStmtAST> parseElseStmt();
 
 	std::unique_ptr<ast::StmtAST> parseStmt();
 	std::unique_ptr<ast::BlockStmtAST> parseStmtList();
+
+
+	std::unique_ptr<ast::DeclAST> parseFunc();
+	std::unique_ptr<ast::DeclAST> parseStruct();
+	std::unique_ptr<ast::DeclAST> parseNamespace();
+	std::unique_ptr<ast::DeclAST> parseDecl();
+	std::unique_ptr<ast::ProgramAST> parseDeclList();
+
+	std::unique_ptr<ast::ProgramAST> parseProgram();
 
 private:
 	Lexer &lexer;
