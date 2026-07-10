@@ -61,6 +61,8 @@ public:
 	std::unique_ptr<ast::ExprAST> parseForUpdate();
 
 	std::unique_ptr<ast::StmtAST> parseIfStmt();
+	std::unique_ptr<ast::BlockStmtAST> parseIfStmtTail();
+	std::unique_ptr<ast::BlockStmtAST> parseElseStmt();
 
 	std::unique_ptr<ast::StmtAST> parseStmt();
 	std::unique_ptr<ast::BlockStmtAST> parseStmtList();

@@ -1004,7 +1004,97 @@ std::unique_ptr<ast::StmtAST> Parser::parseForStmt() {
 	    std::move(for_init), std::move(expr), std::move(for_update),
 	    std::move(stmt_list));
 }
-std::unique_ptr<ast::StmtAST> Parser::parseIfStmt() { return nullptr; }
+
+std::unique_ptr<ast::BlockStmtAST> Parser::parseElseStmt() {
+	if (current.type == TokenType::IF) {
+		auto if_stmt = parseIfStmt();
+		if (if_stmt == nullptr) {
+			return nullptr;
+		}
+		std::vector<std::unique_ptr<ast::StmtAST>> stmts;
+		stmts.push_back(std::move(if_stmt));
+		return std::make_unique<ast::BlockStmtAST>(std::move(stmts));
+	}
+	if (current.type != TokenType::LBRACE) {
+		errors.error("Expected 'if' or '{' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	auto stmt_list = parseStmtList();
+	if (stmt_list == nullptr) {
+		return nullptr;
+	}
+	if (current.type != TokenType::RBRACE) {
+		errors.error("Expected '}' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+	return stmt_list;
+}
+
+std::unique_ptr<ast::BlockStmtAST> Parser::parseIfStmtTail() {
+	if (current.type != TokenType::ELSE) {
+		return nullptr;
+	}
+	advance();
+	return parseElseStmt();
+}
+
+std::unique_ptr<ast::StmtAST> Parser::parseIfStmt() {
+	assert(current.type == TokenType::IF);
+	advance();
+
+	if (current.type != TokenType::LPAREN) {
+		errors.error("Expected '(' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	auto condition = parseExpression();
+	if (condition == nullptr) {
+		return nullptr;
+	}
+
+	if (current.type != TokenType::RPAREN) {
+		errors.error("Expected ')' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	if (current.type != TokenType::LBRACE) {
+		errors.error("Expected '{' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	auto then_branch = parseStmtList();
+	if (then_branch == nullptr) {
+		return nullptr;
+	}
+	if (current.type != TokenType::RBRACE) {
+		errors.error("Expected '}' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+	auto else_branch = parseIfStmtTail();
+
+	return std::make_unique<ast::IfStmtAST>(std::move(condition),
+						std::move(then_branch),
+						std::move(else_branch));
+}
 
 std::unique_ptr<ast::StmtAST> Parser::parseStmt() {
 	switch (current.type) {
