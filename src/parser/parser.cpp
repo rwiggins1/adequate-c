@@ -1148,4 +1148,43 @@ std::unique_ptr<ast::BlockStmtAST> Parser::parseStmtList() {
 	return std::make_unique<ast::BlockStmtAST>(std::move(stmts));
 }
 
+std::unique_ptr<ast::DeclAST> Parser::parseFunc() { return nullptr; }
+std::unique_ptr<ast::DeclAST> Parser::parseStruct() { return nullptr; }
+std::unique_ptr<ast::DeclAST> Parser::parseNamespace() { return nullptr; }
+
+std::unique_ptr<ast::DeclAST> Parser::parseDecl() {
+	switch (current.type) {
+	case TokenType::NAMESPACE:
+		return parseNamespace();
+	case TokenType::STRUCT:
+		return parseStruct();
+	case TokenType::FUNC:
+		return parseFunc();
+	default:
+		errors.error(
+		    "Expected 'namespace', 'struct', or 'func' but got: " +
+			current.lexeme,
+		    current.line, current.column);
+		advance();
+		return nullptr;
+	}
+}
+
+std::unique_ptr<ast::ProgramAST> Parser::parseDeclList() {
+	std::vector<std::unique_ptr<ast::DeclAST>> decls;
+
+	while (current.type != TokenType::T_EOF) {
+		auto decl = parseDecl();
+		if (decl == nullptr) {
+			return nullptr;
+		}
+		decls.push_back(std::move(decl));
+	}
+	return std::make_unique<ast::ProgramAST>(std::move(decls));
+}
+
+std::unique_ptr<ast::ProgramAST> Parser::parseProgram() {
+	return parseDeclList();
+}
+
 } // namespace frontend

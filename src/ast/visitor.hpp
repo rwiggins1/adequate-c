@@ -30,6 +30,7 @@ class VariableDeclarationAST;
 class FunctionAST;
 class StructAST;
 class NamespaceAST;
+class ProgramAST;
 
 class ASTVisitor {
 public:
@@ -68,6 +69,7 @@ public:
 	virtual void visit(FunctionAST &node) = 0;
 	virtual void visit(StructAST &node) = 0;
 	virtual void visit(NamespaceAST &node) = 0;
+	virtual void visit(ProgramAST &node) = 0;
 };
 
 } // namespace frontend::ast

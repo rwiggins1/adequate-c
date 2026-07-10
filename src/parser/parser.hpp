@@ -67,6 +67,15 @@ public:
 	std::unique_ptr<ast::StmtAST> parseStmt();
 	std::unique_ptr<ast::BlockStmtAST> parseStmtList();
 
+
+	std::unique_ptr<ast::DeclAST> parseFunc();
+	std::unique_ptr<ast::DeclAST> parseStruct();
+	std::unique_ptr<ast::DeclAST> parseNamespace();
+	std::unique_ptr<ast::DeclAST> parseDecl();
+	std::unique_ptr<ast::ProgramAST> parseDeclList();
+
+	std::unique_ptr<ast::ProgramAST> parseProgram();
+
 private:
 	Lexer &lexer;
 	Token current;

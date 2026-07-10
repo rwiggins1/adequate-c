@@ -35,4 +35,7 @@ StructAST::StructAST(
 NamespaceAST::NamespaceAST(std::string name,
 			   std::vector<std::unique_ptr<DeclAST>> declarations)
     : name(std::move(name)), declarations(std::move(declarations)) {}
+
+ProgramAST::ProgramAST(std::vector<std::unique_ptr<DeclAST>> declarations)
+    : declarations(std::move(declarations)) {}
 } // namespace frontend::ast
