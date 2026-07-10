@@ -20,8 +20,6 @@
     ::= <Struct>
     ::= <function>
     ::= <Enum>
-    ::= ε
-
 
 <import-stmt> ::= import <ident> <import-stmt-tail>
 <import-stmt-tail> ::= ; <import-tail>
