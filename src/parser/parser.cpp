@@ -8,8 +8,10 @@
 #include "types/type.hpp"
 #include <cassert>
 #include <cstddef>
+#include <execution>
 #include <iostream>
 #include <memory>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -1148,7 +1150,67 @@ std::unique_ptr<ast::BlockStmtAST> Parser::parseStmtList() {
 	return std::make_unique<ast::BlockStmtAST>(std::move(stmts));
 }
 
-std::unique_ptr<ast::DeclAST> Parser::parseFunc() { return nullptr; }
+std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> Parser::parseParamList() {
+	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> params;
+	auto param_type = parseType();
+	if (param_type == nullptr) {
+		return params;
+	}
+	if (current.type != TokenType::IDENT) {
+		errors.error("Expected parameter name but got: " + current.lexeme, current.line, current.column);
+		advance();
+		return params;
+	}
+	params.emplace_back(std::move(param_type), std::move(current.lexeme));
+	advance();
+
+	// <param-list-tail>
+	while (current.type == TokenType::COMMA) {
+		auto param_type = parseType();
+		if (param_type == nullptr) {
+			return params;
+		}
+		if (current.type != TokenType::IDENT) {
+			errors.error("Expected parameter name but got: " + current.lexeme, current.line, current.column);
+			advance();
+			return params;
+		}
+		params.emplace_back(std::move(param_type), std::move(current.lexeme));
+		advance();
+	}
+	return params;
+}
+
+std::unique_ptr<ast::PrototypeAST> Parser::parseProto() {
+	return nullptr;
+}
+
+std::unique_ptr<ast::DeclAST> Parser::parseFunc() {
+	assert(current.type == TokenType::FUNC); // no advance
+
+	auto prototype = parseProto();
+	if ( prototype == nullptr) {
+		return nullptr;
+	}
+
+	if (current.type != TokenType::LBRACE) {
+		errors.error("Expected '{' but got: " + current.lexeme, current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	auto body = parseStmtList();
+
+	if (current.type != TokenType::RBRACE) {
+		errors.error("Expected '}' but got: " + current.lexeme, current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	return std::make_unique<ast::FunctionAST>(std::move(prototype), std::move(body));
+}
+
+
 std::unique_ptr<ast::DeclAST> Parser::parseStruct() { return nullptr; }
 std::unique_ptr<ast::DeclAST> Parser::parseNamespace() { return nullptr; }
 

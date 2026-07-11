@@ -22,8 +22,12 @@ PrototypeAST::PrototypeAST(
       returnType(std::move(returnType)) {}
 
 FunctionAST::FunctionAST(std::unique_ptr<PrototypeAST> prototype,
-			 std::vector<std::unique_ptr<StmtAST>> body)
+			 std::unique_ptr<BlockStmtAST> body)
     : prototype(std::move(prototype)), body(std::move(body)) {}
+
+FunctionAST::~FunctionAST() = default;
+FunctionAST::FunctionAST(FunctionAST &&) noexcept = default;
+FunctionAST &FunctionAST::operator=(FunctionAST &&) noexcept = default;
 
 StructAST::StructAST(
     std::string name,

@@ -3,9 +3,9 @@
 #include "../types/type.hpp"
 #include "ast.hpp"
 #include "visitor.hpp"
-#include <algorithm>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace frontend::ast {
@@ -70,16 +70,23 @@ public:
 
 class FunctionAST : public DeclAST {
 	std::unique_ptr<PrototypeAST> prototype;
-	std::vector<std::unique_ptr<StmtAST>> body;
+	std::unique_ptr<BlockStmtAST> body;
 
 public:
 	FunctionAST(std::unique_ptr<PrototypeAST> prototype,
-		    std::vector<std::unique_ptr<StmtAST>> body);
+		    std::unique_ptr<BlockStmtAST> body);
+	// Defined in decl.cpp where BlockStmtAST is complete, so the
+	// unique_ptr<BlockStmtAST> destructor isn't instantiated here
+	~FunctionAST() override;
+	FunctionAST(FunctionAST &&) noexcept;
+	FunctionAST &operator=(FunctionAST &&) noexcept;
+	FunctionAST(const FunctionAST &) = delete;
+	FunctionAST &operator=(const FunctionAST &) = delete;
 
 	[[nodiscard]] const PrototypeAST *getProto() const {
 		return prototype.get();
 	}
-	[[nodiscard]] const std::vector<std::unique_ptr<StmtAST>> &
+	[[nodiscard]] const std::unique_ptr<BlockStmtAST> &
 	getBody() const {
 		return body;
 	}

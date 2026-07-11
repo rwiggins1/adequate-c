@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast/ast.hpp"
+#include "ast/decl.hpp"
 #include "ast/expr.hpp"
 #include "ast/stmt.hpp"
 #include "diagnostics/diagnostics.hpp"
@@ -68,7 +69,10 @@ public:
 	std::unique_ptr<ast::BlockStmtAST> parseStmtList();
 
 
+	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> parseParamList();
+	std::unique_ptr<ast::PrototypeAST> parseProto();
 	std::unique_ptr<ast::DeclAST> parseFunc();
+
 	std::unique_ptr<ast::DeclAST> parseStruct();
 	std::unique_ptr<ast::DeclAST> parseNamespace();
 	std::unique_ptr<ast::DeclAST> parseDecl();

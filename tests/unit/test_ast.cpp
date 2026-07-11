@@ -230,8 +230,9 @@ TEST(astTest, Comprehensive) {
 
 	std::vector<std::unique_ptr<StmtAST>> add_body;
 	add_body.emplace_back(std::move(add_return_stmt));
-	auto add_func = std::make_unique<FunctionAST>(std::move(add_proto),
-						      std::move(add_body));
+	auto add_func = std::make_unique<FunctionAST>(
+	    std::move(add_proto),
+	    std::make_unique<BlockStmtAST>(std::move(add_body)));
 
 	// ========== BUILD MULTIPLY FUNCTION ==========
 	auto mul_a = std::make_unique<VariableExprAST>("a");
@@ -250,8 +251,9 @@ TEST(astTest, Comprehensive) {
 
 	std::vector<std::unique_ptr<StmtAST>> mul_body;
 	mul_body.push_back(std::move(return_stmt));
-	auto multiply_func = std::make_unique<FunctionAST>(std::move(mul_proto),
-							   std::move(mul_body));
+	auto multiply_func = std::make_unique<FunctionAST>(
+	    std::move(mul_proto),
+	    std::make_unique<BlockStmtAST>(std::move(mul_body)));
 
 	// ========== BUILD MATH NAMESPACE ==========
 	std::vector<std::unique_ptr<DeclAST>> decls;
@@ -287,7 +289,9 @@ TEST(astTest, Comprehensive) {
 	    << "Second param should be int";
 	EXPECT_EQ(add_func_ptr->getProto()->getReturnType()->toString(), "int");
 
-	const auto &add_body_check = add_func_ptr->getBody();
+	ASSERT_NE(add_func_ptr->getBody(), nullptr)
+	    << "add() should have a body";
+	const auto &add_body_check = add_func_ptr->getBody()->getStmts();
 	ASSERT_EQ(add_body_check.size(), 1)
 	    << "add() body should have 1 statement";
 
@@ -321,7 +325,9 @@ TEST(astTest, Comprehensive) {
 	EXPECT_EQ(mul_params_check[0].second, "a");
 	EXPECT_EQ(mul_params_check[1].second, "b");
 
-	const auto &mul_body_check = mul_func_ptr->getBody();
+	ASSERT_NE(mul_func_ptr->getBody(), nullptr)
+	    << "multiply() should have a body";
+	const auto &mul_body_check = mul_func_ptr->getBody()->getStmts();
 	ASSERT_EQ(mul_body_check.size(), 1)
 	    << "multiply() body should have 1 statement";
 
