@@ -33,7 +33,7 @@
 <main-function-tail> ::= -> void { <Stmt-list> }
     ::= { <Stmt-list> }
 
-<namespace> ::= namespace <ident> { <declaration> }
+<namespace> ::= namespace <ident> { <declaration-list> }
 
 <struct> ::= struct <ident> <generic> { <Struct_body> }
 <struct-body> ::= <VarDec> <struct_body>
