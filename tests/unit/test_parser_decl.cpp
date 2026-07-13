@@ -140,3 +140,42 @@ TEST(ParserVarDecl, MissingClosingBracket) {
 TEST(ParserVarDecl, MissingSemicolonAfterArray) {
 	expectParseError("var int arr[5] var");
 }
+
+TEST(ParserProto, UnqualifiedName) {
+	ErrorReporter errors;
+	Lexer lexer("func add(int x, int y) -> int", errors);
+	Parser parser(lexer, errors);
+
+	auto proto = parser.parseProto();
+	ASSERT_NE(proto, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+	EXPECT_EQ(proto->getName(), "add");
+	EXPECT_FALSE(proto->getQualifiedName().isQualified());
+}
+
+TEST(ParserProto, QualifiedName) {
+	ErrorReporter errors;
+	Lexer lexer("func math::vec::dot(int x, int y) -> int", errors);
+	Parser parser(lexer, errors);
+
+	auto proto = parser.parseProto();
+	ASSERT_NE(proto, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+	EXPECT_EQ(proto->getName(), "dot");
+
+	const auto &qname = proto->getQualifiedName();
+	ASSERT_EQ(qname.qualifiers.size(), 2);
+	EXPECT_EQ(qname.qualifiers[0], "math");
+	EXPECT_EQ(qname.qualifiers[1], "vec");
+	EXPECT_EQ(qname.str(), "math::vec::dot");
+}
+
+TEST(ParserProto, QualifiedNameMissingIdentifier) {
+	ErrorReporter errors;
+	Lexer lexer("func math::(int x) -> int", errors);
+	Parser parser(lexer, errors);
+
+	auto proto = parser.parseProto();
+	EXPECT_EQ(proto, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}

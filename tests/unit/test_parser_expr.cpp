@@ -361,6 +361,51 @@ TEST(ParserExpr, PostfixCall) {
 	EXPECT_FALSE(errors.hasErrors());
 }
 
+TEST(ParserExpr, QualifiedVariable) {
+	ErrorReporter errors;
+	auto expr = parseExpr("math::pi;", errors);
+
+	auto *var_expr = expectNode<VariableExprAST>(expr.get());
+	ASSERT_NE(var_expr, nullptr);
+	EXPECT_EQ(var_expr->getName(), "pi");
+
+	const auto &qname = var_expr->getQualifiedName();
+	EXPECT_TRUE(qname.isQualified());
+	ASSERT_EQ(qname.qualifiers.size(), 1);
+	EXPECT_EQ(qname.qualifiers[0], "math");
+	EXPECT_EQ(qname.str(), "math::pi");
+	EXPECT_FALSE(errors.hasErrors());
+}
+
+TEST(ParserExpr, QualifiedCall) {
+	ErrorReporter errors;
+	auto expr = parseExpr("math::vec::dot(a, b);", errors);
+
+	auto *call = expectNode<CallExprAST>(expr.get());
+	ASSERT_NE(call, nullptr);
+
+	auto *callee = expectNode<VariableExprAST>(call->getCallee());
+	ASSERT_NE(callee, nullptr);
+	EXPECT_EQ(callee->getName(), "dot");
+
+	const auto &qname = callee->getQualifiedName();
+	ASSERT_EQ(qname.qualifiers.size(), 2);
+	EXPECT_EQ(qname.qualifiers[0], "math");
+	EXPECT_EQ(qname.qualifiers[1], "vec");
+	EXPECT_EQ(qname.str(), "math::vec::dot");
+
+	EXPECT_EQ(call->getArgs().size(), 2);
+	EXPECT_FALSE(errors.hasErrors());
+}
+
+TEST(ParserExpr, QualifiedNameMissingIdentifier) {
+	ErrorReporter errors;
+	auto expr = parseExpr("math::;", errors);
+
+	EXPECT_EQ(expr, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}
+
 TEST(ParserExpr, PostfixCallWithExprArgs) {
 	ErrorReporter errors;
 	auto expr = parseExpr("f(1 + 2, g(3));", errors);

@@ -17,6 +17,7 @@ public:
 	explicit Parser(Lexer &lex, ErrorReporter &errors);
 
 	std::unique_ptr<ast::ExprAST> parseLiteral();
+	std::optional<ast::QualifiedName> parseQualifiedName();
 	[[nodiscard]] bool unaryOperator() const;
 	[[nodiscard]] bool assignmentOperator() const;
 

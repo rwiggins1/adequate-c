@@ -49,19 +49,27 @@ public:
 /// PrototypeAST - Function signature
 /// Captures: name, parameters with types, and return type
 class PrototypeAST {
-	std::string name;
+	QualifiedName name;
 	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>>
 	    params;
 	std::unique_ptr<types::Type> returnType;
 
 public:
 	PrototypeAST(
+	    QualifiedName name,
+	    std::vector<std::pair<std::unique_ptr<types::Type>, std::string>>
+		params,
+	    std::unique_ptr<types::Type> returnType);
+	PrototypeAST(
 	    std::string name,
 	    std::vector<std::pair<std::unique_ptr<types::Type>, std::string>>
 		params,
 	    std::unique_ptr<types::Type> returnType);
 
-	[[nodiscard]] const std::string &getName() const { return name; }
+	[[nodiscard]] const std::string &getName() const { return name.name; }
+	[[nodiscard]] const QualifiedName &getQualifiedName() const noexcept {
+		return name;
+	}
 	[[nodiscard]] const auto &getParams() const { return params; }
 	[[nodiscard]] const types::Type *getReturnType() const {
 		return returnType.get();

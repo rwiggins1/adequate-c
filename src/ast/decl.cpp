@@ -15,6 +15,13 @@ VariableDeclarationAST::VariableDeclarationAST(
       initializer(std::move(init)) {}
 
 PrototypeAST::PrototypeAST(
+    QualifiedName name,
+    std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> params,
+    std::unique_ptr<types::Type> returnType)
+    : name(std::move(name)), params(std::move(params)),
+      returnType(std::move(returnType)) {}
+
+PrototypeAST::PrototypeAST(
     std::string name,
     std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> params,
     std::unique_ptr<types::Type> returnType)
