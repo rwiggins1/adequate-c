@@ -179,3 +179,69 @@ TEST(ParserProto, QualifiedNameMissingIdentifier) {
 	EXPECT_EQ(proto, nullptr);
 	EXPECT_TRUE(errors.hasErrors());
 }
+
+namespace {
+std::unique_ptr<ProgramAST> parseProgram(const std::string &src,
+					 ErrorReporter &errors) {
+	Lexer lexer(src, errors);
+	Parser parser(lexer, errors);
+	return parser.parseProgram();
+}
+} // namespace
+
+TEST(ParserNamespace, HoldsDeclarations) {
+	ErrorReporter errors;
+	auto program = parseProgram("namespace math {"
+				    "  func add(int x, int y) -> int { return x; }"
+				    "  func sub(int x, int y) -> int { return x; }"
+				    "}",
+				    errors);
+
+	ASSERT_NE(program, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+	ASSERT_EQ(program->getDeclarations().size(), 1);
+
+	auto *ns = expectNode<NamespaceAST>(program->getDeclarations()[0].get());
+	ASSERT_NE(ns, nullptr);
+	EXPECT_EQ(ns->getName(), "math");
+	ASSERT_EQ(ns->getDeclarations().size(), 2);
+
+	auto *add = expectNode<FunctionAST>(ns->getDeclarations()[0].get());
+	ASSERT_NE(add, nullptr);
+	EXPECT_EQ(add->getProto()->getName(), "add");
+}
+
+TEST(ParserNamespace, Nested) {
+	ErrorReporter errors;
+	auto program = parseProgram("namespace outer { namespace inner {} }", errors);
+
+	ASSERT_NE(program, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+
+	auto *outer =
+	    expectNode<NamespaceAST>(program->getDeclarations()[0].get());
+	ASSERT_NE(outer, nullptr);
+	ASSERT_EQ(outer->getDeclarations().size(), 1);
+
+	auto *inner =
+	    expectNode<NamespaceAST>(outer->getDeclarations()[0].get());
+	ASSERT_NE(inner, nullptr);
+	EXPECT_EQ(inner->getName(), "inner");
+	EXPECT_TRUE(inner->getDeclarations().empty());
+}
+
+TEST(ParserNamespace, MissingClosingBrace) {
+	ErrorReporter errors;
+	auto program = parseProgram("namespace math {", errors);
+
+	EXPECT_EQ(program, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}
+
+TEST(ParserProgram, StrayClosingBrace) {
+	ErrorReporter errors;
+	auto program = parseProgram("}", errors);
+
+	EXPECT_EQ(program, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}

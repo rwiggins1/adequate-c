@@ -77,7 +77,8 @@ public:
 	std::unique_ptr<ast::DeclAST> parseStruct();
 	std::unique_ptr<ast::DeclAST> parseNamespace();
 	std::unique_ptr<ast::DeclAST> parseDecl();
-	std::unique_ptr<ast::ProgramAST> parseDeclList();
+	std::optional<std::vector<std::unique_ptr<ast::DeclAST>>>
+	    parseDeclList();
 
 	std::unique_ptr<ast::ProgramAST> parseProgram();
 
