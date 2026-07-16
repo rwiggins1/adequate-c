@@ -16,7 +16,7 @@
     ::= <Struct>
     ::= <function>
 
-<namespace> ::= namespace <ident> { <declaration> }
+<namespace> ::= namespace <ident> { <declaration-list> }
 
 <struct> ::= struct <ident> { <Struct_body> }
 <struct-body> ::= <VarDec> <struct-body>

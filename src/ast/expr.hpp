@@ -119,11 +119,15 @@ public:
 };
 
 class VariableExprAST : public ExprAST {
-	std::string name;
+	QualifiedName name;
 
 public:
 	VariableExprAST(std::string name);
-	[[nodiscard]] std::string getName() const noexcept { return name; }
+	VariableExprAST(QualifiedName name);
+	[[nodiscard]] std::string getName() const { return name.name; }
+	[[nodiscard]] const QualifiedName &getQualifiedName() const noexcept {
+		return name;
+	}
 	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 

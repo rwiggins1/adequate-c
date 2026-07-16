@@ -26,6 +26,8 @@ TernaryExprAST::TernaryExprAST(std::unique_ptr<ExprAST> condition,
 
 VariableExprAST::VariableExprAST(std::string name) : name(std::move(name)) {}
 
+VariableExprAST::VariableExprAST(QualifiedName name) : name(std::move(name)) {}
+
 CallExprAST::CallExprAST(std::unique_ptr<ExprAST> callee,
 			 std::vector<std::unique_ptr<ExprAST>> args)
     : callee(std::move(callee)), args(std::move(args)) {}

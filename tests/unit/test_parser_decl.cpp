@@ -140,3 +140,108 @@ TEST(ParserVarDecl, MissingClosingBracket) {
 TEST(ParserVarDecl, MissingSemicolonAfterArray) {
 	expectParseError("var int arr[5] var");
 }
+
+TEST(ParserProto, UnqualifiedName) {
+	ErrorReporter errors;
+	Lexer lexer("func add(int x, int y) -> int", errors);
+	Parser parser(lexer, errors);
+
+	auto proto = parser.parseProto();
+	ASSERT_NE(proto, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+	EXPECT_EQ(proto->getName(), "add");
+	EXPECT_FALSE(proto->getQualifiedName().isQualified());
+}
+
+TEST(ParserProto, QualifiedName) {
+	ErrorReporter errors;
+	Lexer lexer("func math::vec::dot(int x, int y) -> int", errors);
+	Parser parser(lexer, errors);
+
+	auto proto = parser.parseProto();
+	ASSERT_NE(proto, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+	EXPECT_EQ(proto->getName(), "dot");
+
+	const auto &qname = proto->getQualifiedName();
+	ASSERT_EQ(qname.qualifiers.size(), 2);
+	EXPECT_EQ(qname.qualifiers[0], "math");
+	EXPECT_EQ(qname.qualifiers[1], "vec");
+	EXPECT_EQ(qname.str(), "math::vec::dot");
+}
+
+TEST(ParserProto, QualifiedNameMissingIdentifier) {
+	ErrorReporter errors;
+	Lexer lexer("func math::(int x) -> int", errors);
+	Parser parser(lexer, errors);
+
+	auto proto = parser.parseProto();
+	EXPECT_EQ(proto, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}
+
+namespace {
+std::unique_ptr<ProgramAST> parseProgram(const std::string &src,
+					 ErrorReporter &errors) {
+	Lexer lexer(src, errors);
+	Parser parser(lexer, errors);
+	return parser.parseProgram();
+}
+} // namespace
+
+TEST(ParserNamespace, HoldsDeclarations) {
+	ErrorReporter errors;
+	auto program = parseProgram("namespace math {"
+				    "  func add(int x, int y) -> int { return x; }"
+				    "  func sub(int x, int y) -> int { return x; }"
+				    "}",
+				    errors);
+
+	ASSERT_NE(program, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+	ASSERT_EQ(program->getDeclarations().size(), 1);
+
+	auto *ns = expectNode<NamespaceAST>(program->getDeclarations()[0].get());
+	ASSERT_NE(ns, nullptr);
+	EXPECT_EQ(ns->getName(), "math");
+	ASSERT_EQ(ns->getDeclarations().size(), 2);
+
+	auto *add = expectNode<FunctionAST>(ns->getDeclarations()[0].get());
+	ASSERT_NE(add, nullptr);
+	EXPECT_EQ(add->getProto()->getName(), "add");
+}
+
+TEST(ParserNamespace, Nested) {
+	ErrorReporter errors;
+	auto program = parseProgram("namespace outer { namespace inner {} }", errors);
+
+	ASSERT_NE(program, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+
+	auto *outer =
+	    expectNode<NamespaceAST>(program->getDeclarations()[0].get());
+	ASSERT_NE(outer, nullptr);
+	ASSERT_EQ(outer->getDeclarations().size(), 1);
+
+	auto *inner =
+	    expectNode<NamespaceAST>(outer->getDeclarations()[0].get());
+	ASSERT_NE(inner, nullptr);
+	EXPECT_EQ(inner->getName(), "inner");
+	EXPECT_TRUE(inner->getDeclarations().empty());
+}
+
+TEST(ParserNamespace, MissingClosingBrace) {
+	ErrorReporter errors;
+	auto program = parseProgram("namespace math {", errors);
+
+	EXPECT_EQ(program, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}
+
+TEST(ParserProgram, StrayClosingBrace) {
+	ErrorReporter errors;
+	auto program = parseProgram("}", errors);
+
+	EXPECT_EQ(program, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}

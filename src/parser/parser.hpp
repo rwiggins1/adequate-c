@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ast/ast.hpp"
+#include "ast/decl.hpp"
 #include "ast/expr.hpp"
 #include "ast/stmt.hpp"
 #include "diagnostics/diagnostics.hpp"
@@ -16,6 +17,7 @@ public:
 	explicit Parser(Lexer &lex, ErrorReporter &errors);
 
 	std::unique_ptr<ast::ExprAST> parseLiteral();
+	std::optional<ast::QualifiedName> parseQualifiedName();
 	[[nodiscard]] bool unaryOperator() const;
 	[[nodiscard]] bool assignmentOperator() const;
 
@@ -68,11 +70,15 @@ public:
 	std::unique_ptr<ast::BlockStmtAST> parseStmtList();
 
 
+	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> parseParamList();
+	std::unique_ptr<ast::PrototypeAST> parseProto();
 	std::unique_ptr<ast::DeclAST> parseFunc();
+
 	std::unique_ptr<ast::DeclAST> parseStruct();
 	std::unique_ptr<ast::DeclAST> parseNamespace();
 	std::unique_ptr<ast::DeclAST> parseDecl();
-	std::unique_ptr<ast::ProgramAST> parseDeclList();
+	std::optional<std::vector<std::unique_ptr<ast::DeclAST>>>
+	    parseDeclList();
 
 	std::unique_ptr<ast::ProgramAST> parseProgram();
 
