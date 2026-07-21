@@ -701,7 +701,7 @@ std::unique_ptr<ast::DeclAST> Parser::parseVarDecl() {
 		return nullptr;
 	}
 	if (current.type != TokenType::IDENT) {
-		errors.error("Expected identifier got: " + current.lexeme,
+		errors.error("Expected identifier but got: " + current.lexeme,
 			     current.line, current.column);
 		advance();
 		return nullptr;
@@ -1219,7 +1219,10 @@ std::unique_ptr<ast::PrototypeAST> Parser::parseProto() {
 	}
 	advance();
 
-	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> params  = parseParamList();
+	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> params;
+	if (current.type != TokenType::RPAREN) {
+		params = parseParamList();
+	}
 	if (current.type != TokenType::RPAREN) {
 		errors.error("Expected ')' but got: " + current.lexeme, current.line, current.column);
 		advance();
