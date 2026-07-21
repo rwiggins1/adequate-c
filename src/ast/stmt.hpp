@@ -62,6 +62,7 @@ public:
 	AssignmentStmtAST(std::string varName, AssignOp op,
 			  std::unique_ptr<ExprAST> value);
 	[[nodiscard]] std::string getVariableName() const { return varName; }
+	[[nodiscard]] AssignOp getOperator() const noexcept { return op; }
 	[[nodiscard]] ExprAST *getValue() const { return value.get(); }
 	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
@@ -75,6 +76,16 @@ public:
 	IfStmtAST(std::unique_ptr<ExprAST> condition,
 		  std::unique_ptr<BlockStmtAST> thenBranch,
 		  std::unique_ptr<BlockStmtAST> elseBranch = nullptr);
+	[[nodiscard]] ExprAST *getCondition() const { return condition.get(); }
+	[[nodiscard]] BlockStmtAST *getThenBranch() const {
+		return thenBranch.get();
+	}
+	[[nodiscard]] BlockStmtAST *getElseBranch() const {
+		return elseBranch.get();
+	}
+	[[nodiscard]] bool hasElse() const noexcept {
+		return elseBranch != nullptr;
+	}
 	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
@@ -121,6 +132,8 @@ class DoStmtAST : public StmtAST {
 public:
 	DoStmtAST(std::unique_ptr<BlockStmtAST> body,
 		  std::unique_ptr<ExprAST> condition);
+	[[nodiscard]] BlockStmtAST *getBody() const { return body.get(); }
+	[[nodiscard]] ExprAST *getCondition() const { return condition.get(); }
 	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 

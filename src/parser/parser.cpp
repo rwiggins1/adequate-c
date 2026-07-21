@@ -182,9 +182,10 @@ std::optional<ast::QualifiedName> Parser::parseQualifiedName() {
 	while (current.type == TokenType::COLON_COLON) {
 		advance();
 		if (current.type != TokenType::IDENT) {
-			errors.error("Expected identifier after '::' but got: " +
-					 current.lexeme,
-				     current.line, current.column);
+			errors.error(
+			    "Expected identifier after '::' but got: " +
+				current.lexeme,
+			    current.line, current.column);
 			return std::nullopt;
 		}
 		name.qualifiers.push_back(std::move(name.name));
@@ -200,8 +201,7 @@ std::unique_ptr<ast::ExprAST> Parser::parsePrimaryExpr() {
 		if (!name) {
 			return nullptr;
 		}
-		return std::make_unique<ast::VariableExprAST>(
-		    std::move(*name));
+		return std::make_unique<ast::VariableExprAST>(std::move(*name));
 	}
 	if (current.type == TokenType::LPAREN) {
 		advance();
@@ -701,7 +701,7 @@ std::unique_ptr<ast::DeclAST> Parser::parseVarDecl() {
 		return nullptr;
 	}
 	if (current.type != TokenType::IDENT) {
-		errors.error("Expected identifier got: " + current.lexeme,
+		errors.error("Expected identifier but got: " + current.lexeme,
 			     current.line, current.column);
 		advance();
 		return nullptr;
@@ -1165,14 +1165,18 @@ std::unique_ptr<ast::BlockStmtAST> Parser::parseStmtList() {
 	return std::make_unique<ast::BlockStmtAST>(std::move(stmts));
 }
 
-std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> Parser::parseParamList() {
-	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> params;
+std::vector<std::pair<std::unique_ptr<types::Type>, std::string>>
+Parser::parseParamList() {
+	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>>
+	    params;
 	auto param_type = parseType();
 	if (param_type == nullptr) {
 		return params;
 	}
 	if (current.type != TokenType::IDENT) {
-		errors.error("Expected parameter name but got: " + current.lexeme, current.line, current.column);
+		errors.error("Expected parameter name but got: " +
+				 current.lexeme,
+			     current.line, current.column);
 		advance();
 		return params;
 	}
@@ -1187,11 +1191,14 @@ std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> Parser::parseP
 			return params;
 		}
 		if (current.type != TokenType::IDENT) {
-			errors.error("Expected parameter name but got: " + current.lexeme, current.line, current.column);
+			errors.error("Expected parameter name but got: " +
+					 current.lexeme,
+				     current.line, current.column);
 			advance();
 			return params;
 		}
-		params.emplace_back(std::move(param_type), std::move(current.lexeme));
+		params.emplace_back(std::move(param_type),
+				    std::move(current.lexeme));
 		advance();
 	}
 	return params;
@@ -1202,7 +1209,9 @@ std::unique_ptr<ast::PrototypeAST> Parser::parseProto() {
 	advance();
 
 	if (current.type != TokenType::IDENT) {
-		errors.error("Expected function identifier but got: " + current.lexeme, current.line, current.column);
+		errors.error("Expected function identifier but got: " +
+				 current.lexeme,
+			     current.line, current.column);
 		advance();
 		return nullptr;
 	}
@@ -1213,22 +1222,29 @@ std::unique_ptr<ast::PrototypeAST> Parser::parseProto() {
 	}
 
 	if (current.type != TokenType::LPAREN) {
-		errors.error("Expected '(' but got: " + current.lexeme, current.line, current.column);
+		errors.error("Expected '(' but got: " + current.lexeme,
+			     current.line, current.column);
 		advance();
 		return nullptr;
 	}
 	advance();
 
-	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> params  = parseParamList();
+	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>>
+	    params;
 	if (current.type != TokenType::RPAREN) {
-		errors.error("Expected ')' but got: " + current.lexeme, current.line, current.column);
+		params = parseParamList();
+	}
+	if (current.type != TokenType::RPAREN) {
+		errors.error("Expected ')' but got: " + current.lexeme,
+			     current.line, current.column);
 		advance();
 		return nullptr;
 	}
 	advance();
 
 	if (current.type != TokenType::ARROW) {
-		errors.error("Expected '->' but got: " + current.lexeme, current.line, current.column);
+		errors.error("Expected '->' but got: " + current.lexeme,
+			     current.line, current.column);
 		advance();
 		return nullptr;
 	}
@@ -1238,19 +1254,21 @@ std::unique_ptr<ast::PrototypeAST> Parser::parseProto() {
 	if (return_type == nullptr) {
 		return nullptr;
 	}
-	return std::make_unique<ast::PrototypeAST>(std::move(*func_name), std::move(params), std::move(return_type));
+	return std::make_unique<ast::PrototypeAST>(
+	    std::move(*func_name), std::move(params), std::move(return_type));
 }
 
 std::unique_ptr<ast::DeclAST> Parser::parseFunc() {
 	assert(current.type == TokenType::FUNC); // no advance
 
 	auto prototype = parseProto();
-	if ( prototype == nullptr) {
+	if (prototype == nullptr) {
 		return nullptr;
 	}
 
 	if (current.type != TokenType::LBRACE) {
-		errors.error("Expected '{' but got: " + current.lexeme, current.line, current.column);
+		errors.error("Expected '{' but got: " + current.lexeme,
+			     current.line, current.column);
 		advance();
 		return nullptr;
 	}
@@ -1262,23 +1280,83 @@ std::unique_ptr<ast::DeclAST> Parser::parseFunc() {
 	}
 
 	if (current.type != TokenType::RBRACE) {
-		errors.error("Expected '}' but got: " + current.lexeme, current.line, current.column);
+		errors.error("Expected '}' but got: " + current.lexeme,
+			     current.line, current.column);
 		advance();
 		return nullptr;
 	}
 	advance();
-	return std::make_unique<ast::FunctionAST>(std::move(prototype), std::move(body));
+	return std::make_unique<ast::FunctionAST>(std::move(prototype),
+						  std::move(body));
 }
 
+std::unique_ptr<ast::DeclAST> Parser::parseStruct() {
+	assert(current.type == TokenType::STRUCT);
+	advance();
 
-std::unique_ptr<ast::DeclAST> Parser::parseStruct() { return nullptr; }
+	if (current.type != TokenType::IDENT) {
+		errors.error("Expected struct name but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	std::string name = std::move(current.lexeme);
+	advance();
+
+	if (current.type != TokenType::LBRACE) {
+		errors.error("Expected '{' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	// <struct-body>
+	std::vector<std::unique_ptr<ast::VariableDeclarationAST>> fields;
+	std::vector<std::unique_ptr<ast::FunctionAST>> methods;
+
+	while (current.type == TokenType::VAR ||
+	       current.type == TokenType::FUNC) {
+		if (current.type == TokenType::VAR) {
+			auto field = parseVarDecl();
+			if (field == nullptr) {
+				return nullptr;
+			}
+			fields.push_back(
+			    std::unique_ptr<ast::VariableDeclarationAST>(
+				static_cast<ast::VariableDeclarationAST *>(
+				    field.release())));
+		}
+		else {
+			auto method = parseFunc();
+			if (method == nullptr) {
+				return nullptr;
+			}
+			methods.push_back(std::unique_ptr<ast::FunctionAST>(
+			    static_cast<ast::FunctionAST *>(method.release())));
+		}
+	}
+
+	if (current.type != TokenType::RBRACE) {
+		errors.error("Expected '}' but got: " + current.lexeme,
+			     current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	return std::make_unique<ast::StructAST>(
+	    std::move(name), std::move(fields), std::move(methods));
+}
 
 std::unique_ptr<ast::DeclAST> Parser::parseNamespace() {
 	assert(current.type == TokenType::NAMESPACE);
 	advance();
 
 	if (current.type != TokenType::IDENT) {
-		errors.error("Expected namespace identifier but got: " + current.lexeme, current.line, current.column);
+		errors.error("Expected namespace identifier but got: " +
+				 current.lexeme,
+			     current.line, current.column);
 		advance();
 		return nullptr;
 	}
@@ -1286,7 +1364,8 @@ std::unique_ptr<ast::DeclAST> Parser::parseNamespace() {
 	advance();
 
 	if (current.type != TokenType::LBRACE) {
-		errors.error("Expected '{' but got: " + current.lexeme, current.line, current.column);
+		errors.error("Expected '{' but got: " + current.lexeme,
+			     current.line, current.column);
 		advance();
 		return nullptr;
 	}
@@ -1298,7 +1377,8 @@ std::unique_ptr<ast::DeclAST> Parser::parseNamespace() {
 	}
 
 	if (current.type != TokenType::RBRACE) {
-		errors.error("Expected '}' but got: " + current.lexeme, current.line, current.column);
+		errors.error("Expected '}' but got: " + current.lexeme,
+			     current.line, current.column);
 		advance();
 		return nullptr;
 	}
@@ -1329,7 +1409,8 @@ std::optional<std::vector<std::unique_ptr<ast::DeclAST>>>
 Parser::parseDeclList() {
 	std::vector<std::unique_ptr<ast::DeclAST>> decls;
 
-	while (current.type != TokenType::T_EOF && current.type != TokenType::RBRACE) {
+	while (current.type != TokenType::T_EOF &&
+	       current.type != TokenType::RBRACE) {
 		auto decl = parseDecl();
 		if (decl == nullptr) {
 			return std::nullopt;

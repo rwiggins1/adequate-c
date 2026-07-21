@@ -245,3 +245,71 @@ TEST(ParserProgram, StrayClosingBrace) {
 	EXPECT_EQ(program, nullptr);
 	EXPECT_TRUE(errors.hasErrors());
 }
+
+TEST(ParserStruct, FieldsAndMethods) {
+	ErrorReporter errors;
+	auto program = parseProgram("struct Point {"
+				    "  var int x;"
+				    "  var int y;"
+				    "  func length() -> int { return x; }"
+				    "}",
+				    errors);
+
+	ASSERT_NE(program, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+	ASSERT_EQ(program->getDeclarations().size(), 1);
+
+	auto *st = expectNode<StructAST>(program->getDeclarations()[0].get());
+	ASSERT_NE(st, nullptr);
+	EXPECT_EQ(st->getName(), "Point");
+	ASSERT_EQ(st->getFields().size(), 2);
+	EXPECT_EQ(st->getFields()[0]->getName(), "x");
+	EXPECT_EQ(st->getFields()[1]->getName(), "y");
+	ASSERT_EQ(st->getMethods().size(), 1);
+	EXPECT_EQ(st->getMethods()[0]->getProto()->getName(), "length");
+}
+
+TEST(ParserStruct, Empty) {
+	ErrorReporter errors;
+	auto program = parseProgram("struct Empty {}", errors);
+
+	ASSERT_NE(program, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+
+	auto *st = expectNode<StructAST>(program->getDeclarations()[0].get());
+	ASSERT_NE(st, nullptr);
+	EXPECT_TRUE(st->getFields().empty());
+	EXPECT_TRUE(st->getMethods().empty());
+}
+
+TEST(ParserStruct, MissingName) {
+	ErrorReporter errors;
+	auto program = parseProgram("struct {}", errors);
+
+	EXPECT_EQ(program, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}
+
+TEST(ParserStruct, MissingOpeningBrace) {
+	ErrorReporter errors;
+	auto program = parseProgram("struct Point var int x; }", errors);
+
+	EXPECT_EQ(program, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}
+
+TEST(ParserStruct, MissingClosingBrace) {
+	ErrorReporter errors;
+	auto program = parseProgram("struct Point { var int x;", errors);
+
+	EXPECT_EQ(program, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}
+
+TEST(ParserStruct, InvalidFieldPropagatesFailure) {
+	ErrorReporter errors;
+	auto program = parseProgram("struct Point { var int; }", errors);
+
+	EXPECT_EQ(program, nullptr);
+	EXPECT_TRUE(errors.hasErrors());
+}
