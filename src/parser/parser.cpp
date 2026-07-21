@@ -1274,7 +1274,56 @@ std::unique_ptr<ast::DeclAST> Parser::parseFunc() {
 }
 
 
-std::unique_ptr<ast::DeclAST> Parser::parseStruct() { return nullptr; }
+std::unique_ptr<ast::DeclAST> Parser::parseStruct() {
+	assert(current.type == TokenType::STRUCT);
+	advance();
+
+	if (current.type != TokenType::IDENT) {
+		errors.error("Expected struct name but got: " + current.lexeme, current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	std::string name = std::move(current.lexeme);
+	advance();
+
+	if (current.type != TokenType::LBRACE) {
+		errors.error("Expected '{' but got: " + current.lexeme, current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	// <struct-body>
+	std::vector<std::unique_ptr<ast::VariableDeclarationAST>> fields;
+	std::vector<std::unique_ptr<ast::FunctionAST>> methods;
+
+	while (current.type == TokenType::VAR || current.type == TokenType::FUNC) {
+		if (current.type == TokenType::VAR) {
+			auto field = parseVarDecl();
+			if (field == nullptr) {
+				return nullptr;
+			}
+			fields.push_back(std::unique_ptr<ast::VariableDeclarationAST>(
+			    static_cast<ast::VariableDeclarationAST *>(field.release())));
+		} else {
+			auto method = parseFunc();
+			if (method == nullptr) {
+				return nullptr;
+			}
+			methods.push_back(std::unique_ptr<ast::FunctionAST>(
+			    static_cast<ast::FunctionAST *>(method.release())));
+		}
+	}
+
+	if (current.type != TokenType::RBRACE) {
+		errors.error("Expected '}' but got: " + current.lexeme, current.line, current.column);
+		advance();
+		return nullptr;
+	}
+	advance();
+
+	return std::make_unique<ast::StructAST>(std::move(name), std::move(fields), std::move(methods));
+}
 
 std::unique_ptr<ast::DeclAST> Parser::parseNamespace() {
 	assert(current.type == TokenType::NAMESPACE);
