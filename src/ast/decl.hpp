@@ -94,8 +94,7 @@ public:
 	[[nodiscard]] const PrototypeAST *getProto() const {
 		return prototype.get();
 	}
-	[[nodiscard]] const std::unique_ptr<BlockStmtAST> &
-	getBody() const {
+	[[nodiscard]] const std::unique_ptr<BlockStmtAST> &getBody() const {
 		return body;
 	}
 	void accept(ASTVisitor &v) override { v.visit(*this); }

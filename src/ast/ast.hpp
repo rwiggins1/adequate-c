@@ -9,7 +9,6 @@ namespace frontend::ast {
 
 class ASTVisitor;
 
-
 // Base Class
 class ASTNode {
 public:

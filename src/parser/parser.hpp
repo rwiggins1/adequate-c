@@ -69,8 +69,8 @@ public:
 	std::unique_ptr<ast::StmtAST> parseStmt();
 	std::unique_ptr<ast::BlockStmtAST> parseStmtList();
 
-
-	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>> parseParamList();
+	std::vector<std::pair<std::unique_ptr<types::Type>, std::string>>
+	parseParamList();
 	std::unique_ptr<ast::PrototypeAST> parseProto();
 	std::unique_ptr<ast::DeclAST> parseFunc();
 
@@ -78,7 +78,7 @@ public:
 	std::unique_ptr<ast::DeclAST> parseNamespace();
 	std::unique_ptr<ast::DeclAST> parseDecl();
 	std::optional<std::vector<std::unique_ptr<ast::DeclAST>>>
-	    parseDeclList();
+	parseDeclList();
 
 	std::unique_ptr<ast::ProgramAST> parseProgram();
 
