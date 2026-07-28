@@ -26,11 +26,13 @@ set(SOURCES
     src/ast/expr.cpp
     src/ast/stmt.cpp
     src/ast/decl.cpp
+    src/ast/printer.cpp
     src/parser/parser.cpp
 )
 
-# Build executable named 'adequatec'
+# Build executable named 'adequatec'; the binary on disk is 'adq'
 add_executable(adequatec ${SOURCES})
+set_target_properties(adequatec PROPERTIES OUTPUT_NAME adq)
 
 # Allow #include "frontend/lexer/lexer.hpp" instead of #include "src/frontend/lexer/lexer.hpp"
 target_include_directories(adequatec PRIVATE ${CMAKE_SOURCE_DIR}/src)
