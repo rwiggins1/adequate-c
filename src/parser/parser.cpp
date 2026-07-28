@@ -321,6 +321,7 @@ Parser::parsePostfixExprTail(std::unique_ptr<ast::ExprAST> primary_expr) {
 	case TokenType::AMPERSAND_AMPERSAND:
 	case TokenType::PIPE_PIPE:
 	case TokenType::QUESTION:
+	case TokenType::COLON:
 	case TokenType::COMMA:
 	case TokenType::RBRACKET:
 	case TokenType::RPAREN:
