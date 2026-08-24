@@ -30,9 +30,11 @@ struct Symbol {
 	size_t column = 0;
 };
 
-class Scope {
-	Scope *parent = nullptr;
+struct Scope {
+	Scope *parent;
 	std::unordered_map<std::string, Symbol> symbols;
+
+	explicit Scope(Scope *parent) : parent(parent) {}
 };
 
 class SymbolTable {
