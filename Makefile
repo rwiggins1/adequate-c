@@ -50,7 +50,7 @@ run: build
 # Lint code with clang-tidy
 lint:
 	@echo "Running clang-tidy on source files..."
-	@find $(SRC_DIR) -name "*.cpp" -o -name "*.hpp" | xargs clang-tidy -p $(BUILD_DIR)
+	@find $(SRC_DIR) -name "*.cpp" -o -name "*.hpp" | xargs -P$(shell nproc) -n1 clang-tidy -p $(BUILD_DIR)
 	@echo "Lint complete!"
 
 # Test lexer (runs against $(DIR), default $(BUILD_DIR))
