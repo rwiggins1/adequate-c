@@ -42,14 +42,16 @@ class SymbolTable {
 	Scope *global = nullptr;
 	Scope *current = nullptr;
 
+	[[nodiscard]] const Symbol* searchScope(const Scope*, const std::string&) const;
+
 public:
 	void enterScope();
 	void exitScope();
 
 	[[nodiscard]] bool declare(Symbol&);
 
-	Symbol lookup(const std::string&);
-	Symbol lookupLocal(const std::string&);
+	[[nodiscard]] const Symbol* lookup(const std::string&) const;
+	[[nodiscard]] const Symbol* lookupLocal(const std::string&) const;
 
 	[[nodiscard]] Scope getGlobalScope();
 	[[nodiscard]] Scope getCurrentScope();
