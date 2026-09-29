@@ -46,7 +46,7 @@ public:
 	void enterScope();
 	void exitScope();
 
-	[[nodiscard]] bool declare(Symbol);
+	[[nodiscard]] bool declare(Symbol&);
 
 	Symbol lookup(const std::string&);
 	Symbol lookupLocal(const std::string&);
