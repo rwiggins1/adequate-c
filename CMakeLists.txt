@@ -13,6 +13,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # gcov/gcovr coverage instrumentation
 option(ADQ_ENABLE_COVERAGE "Instrument source and test targets with --coverage (gcov/gcovr)" OFF)
 
+# AddressSanitizer / UndefinedBehaviorSanitizer instrumentation
+option(ADQ_ENABLE_ASAN "Build source and test targets with AddressSanitizer" OFF)
+option(ADQ_ENABLE_UBSAN "Build source and test targets with UndefinedBehaviorSanitizer" OFF)
+
 # Warning flags for g++
 add_compile_options(-Wall -Wextra -pedantic)
 
@@ -105,6 +109,33 @@ include(GoogleTest)
 gtest_discover_tests(ast_gtest)
 gtest_discover_tests(integration_gtest)
 
+# All buildable targets that source/test instrumentation (coverage, sanitizers) applies to
+set(ADQ_ALL_TARGETS adequatec test_lexer test_ast ast_gtest integration_gtest)
+
+# =======================================================================
+# Sanitizers (ASan/UBSan)
+# =======================================================================
+if(ADQ_ENABLE_ASAN OR ADQ_ENABLE_UBSAN)
+    if(NOT CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        message(WARNING "ADQ_ENABLE_ASAN/ADQ_ENABLE_UBSAN require GCC or Clang; ${CMAKE_CXX_COMPILER_ID} is unsupported")
+    endif()
+
+    set(SANITIZE_FLAGS "")
+    if(ADQ_ENABLE_ASAN)
+        list(APPEND SANITIZE_FLAGS -fsanitize=address -fno-omit-frame-pointer)
+    endif()
+    if(ADQ_ENABLE_UBSAN)
+        # -fno-sanitize-recover makes UB fatal (abort) instead of just printing
+        # a runtime error and continuing, which would let a test exit 0 despite UB
+        list(APPEND SANITIZE_FLAGS -fsanitize=undefined -fno-sanitize-recover=undefined)
+    endif()
+
+    foreach(san_target ${ADQ_ALL_TARGETS})
+        target_compile_options(${san_target} PRIVATE ${SANITIZE_FLAGS} -g)
+        target_link_options(${san_target} PRIVATE ${SANITIZE_FLAGS})
+    endforeach()
+endif()
+
 # =======================================================================
 # Coverage (gcov/gcovr)
 # =======================================================================
@@ -117,8 +148,7 @@ if(ADQ_ENABLE_COVERAGE)
                          "optimizations can make gcov line/branch data unreliable")
     endif()
 
-    set(COVERAGE_TARGETS adequatec test_lexer test_ast ast_gtest integration_gtest)
-    foreach(cov_target ${COVERAGE_TARGETS})
+    foreach(cov_target ${ADQ_ALL_TARGETS})
         target_compile_options(${cov_target} PRIVATE --coverage -O0 -g)
         target_link_options(${cov_target} PRIVATE --coverage)
     endforeach()
@@ -139,7 +169,7 @@ if(ADQ_ENABLE_COVERAGE)
                     --html-details ${COVERAGE_HTML_DIR}/index.html
                     ${CMAKE_BINARY_DIR}
             WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-            DEPENDS ${COVERAGE_TARGETS}
+            DEPENDS ${ADQ_ALL_TARGETS}
             COMMENT "Running tests and generating gcovr coverage report"
             VERBATIM
         )
