@@ -40,7 +40,7 @@ void SymbolTable::exitScope() {
 	return &it->second;
 }
 
-[[nodiscard]] Scope SymbolTable::getGlobalScope() { return *global; }
+[[nodiscard]] const Scope* SymbolTable::getGlobalScope() { return global; }
 
-[[nodiscard]] Scope SymbolTable::getCurrentScope() { return *current; }
+[[nodiscard]] const Scope* SymbolTable::getCurrentScope() { return current; }
 } // namespace frontend::sema

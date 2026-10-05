@@ -53,8 +53,8 @@ public:
 	[[nodiscard]] const Symbol* lookup(const std::string&) const;
 	[[nodiscard]] const Symbol* lookupLocal(const std::string&) const;
 
-	[[nodiscard]] Scope getGlobalScope();
-	[[nodiscard]] Scope getCurrentScope();
+	[[nodiscard]] const Scope* getGlobalScope();
+	[[nodiscard]] const Scope* getCurrentScope();
 
 };
 
