@@ -1,6 +1,7 @@
 # Build directory
 build/
 build-coverage/
+build-sanitize/
 cmake-build-*/
 
 # CMake generated files
