@@ -1,7 +1,14 @@
 #include "semantics/symbol_table.hpp"
+#include <memory>
 #include <string>
 
 namespace frontend::sema {
+
+SymbolTable::SymbolTable() {
+	enterScope();
+	global = current;
+}
+
 void SymbolTable::enterScope() {
 	arena.push_back(std::make_unique<Scope>(current));
 	current = arena.back().get();

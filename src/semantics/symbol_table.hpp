@@ -45,6 +45,8 @@ class SymbolTable {
 	[[nodiscard]] const Symbol* searchScope(const Scope*, const std::string&) const;
 
 public:
+	SymbolTable();
+
 	void enterScope();
 	void exitScope();
 
