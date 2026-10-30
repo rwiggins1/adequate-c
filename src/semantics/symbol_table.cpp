@@ -47,7 +47,7 @@ const Symbol* SymbolTable::searchScope(const Scope* scope, const std::string& sy
 	return &it->second;
 }
 
-const Scope* SymbolTable::getGlobalScope() { return global; }
+const Scope* SymbolTable::getGlobalScope() const noexcept { return global; }
 
-const Scope* SymbolTable::getCurrentScope() { return current; }
+const Scope* SymbolTable::getCurrentScope() const noexcept { return current; }
 } // namespace frontend::sema
