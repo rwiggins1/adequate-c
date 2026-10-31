@@ -7,6 +7,9 @@ namespace frontend::sema {
 SymbolTable::SymbolTable() {
 	enterScope();
 	global = current;
+
+	Symbol print_built_in{.name = "print", .kind = SymbolKind::Function};
+	global->symbols.emplace("print", std::move(print_built_in));
 }
 
 void SymbolTable::enterScope() {
