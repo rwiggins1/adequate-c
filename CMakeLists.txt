@@ -32,6 +32,7 @@ set(SOURCES
     src/ast/decl.cpp
     src/ast/printer.cpp
     src/parser/parser.cpp
+    src/semantics/symbol_table.cpp
 )
 
 # Build executable named 'adequatec'; the binary on disk is 'adq'

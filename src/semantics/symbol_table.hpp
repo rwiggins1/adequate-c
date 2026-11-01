@@ -42,20 +42,22 @@ class SymbolTable {
 	Scope *global = nullptr;
 	Scope *current = nullptr;
 
-	[[nodiscard]] const Symbol* searchScope(const Scope*, const std::string&) const;
+	[[nodiscard]] static const Symbol *searchScope(const Scope *,
+						       const std::string &);
 
 public:
+	SymbolTable();
+
 	void enterScope();
 	void exitScope();
 
-	[[nodiscard]] bool declare(Symbol&);
+	[[nodiscard]] bool declare(Symbol &);
 
-	[[nodiscard]] const Symbol* lookup(const std::string&) const;
-	[[nodiscard]] const Symbol* lookupLocal(const std::string&) const;
+	[[nodiscard]] const Symbol *lookup(const std::string &) const;
+	[[nodiscard]] const Symbol *lookupLocal(const std::string &) const;
 
-	[[nodiscard]] const Scope* getGlobalScope();
-	[[nodiscard]] const Scope* getCurrentScope();
-
+	[[nodiscard]] const Scope *getGlobalScope() const noexcept;
+	[[nodiscard]] const Scope *getCurrentScope() const noexcept;
 };
 
 } // namespace frontend::sema
