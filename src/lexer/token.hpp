@@ -92,6 +92,8 @@ enum class TokenType : std::uint8_t {
 
 	// Literals
 	NUMBER_LIT,
+	INT_LIT,
+	DECIMAL_LIT,
 	STRING_LIT,
 	CHAR_LIT,
 	IDENT,
