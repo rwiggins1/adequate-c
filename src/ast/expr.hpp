@@ -7,15 +7,6 @@
 
 namespace frontend::ast {
 
-class NumberLiteralAST : public ExprAST {
-	double value;
-
-public:
-	NumberLiteralAST(double val);
-	[[nodiscard]] double getValue() const noexcept { return value; }
-	void accept(ASTVisitor &v) override { v.visit(*this); }
-};
-
 class IntegerLiteralAST : public ExprAST {
 	std::int32_t value;
 

@@ -3,7 +3,6 @@
 namespace frontend::ast {
 
 // Expressions
-class NumberLiteralAST;
 class IntegerLiteralAST;
 class DecimalLiteralAST;
 class StringLiteralAST;
@@ -44,7 +43,6 @@ public:
 	virtual ~ASTVisitor() = default;
 
 	// Expressions
-	virtual void visit(NumberLiteralAST &node) = 0;
 	virtual void visit(IntegerLiteralAST &node) = 0;
 	virtual void visit(DecimalLiteralAST &node) = 0;
 	virtual void visit(StringLiteralAST &node) = 0;

@@ -135,11 +135,6 @@ void ASTPrinter::child(ASTNode *node) {
 }
 
 // Expressions
-
-void ASTPrinter::visit(NumberLiteralAST &node) {
-	line() << "NumberLiteral " << node.getValue() << "\n";
-}
-
 void ASTPrinter::visit(IntegerLiteralAST &node) {
 	line() << "IntegerLiteral " << node.getValue() << "\n";
 }

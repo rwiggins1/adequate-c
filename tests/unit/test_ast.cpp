@@ -14,12 +14,6 @@
 using namespace frontend::ast;
 using namespace frontend::types;
 
-TEST(astTest, NumberExpr) {
-	auto expr = std::make_unique<NumberLiteralAST>(42.0);
-	ASSERT_NE(expr, nullptr);
-	ASSERT_EQ(expr->getValue(), 42.0);
-}
-
 TEST(astTest, IntegerLiteral) {
 	auto int_lit = std::make_unique<IntegerLiteralAST>(42);
 	ASSERT_NE(int_lit, nullptr);
@@ -65,18 +59,18 @@ TEST(astTest, UnaryExpr) {
 
 // 2 + 3
 TEST(astTest, BinaryExpr) {
-	auto two = std::make_unique<NumberLiteralAST>(2);
-	auto three = std::make_unique<NumberLiteralAST>(3);
+	auto two = std::make_unique<IntegerLiteralAST>(2);
+	auto three = std::make_unique<IntegerLiteralAST>(3);
 	auto add = std::make_unique<BinaryExprAST>(
 	    BinaryOp::ADD, std::move(two), std::move(three));
 	ASSERT_EQ(add->getOperator(), BinaryOp::ADD);
 
 	ExprAST *lhs = add->getLhs();
-	auto *lhsLiteral = expectNode<NumberLiteralAST>(lhs);
+	auto *lhsLiteral = expectNode<IntegerLiteralAST>(lhs);
 	ASSERT_EQ(lhsLiteral->getValue(), 2);
 
 	ExprAST *rhs = add->getRhs();
-	auto *rhsLiteral = expectNode<NumberLiteralAST>(rhs);
+	auto *rhsLiteral = expectNode<IntegerLiteralAST>(rhs);
 
 	ASSERT_EQ(rhsLiteral->getValue(), 3);
 }
@@ -84,7 +78,7 @@ TEST(astTest, BinaryExpr) {
 // someFunc(12, "test", true)
 TEST(astTest, FunctionCallExpr) {
 	auto callee = std::make_unique<VariableExprAST>("someFunc");
-	auto twelve = std::make_unique<NumberLiteralAST>(12);
+	auto twelve = std::make_unique<IntegerLiteralAST>(12);
 	auto testStr = std::make_unique<StringLiteralAST>("test");
 	auto bool_lit = std::make_unique<BoolLiteralAST>(true);
 	std::vector<std::unique_ptr<ExprAST>> args;
@@ -97,7 +91,7 @@ TEST(astTest, FunctionCallExpr) {
 	    std::make_unique<CallExprAST>(std::move(callee), std::move(args));
 	const auto &Args = funcCall->getArgs();
 
-	auto *TwelveLiteral = expectNode<NumberLiteralAST>(Args[0].get());
+	auto *TwelveLiteral = expectNode<IntegerLiteralAST>(Args[0].get());
 
 	ASSERT_EQ(TwelveLiteral->getValue(), 12);
 }
@@ -105,8 +99,8 @@ TEST(astTest, FunctionCallExpr) {
 // cond ? 1 : 2
 TEST(astTest, TernaryExpr) {
 	auto cond = std::make_unique<BoolLiteralAST>(true);
-	auto then_branch = std::make_unique<NumberLiteralAST>(1);
-	auto else_branch = std::make_unique<NumberLiteralAST>(2);
+	auto then_branch = std::make_unique<IntegerLiteralAST>(1);
+	auto else_branch = std::make_unique<IntegerLiteralAST>(2);
 
 	auto ternary = std::make_unique<TernaryExprAST>(
 	    std::move(cond), std::move(then_branch), std::move(else_branch));
@@ -116,23 +110,23 @@ TEST(astTest, TernaryExpr) {
 	ASSERT_EQ(cond_check->getValue(), true);
 
 	auto *then_check =
-	    expectNode<NumberLiteralAST>(ternary->getThenBranch());
+	    expectNode<IntegerLiteralAST>(ternary->getThenBranch());
 	ASSERT_NE(then_check, nullptr);
-	ASSERT_EQ(then_check->getValue(), 1.0);
+	ASSERT_EQ(then_check->getValue(), 1);
 
 	auto *else_check =
-	    expectNode<NumberLiteralAST>(ternary->getElseBranch());
+	    expectNode<IntegerLiteralAST>(ternary->getElseBranch());
 	ASSERT_NE(else_check, nullptr);
-	ASSERT_EQ(else_check->getValue(), 2.0);
+	ASSERT_EQ(else_check->getValue(), 2);
 }
 
 TEST(astTest, ReturnStmt) {
-	auto value = std::make_unique<NumberLiteralAST>(7);
+	auto value = std::make_unique<IntegerLiteralAST>(7);
 	auto ret = std::make_unique<ReturnStmtAST>(std::move(value));
 
-	auto *value_check = expectNode<NumberLiteralAST>(ret->getValue());
+	auto *value_check = expectNode<IntegerLiteralAST>(ret->getValue());
 	ASSERT_NE(value_check, nullptr);
-	ASSERT_EQ(value_check->getValue(), 7.0);
+	ASSERT_EQ(value_check->getValue(), 7);
 
 	// return without a value
 	auto bare_ret = std::make_unique<ReturnStmtAST>(nullptr);
@@ -194,11 +188,11 @@ TEST(astTest, ForStmt) {
 	auto init = std::make_unique<DeclStmtAST>(
 	    std::make_unique<VariableDeclarationAST>(
 		std::make_unique<IntType>(), "i",
-		std::make_unique<NumberLiteralAST>(0)));
+		std::make_unique<IntegerLiteralAST>(0)));
 
 	auto cond = std::make_unique<BinaryExprAST>(
 	    BinaryOp::LT, std::make_unique<VariableExprAST>("i"),
-	    std::make_unique<NumberLiteralAST>(10));
+	    std::make_unique<IntegerLiteralAST>(10));
 
 	auto update = std::make_unique<UnaryExprAST>(
 	    UnaryOp::POST_INCREMENT, std::make_unique<VariableExprAST>("i"));
@@ -213,7 +207,7 @@ TEST(astTest, ForStmt) {
 }
 
 TEST(astTest, VarDec) {
-	auto expr = std::make_unique<NumberLiteralAST>(42.0);
+	auto expr = std::make_unique<IntegerLiteralAST>(42);
 	auto integer_type = std::make_unique<frontend::types::IntType>();
 	auto var_dec = std::make_unique<VariableDeclarationAST>(
 	    std::move(integer_type), "x", nullptr, std::move(expr));
@@ -379,8 +373,8 @@ TEST(astTest, Comprehensive) {
 	// ========== BUILD MAIN FUNCTION VARIABLES ==========
 	// Call: add(5, 3)
 	std::vector<std::unique_ptr<ExprAST>> args;
-	args.emplace_back(std::make_unique<NumberLiteralAST>(5));
-	args.emplace_back(std::make_unique<NumberLiteralAST>(3));
+	args.emplace_back(std::make_unique<IntegerLiteralAST>(5));
+	args.emplace_back(std::make_unique<IntegerLiteralAST>(3));
 
 	auto sum_callee = std::make_unique<VariableExprAST>("add");
 	auto sum_call = std::make_unique<CallExprAST>(std::move(sum_callee),
@@ -407,17 +401,17 @@ TEST(astTest, Comprehensive) {
 	const auto &sum_args = sum_call_check->getArgs();
 	ASSERT_EQ(sum_args.size(), 2) << "add() call should have 2 arguments";
 
-	auto *sum_arg1 = expectNode<NumberLiteralAST>(sum_args[0].get());
-	auto *sum_arg2 = expectNode<NumberLiteralAST>(sum_args[1].get());
+	auto *sum_arg1 = expectNode<IntegerLiteralAST>(sum_args[0].get());
+	auto *sum_arg2 = expectNode<IntegerLiteralAST>(sum_args[1].get());
 	ASSERT_NE(sum_arg1, nullptr);
 	ASSERT_NE(sum_arg2, nullptr);
-	EXPECT_DOUBLE_EQ(sum_arg1->getValue(), 5.0);
-	EXPECT_DOUBLE_EQ(sum_arg2->getValue(), 3.0);
+	EXPECT_EQ(sum_arg1->getValue(), 5);
+	EXPECT_EQ(sum_arg2->getValue(), 3);
 
 	// Call: multiply(4, 7)
 	std::vector<std::unique_ptr<ExprAST>> args2;
-	args2.emplace_back(std::make_unique<NumberLiteralAST>(4));
-	args2.emplace_back(std::make_unique<NumberLiteralAST>(7));
+	args2.emplace_back(std::make_unique<IntegerLiteralAST>(4));
+	args2.emplace_back(std::make_unique<IntegerLiteralAST>(7));
 
 	auto mul_var = std::make_unique<VariableExprAST>("multiply");
 
@@ -445,12 +439,12 @@ TEST(astTest, Comprehensive) {
 	const auto &prod_args = prod_call_check->getArgs();
 	ASSERT_EQ(prod_args.size(), 2);
 
-	auto *prod_arg1 = expectNode<NumberLiteralAST>(prod_args[0].get());
-	auto *prod_arg2 = expectNode<NumberLiteralAST>(prod_args[1].get());
+	auto *prod_arg1 = expectNode<IntegerLiteralAST>(prod_args[0].get());
+	auto *prod_arg2 = expectNode<IntegerLiteralAST>(prod_args[1].get());
 	ASSERT_NE(prod_arg1, nullptr);
 	ASSERT_NE(prod_arg2, nullptr);
-	EXPECT_DOUBLE_EQ(prod_arg1->getValue(), 4.0);
-	EXPECT_DOUBLE_EQ(prod_arg2->getValue(), 7.0);
+	EXPECT_EQ(prod_arg1->getValue(), 4);
+	EXPECT_EQ(prod_arg2->getValue(), 7);
 
 	// Struct variable
 	auto p = std::make_unique<VariableDeclarationAST>(

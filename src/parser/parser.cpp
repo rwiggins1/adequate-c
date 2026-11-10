@@ -39,12 +39,6 @@ bool Parser::expect(TokenType type) {
 
 std::unique_ptr<ast::ExprAST> Parser::parseLiteral() {
 	switch (current.type) {
-	case TokenType::NUMBER_LIT: {
-		auto result = std::make_unique<ast::NumberLiteralAST>(
-		    std::stod(current.lexeme));
-		advance();
-		return result;
-	}
 	case TokenType::INT_LIT: {
 		const std::string &text = current.lexeme;
 		const char *first = text.data();
