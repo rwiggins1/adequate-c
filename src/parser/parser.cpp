@@ -7,10 +7,14 @@
 #include "lexer/token.hpp"
 #include "types/type.hpp"
 #include <cassert>
+#include <charconv>
 #include <cstddef>
 #include <execution>
 #include <iostream>
+#include <limits>
 #include <memory>
+#include <string>
+#include <system_error>
 #include <type_traits>
 #include <unordered_map>
 #include <utility>
@@ -38,6 +42,69 @@ std::unique_ptr<ast::ExprAST> Parser::parseLiteral() {
 	case TokenType::NUMBER_LIT: {
 		auto result = std::make_unique<ast::NumberLiteralAST>(
 		    std::stod(current.lexeme));
+		advance();
+		return result;
+	}
+	case TokenType::INT_LIT: {
+		const std::string &text = current.lexeme;
+		const char *first = text.data();
+		const char *last = std::to_address(text.end());
+
+		std::int32_t value = 0;
+		auto [ptr, ec] = std::from_chars(first, last, value);
+
+		if (ec == std::errc::result_out_of_range) {
+			errors.error(
+			    "integer literal '" + text +
+				"' is out of range for int (max " +
+				std::to_string(
+				    std::numeric_limits<std::int32_t>::max()) +
+				")",
+			    current.line, current.column);
+			advance();
+			return nullptr;
+		}
+
+		// The lexer only lets digits into INT_LIT, so this is defensive
+		// (in case hex is added).
+		if (ec != std::errc{} || ptr != last) {
+			errors.error("invalid integer literal '" + text + "'",
+				     current.line, current.column);
+			advance();
+			return nullptr;
+		}
+
+		auto result = std::make_unique<ast::IntegerLiteralAST>(value);
+		advance();
+		return result;
+	}
+	case TokenType::DECIMAL_LIT: {
+		const std::string &text = current.lexeme;
+		const char *first = text.data();
+		const char *last = std::to_address(text.end());
+
+		double value = 0;
+		auto [ptr, ec] = std::from_chars(first, last, value);
+
+		if (ec == std::errc::result_out_of_range) {
+			errors.error("decimal literal '" + text +
+					 "' is out of range for double",
+				     current.line, current.column);
+			advance();
+			return nullptr;
+		}
+
+		// the lexer guarantees a well formed decimal, so this only
+		// fires if the lexer changes
+		if (ec != std::errc{} || ptr != last) {
+			errors.error("invalid decimal literal '" + text + "'",
+				     current.line, current.column);
+			advance();
+			return nullptr;
+		}
+
+		auto result = std::make_unique<ast::DecimalLiteralAST>(
+		    value, std::move(current.lexeme));
 		advance();
 		return result;
 	}

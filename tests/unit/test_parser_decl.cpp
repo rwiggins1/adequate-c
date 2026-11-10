@@ -63,9 +63,36 @@ TEST(ParserVarDecl, LiteralInitializer) {
 	EXPECT_TRUE(decl->hasInit());
 	EXPECT_FALSE(decl->isArray());
 
-	auto *literal = expectNode<NumberLiteralAST>(decl->getInit());
+	auto *literal = expectNode<IntegerLiteralAST>(decl->getInit());
 	ASSERT_NE(literal, nullptr);
-	EXPECT_EQ(literal->getValue(), 42.0);
+	EXPECT_EQ(literal->getValue(), 42);
+}
+
+TEST(ParserVarDecl, DecimalInitializer) {
+	ErrorReporter errors;
+	auto decl = expectVarDecl("var double x = 3.14;", errors);
+
+	ASSERT_NE(decl, nullptr);
+	EXPECT_FALSE(errors.hasErrors());
+	ASSERT_TRUE(decl->hasInit());
+
+	auto *literal = expectNode<DecimalLiteralAST>(decl->getInit());
+	ASSERT_NE(literal, nullptr);
+	EXPECT_DOUBLE_EQ(literal->getValue(), 3.14);
+	EXPECT_EQ(literal->getLexeme(), "3.14");
+}
+
+TEST(ParserVarDecl, OutOfRangeIntegerInitializer) {
+	ErrorReporter errors;
+	parseVarDecl("var int x = 2147483648;", errors);
+
+	ASSERT_TRUE(errors.hasErrors());
+	EXPECT_NE(errors.getErrors()[0].message.find("out of range"),
+		  std::string::npos);
+}
+
+TEST(ParserVarDecl, MalformedDecimalInitializer) {
+	expectParseError("var double x = 7.;");
 }
 
 TEST(ParserVarDecl, ExpressionInitializer) {
@@ -92,9 +119,9 @@ TEST(ParserVarDecl, ArrayLiteralSize) {
 	EXPECT_FALSE(decl->hasInit());
 	ASSERT_TRUE(decl->isArray());
 
-	auto *literal = expectNode<NumberLiteralAST>(decl->getArraySize());
+	auto *literal = expectNode<IntegerLiteralAST>(decl->getArraySize());
 	ASSERT_NE(literal, nullptr);
-	EXPECT_EQ(literal->getValue(), 10.0);
+	EXPECT_EQ(literal->getValue(), 10);
 }
 
 TEST(ParserVarDecl, ArrayExpressionSize) {

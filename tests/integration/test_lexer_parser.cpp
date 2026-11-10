@@ -48,9 +48,9 @@ TEST(LexerParserIntegration, CallInsideArithmetic) {
 	EXPECT_EQ(callee->getName(), "compute");
 	ASSERT_EQ(call->getArgs().size(), 2);
 
-	auto *two = expectNode<NumberLiteralAST>(mul->getRhs());
+	auto *two = expectNode<IntegerLiteralAST>(mul->getRhs());
 	ASSERT_NE(two, nullptr);
-	EXPECT_DOUBLE_EQ(two->getValue(), 2.0);
+	EXPECT_EQ(two->getValue(), 2);
 
 	EXPECT_FALSE(errors.hasErrors());
 }
@@ -92,9 +92,9 @@ TEST(LexerParserIntegration, DeeplyNestedParens) {
 	ErrorReporter errors;
 	auto expr = parsePipeline("((((42))));", errors);
 
-	auto *literal = expectNode<NumberLiteralAST>(expr.get());
+	auto *literal = expectNode<IntegerLiteralAST>(expr.get());
 	ASSERT_NE(literal, nullptr);
-	EXPECT_DOUBLE_EQ(literal->getValue(), 42.0);
+	EXPECT_EQ(literal->getValue(), 42);
 	EXPECT_FALSE(errors.hasErrors());
 }
 
@@ -169,11 +169,54 @@ TEST(LexerParserIntegration, MixedLiteralArguments) {
 
 	const auto &args = call->getArgs();
 	ASSERT_EQ(args.size(), 6);
-	EXPECT_NE(expectNode<NumberLiteralAST>(args[0].get()), nullptr);
-	EXPECT_NE(expectNode<NumberLiteralAST>(args[1].get()), nullptr);
+	EXPECT_NE(expectNode<IntegerLiteralAST>(args[0].get()), nullptr);
+	EXPECT_NE(expectNode<DecimalLiteralAST>(args[1].get()), nullptr);
 	EXPECT_NE(expectNode<CharLiteralAST>(args[2].get()), nullptr);
 	EXPECT_NE(expectNode<StringLiteralAST>(args[3].get()), nullptr);
 	EXPECT_NE(expectNode<BoolLiteralAST>(args[4].get()), nullptr);
 	EXPECT_NE(expectNode<BoolLiteralAST>(args[5].get()), nullptr);
 	EXPECT_FALSE(errors.hasErrors());
+}
+
+TEST(LexerParserIntegration, IntegerAndDecimalInArithmetic) {
+	ErrorReporter errors;
+	auto expr = parsePipeline("price * 1.50 + 2;", errors);
+
+	auto *add = expectNode<BinaryExprAST>(expr.get());
+	ASSERT_NE(add, nullptr);
+	EXPECT_EQ(add->getOperator(), BinaryOp::ADD);
+
+	auto *mul = expectNode<BinaryExprAST>(add->getLhs());
+	ASSERT_NE(mul, nullptr);
+	EXPECT_EQ(mul->getOperator(), BinaryOp::MUL);
+
+	auto *decimal = expectNode<DecimalLiteralAST>(mul->getRhs());
+	ASSERT_NE(decimal, nullptr);
+	EXPECT_DOUBLE_EQ(decimal->getValue(), 1.5);
+	EXPECT_EQ(decimal->getLexeme(), "1.50");
+
+	auto *integer = expectNode<IntegerLiteralAST>(add->getRhs());
+	ASSERT_NE(integer, nullptr);
+	EXPECT_EQ(integer->getValue(), 2);
+	EXPECT_FALSE(errors.hasErrors());
+}
+
+TEST(LexerParserIntegration, OutOfRangeIntegerReportsParserError) {
+	ErrorReporter errors;
+	auto expr = parsePipeline("2147483648;", errors);
+
+	EXPECT_EQ(expr, nullptr);
+	ASSERT_TRUE(errors.hasErrors());
+	const auto &error = errors.getErrors()[0];
+	EXPECT_EQ(error.phase, ErrorPhase::PARSER);
+	EXPECT_NE(error.message.find("out of range"), std::string::npos);
+}
+
+TEST(LexerParserIntegration, MalformedDecimalReportsLexerError) {
+	ErrorReporter errors;
+	auto expr = parsePipeline("7.;", errors);
+
+	EXPECT_EQ(expr, nullptr);
+	ASSERT_TRUE(errors.hasErrors());
+	EXPECT_EQ(errors.getErrors()[0].phase, ErrorPhase::LEXER);
 }

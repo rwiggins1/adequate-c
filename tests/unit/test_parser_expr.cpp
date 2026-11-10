@@ -71,11 +71,11 @@ TEST(ParserExpr, ParseLiteral) {
 		auto expr_ast = parser.parseLiteral();
 
 		auto literal_ast =
-		    expectNode<ast::NumberLiteralAST>(expr_ast.get());
+		    expectNode<ast::IntegerLiteralAST>(expr_ast.get());
 		ASSERT_NE(literal_ast, nullptr);
 
-		double val = literal_ast->getValue();
-		ASSERT_EQ(val, 2.0);
+		int val = literal_ast->getValue();
+		ASSERT_EQ(val, 2);
 	}
 	{
 		ErrorReporter errors;
@@ -260,6 +260,142 @@ TEST(ParserExpr, AssignmentOperatorPredicate) {
 	}
 }
 
+TEST(ParserExpr, IntegerLiteralValues) {
+	const std::vector<std::pair<std::string, int>> cases = {
+	    {"0", 0}, {"007", 7}, {"2147483647", 2147483647}};
+
+	for (const auto &[src, expected] : cases) {
+		ErrorReporter errors;
+		Lexer lexer(src, errors);
+		Parser parser(lexer, errors);
+
+		auto expr = parser.parseLiteral();
+
+		auto *literal = expectNode<IntegerLiteralAST>(expr.get());
+		ASSERT_NE(literal, nullptr) << src;
+		EXPECT_EQ(literal->getValue(), expected) << src;
+		EXPECT_FALSE(errors.hasErrors()) << src;
+	}
+}
+
+TEST(ParserExpr, IntegerLiteralOutOfRange) {
+	for (const std::string src :
+	     {"2147483648", "99999999999999999999999999"}) {
+		ErrorReporter errors;
+		Lexer lexer(src, errors);
+		Parser parser(lexer, errors);
+
+		EXPECT_EQ(parser.parseLiteral(), nullptr) << src;
+		ASSERT_EQ(errors.getErrorCount(), 1) << src;
+		const auto &error = errors.getErrors()[0];
+		EXPECT_EQ(error.phase, ErrorPhase::PARSER) << src;
+		EXPECT_NE(error.message.find("out of range"), std::string::npos)
+		    << src;
+	}
+}
+
+TEST(ParserExpr, DecimalLiteralValues) {
+	const std::vector<std::pair<std::string, double>> cases = {
+	    {"3.14", 3.14}, {"0.5", 0.5}, {"10.0", 10.0}};
+
+	for (const auto &[src, expected] : cases) {
+		ErrorReporter errors;
+		Lexer lexer(src, errors);
+		Parser parser(lexer, errors);
+
+		auto expr = parser.parseLiteral();
+
+		auto *literal = expectNode<DecimalLiteralAST>(expr.get());
+		ASSERT_NE(literal, nullptr) << src;
+		EXPECT_DOUBLE_EQ(literal->getValue(), expected) << src;
+		EXPECT_EQ(literal->getLexeme(), src);
+		EXPECT_FALSE(errors.hasErrors()) << src;
+	}
+}
+
+TEST(ParserExpr, DecimalLiteralPreservesLexeme) {
+	ErrorReporter errors;
+	Lexer lexer("1.50", errors);
+	Parser parser(lexer, errors);
+
+	auto expr = parser.parseLiteral();
+
+	auto *literal = expectNode<DecimalLiteralAST>(expr.get());
+	ASSERT_NE(literal, nullptr);
+	EXPECT_DOUBLE_EQ(literal->getValue(), 1.5);
+	EXPECT_EQ(literal->getLexeme(), "1.50");
+}
+
+TEST(ParserExpr, DecimalLiteralOutOfRange) {
+	const std::string src = std::string(400, '9') + ".0";
+	ErrorReporter errors;
+	Lexer lexer(src, errors);
+	Parser parser(lexer, errors);
+
+	EXPECT_EQ(parser.parseLiteral(), nullptr);
+	ASSERT_EQ(errors.getErrorCount(), 1);
+	const auto &error = errors.getErrors()[0];
+	EXPECT_EQ(error.phase, ErrorPhase::PARSER);
+	EXPECT_NE(error.message.find("out of range"), std::string::npos);
+}
+
+TEST(ParserExpr, MalformedDecimalIsNotALiteral) {
+	ErrorReporter errors;
+	Lexer lexer("7.", errors);
+	Parser parser(lexer, errors);
+
+	EXPECT_EQ(parser.parseLiteral(), nullptr);
+	ASSERT_TRUE(errors.hasErrors());
+	EXPECT_EQ(errors.getErrors()[0].phase, ErrorPhase::LEXER);
+}
+
+TEST(ParserExpr, NegatedNumericLiterals) {
+	{
+		ErrorReporter errors;
+		auto expr = parseExpr("-5;", errors);
+
+		auto *unary = expectNode<UnaryExprAST>(expr.get());
+		ASSERT_NE(unary, nullptr);
+		EXPECT_EQ(unary->getOperator(), UnaryOp::MINUS);
+		auto *literal =
+		    expectNode<IntegerLiteralAST>(unary->getOperand());
+		ASSERT_NE(literal, nullptr);
+		EXPECT_EQ(literal->getValue(), 5);
+		EXPECT_FALSE(errors.hasErrors());
+	}
+	{
+		ErrorReporter errors;
+		auto expr = parseExpr("-2.5;", errors);
+
+		auto *unary = expectNode<UnaryExprAST>(expr.get());
+		ASSERT_NE(unary, nullptr);
+		EXPECT_EQ(unary->getOperator(), UnaryOp::MINUS);
+		auto *literal =
+		    expectNode<DecimalLiteralAST>(unary->getOperand());
+		ASSERT_NE(literal, nullptr);
+		EXPECT_DOUBLE_EQ(literal->getValue(), 2.5);
+		EXPECT_FALSE(errors.hasErrors());
+	}
+}
+
+TEST(ParserExpr, MixedIntegerAndDecimalOperands) {
+	ErrorReporter errors;
+	auto expr = parseExpr("1 + 2.5;", errors);
+
+	auto *add = expectNode<BinaryExprAST>(expr.get());
+	ASSERT_NE(add, nullptr);
+	EXPECT_EQ(add->getOperator(), BinaryOp::ADD);
+
+	auto *lhs = expectNode<IntegerLiteralAST>(add->getLhs());
+	ASSERT_NE(lhs, nullptr);
+	EXPECT_EQ(lhs->getValue(), 1);
+
+	auto *rhs = expectNode<DecimalLiteralAST>(add->getRhs());
+	ASSERT_NE(rhs, nullptr);
+	EXPECT_DOUBLE_EQ(rhs->getValue(), 2.5);
+	EXPECT_FALSE(errors.hasErrors());
+}
+
 TEST(ParserExpr, ParserPrimaryExpr) {
 	{
 		ErrorReporter errors;
@@ -270,7 +406,7 @@ TEST(ParserExpr, ParserPrimaryExpr) {
 		auto prim_expr_ast = parser.parsePrimaryExpr();
 
 		auto prim_expr =
-		    expectNode<ast::NumberLiteralAST>(prim_expr_ast.get());
+		    expectNode<ast::IntegerLiteralAST>(prim_expr_ast.get());
 		ASSERT_NE(prim_expr, nullptr);
 	}
 	{
@@ -334,7 +470,7 @@ TEST(ParserExpr, ParserPostfixExpr) {
 		auto postfix_ast = parser.parsePostfixExpr();
 
 		auto prim_expr =
-		    expectNode<ast::NumberLiteralAST>(postfix_ast.get());
+		    expectNode<ast::IntegerLiteralAST>(postfix_ast.get());
 		ASSERT_NE(prim_expr, nullptr);
 	}
 }
@@ -352,12 +488,12 @@ TEST(ParserExpr, PostfixCall) {
 
 	const auto &args = call->getArgs();
 	ASSERT_EQ(args.size(), 2);
-	auto *arg0 = expectNode<NumberLiteralAST>(args[0].get());
-	auto *arg1 = expectNode<NumberLiteralAST>(args[1].get());
+	auto *arg0 = expectNode<IntegerLiteralAST>(args[0].get());
+	auto *arg1 = expectNode<IntegerLiteralAST>(args[1].get());
 	ASSERT_NE(arg0, nullptr);
 	ASSERT_NE(arg1, nullptr);
-	EXPECT_DOUBLE_EQ(arg0->getValue(), 5.0);
-	EXPECT_DOUBLE_EQ(arg1->getValue(), 3.0);
+	EXPECT_EQ(arg0->getValue(), 5);
+	EXPECT_EQ(arg1->getValue(), 3);
 	EXPECT_FALSE(errors.hasErrors());
 }
 
@@ -488,14 +624,14 @@ TEST(ParserExpr, ParserMultiplicative) {
 		ASSERT_NE(mult_expr, nullptr);
 
 		ast::ExprAST *lhs_expr = mult_expr->getLhs();
-		auto lhs = expectNode<ast::NumberLiteralAST>(lhs_expr);
+		auto lhs = expectNode<ast::IntegerLiteralAST>(lhs_expr);
 		ASSERT_NE(lhs, nullptr);
 
 		BinaryOp op = mult_expr->getOperator();
 		ASSERT_EQ(op, BinaryOp::MUL);
 
 		ast::ExprAST *rhs_expr = mult_expr->getRhs();
-		auto rhs = expectNode<ast::NumberLiteralAST>(rhs_expr);
+		auto rhs = expectNode<ast::IntegerLiteralAST>(rhs_expr);
 		ASSERT_NE(rhs, nullptr);
 	}
 }
@@ -533,9 +669,9 @@ TEST(ParserExpr, LeftAssociativity) {
 	ASSERT_NE(inner, nullptr);
 	EXPECT_EQ(inner->getOperator(), BinaryOp::SUB);
 
-	auto *rhs = expectNode<NumberLiteralAST>(outer->getRhs());
+	auto *rhs = expectNode<IntegerLiteralAST>(outer->getRhs());
 	ASSERT_NE(rhs, nullptr);
-	EXPECT_DOUBLE_EQ(rhs->getValue(), 3.0);
+	EXPECT_EQ(rhs->getValue(), 3);
 }
 
 TEST(ParserExpr, MultiplicationBindsTighterThanAddition) {
@@ -547,9 +683,9 @@ TEST(ParserExpr, MultiplicationBindsTighterThanAddition) {
 	ASSERT_NE(add, nullptr);
 	EXPECT_EQ(add->getOperator(), BinaryOp::ADD);
 
-	auto *lhs = expectNode<NumberLiteralAST>(add->getLhs());
+	auto *lhs = expectNode<IntegerLiteralAST>(add->getLhs());
 	ASSERT_NE(lhs, nullptr);
-	EXPECT_DOUBLE_EQ(lhs->getValue(), 2.0);
+	EXPECT_EQ(lhs->getValue(), 2);
 
 	auto *mul = expectNode<BinaryExprAST>(add->getRhs());
 	ASSERT_NE(mul, nullptr);

@@ -33,11 +33,11 @@ TEST(lexerTest, Get) {
 	token = lexer.get();
 	ASSERT_EQ(token.type, TokenType::EQUAL);
 	token = lexer.get();
-	ASSERT_EQ(token.type, TokenType::NUMBER_LIT);
+	ASSERT_EQ(token.type, TokenType::INT_LIT);
 	token = lexer.get();
 	ASSERT_EQ(token.type, TokenType::PLUS);
 	token = lexer.get();
-	ASSERT_EQ(token.type, TokenType::NUMBER_LIT);
+	ASSERT_EQ(token.type, TokenType::INT_LIT);
 }
 
 TEST(lexerTest, Keywords) {
@@ -148,23 +148,81 @@ TEST(lexerTest, Identifiers) {
 	EXPECT_FALSE(errors.hasErrors());
 }
 
-TEST(lexerTest, NumberLiterals) {
+TEST(lexerTest, IntegerLiterals) {
 	ErrorReporter errors;
-	auto tokens = lexAll("42 3.14 0 7.", errors);
+	auto tokens = lexAll("42 0 007", errors);
 
-	ASSERT_EQ(tokens.size(), 5);
-	EXPECT_EQ(tokens[0].type, TokenType::NUMBER_LIT);
+	ASSERT_EQ(tokens.size(), 3);
+	EXPECT_EQ(tokens[0].type, TokenType::INT_LIT);
 	EXPECT_EQ(tokens[0].lexeme, "42");
-	EXPECT_EQ(tokens[1].type, TokenType::NUMBER_LIT);
-	EXPECT_EQ(tokens[1].lexeme, "3.14");
-	EXPECT_EQ(tokens[2].type, TokenType::NUMBER_LIT);
-	EXPECT_EQ(tokens[2].lexeme, "0");
-	// "7." is a number followed by a dot: the '.' only joins the
-	// literal when followed by a digit
-	EXPECT_EQ(tokens[3].type, TokenType::NUMBER_LIT);
-	EXPECT_EQ(tokens[3].lexeme, "7");
-	EXPECT_EQ(tokens[4].type, TokenType::DOT);
+	EXPECT_EQ(tokens[1].type, TokenType::INT_LIT);
+	EXPECT_EQ(tokens[1].lexeme, "0");
+	EXPECT_EQ(tokens[2].type, TokenType::INT_LIT);
+	EXPECT_EQ(tokens[2].lexeme, "007");
 	EXPECT_FALSE(errors.hasErrors());
+}
+
+TEST(lexerTest, DecimalLiterals) {
+	ErrorReporter errors;
+	auto tokens = lexAll("3.14 0.5 10.0", errors);
+
+	ASSERT_EQ(tokens.size(), 3);
+	EXPECT_EQ(tokens[0].type, TokenType::DECIMAL_LIT);
+	EXPECT_EQ(tokens[0].lexeme, "3.14");
+	EXPECT_EQ(tokens[1].type, TokenType::DECIMAL_LIT);
+	EXPECT_EQ(tokens[1].lexeme, "0.5");
+	EXPECT_EQ(tokens[2].type, TokenType::DECIMAL_LIT);
+	EXPECT_EQ(tokens[2].lexeme, "10.0");
+	EXPECT_FALSE(errors.hasErrors());
+}
+
+TEST(lexerTest, DecimalMissingFractionDigits) {
+	ErrorReporter errors;
+	auto tokens = lexAll("7.", errors);
+
+	ASSERT_EQ(tokens.size(), 1);
+	EXPECT_EQ(tokens[0].type, TokenType::INVALID);
+	EXPECT_EQ(tokens[0].lexeme, "7.");
+	ASSERT_EQ(errors.getErrorCount(), 1);
+	EXPECT_EQ(errors.getErrors()[0].phase, ErrorPhase::LEXER);
+}
+
+TEST(lexerTest, DecimalFollowedByIdentifierIsInvalid) {
+	ErrorReporter errors;
+	auto tokens = lexAll("7.x", errors);
+
+	ASSERT_EQ(tokens.size(), 2);
+	EXPECT_EQ(tokens[0].type, TokenType::INVALID);
+	EXPECT_EQ(tokens[0].lexeme, "7.");
+	EXPECT_EQ(tokens[1].type, TokenType::IDENT);
+	EXPECT_EQ(tokens[1].lexeme, "x");
+	EXPECT_TRUE(errors.hasErrors());
+}
+
+TEST(lexerTest, SecondDotEndsDecimal) {
+	ErrorReporter errors;
+	auto tokens = lexAll("1.2.3", errors);
+
+	ASSERT_EQ(tokens.size(), 3);
+	EXPECT_EQ(tokens[0].type, TokenType::DECIMAL_LIT);
+	EXPECT_EQ(tokens[0].lexeme, "1.2");
+	EXPECT_EQ(tokens[1].type, TokenType::DOT);
+	EXPECT_EQ(tokens[2].type, TokenType::INT_LIT);
+	EXPECT_EQ(tokens[2].lexeme, "3");
+	EXPECT_FALSE(errors.hasErrors());
+}
+
+TEST(lexerTest, NumericLiteralPositions) {
+	ErrorReporter errors;
+	auto tokens = lexAll("12 3.5\n  9.25", errors);
+
+	ASSERT_EQ(tokens.size(), 3);
+	EXPECT_EQ(tokens[0].line, 1);
+	EXPECT_EQ(tokens[0].column, 1);
+	EXPECT_EQ(tokens[1].line, 1);
+	EXPECT_EQ(tokens[1].column, 4);
+	EXPECT_EQ(tokens[2].line, 2);
+	EXPECT_EQ(tokens[2].column, 3);
 }
 
 TEST(lexerTest, StringLiteral) {
@@ -243,9 +301,9 @@ TEST(lexerTest, CommentBetweenTokens) {
 	auto tokens = lexAll("1 /* mid */ + // trailing\n 2", errors);
 
 	ASSERT_EQ(tokens.size(), 3);
-	EXPECT_EQ(tokens[0].type, TokenType::NUMBER_LIT);
+	EXPECT_EQ(tokens[0].type, TokenType::INT_LIT);
 	EXPECT_EQ(tokens[1].type, TokenType::PLUS);
-	EXPECT_EQ(tokens[2].type, TokenType::NUMBER_LIT);
+	EXPECT_EQ(tokens[2].type, TokenType::INT_LIT);
 	EXPECT_FALSE(errors.hasErrors());
 }
 

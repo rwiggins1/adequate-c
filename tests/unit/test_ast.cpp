@@ -20,6 +20,19 @@ TEST(astTest, NumberExpr) {
 	ASSERT_EQ(expr->getValue(), 42.0);
 }
 
+TEST(astTest, IntegerLiteral) {
+	auto int_lit = std::make_unique<IntegerLiteralAST>(42);
+	ASSERT_NE(int_lit, nullptr);
+	ASSERT_EQ(int_lit->getValue(), 42);
+}
+
+TEST(astTest, DecimalLiteral) {
+	auto decimal_lit = std::make_unique<DecimalLiteralAST>(1.5, "1.50");
+	ASSERT_NE(decimal_lit, nullptr);
+	ASSERT_DOUBLE_EQ(decimal_lit->getValue(), 1.5);
+	ASSERT_EQ(decimal_lit->getLexeme(), "1.50");
+}
+
 TEST(astTest, StringLiteral) {
 	auto str_lit = std::make_unique<StringLiteralAST>("Hello, World!");
 	ASSERT_NE(str_lit, nullptr);
