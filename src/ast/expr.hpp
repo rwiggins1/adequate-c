@@ -16,6 +16,27 @@ public:
 	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
+class IntegerLiteralAST : public ExprAST {
+	std::int32_t value;
+
+public:
+	IntegerLiteralAST(std::int32_t val);
+	[[nodiscard]] std::int32_t getValue() const noexcept { return value; }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
+};
+
+
+class DecimalLiteralAST : public ExprAST {
+	double value;
+	std::string lexeme;
+
+public:
+	DecimalLiteralAST(double val, std::string lexeme);
+	[[nodiscard]] double getValue() const noexcept { return value; }
+	[[nodiscard]] const std::string& getLexeme() const noexcept { return lexeme; }
+	void accept(ASTVisitor &v) override { v.visit(*this); }
+};
+
 class StringLiteralAST : public ExprAST {
 	std::string value;
 
