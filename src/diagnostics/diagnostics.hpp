@@ -46,9 +46,9 @@ public:
 		warningCount++;
 	}
 
-	bool hasErrors() const { return errorCount > 0; }
-	size_t getErrorCount() const { return errorCount; }
-	size_t getWarningCount() const { return warningCount; }
+	[[nodiscard]] bool hasErrors() const { return errorCount > 0; }
+	[[nodiscard]] size_t getErrorCount() const { return errorCount; }
+	[[nodiscard]] size_t getWarningCount() const { return warningCount; }
 
 	void printAll() const {
 		for (const auto &err : errors) {
@@ -83,7 +83,9 @@ public:
 		}
 	}
 
-	const std::vector<CompilerError> &getErrors() const { return errors; }
+	[[nodiscard]] const std::vector<CompilerError> &getErrors() const {
+		return errors;
+	}
 
 	void clear() {
 		errors.clear();

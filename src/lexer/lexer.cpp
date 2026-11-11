@@ -9,7 +9,7 @@
 namespace frontend {
 Lexer::Lexer(std::string src, ErrorReporter &errors)
     : source(std::move(src)), errors(errors), src_length(source.length()),
-      position(0), line(1), column(1),
+
       current(source.empty() ? '\0' : source[0]) {}
 
 void Lexer::advance() noexcept {
@@ -56,8 +56,7 @@ void Lexer::skipMultiLineComment() {
 	advance(); // consume '/'
 	advance(); // consume '*'
 
-	while (position < src_length &&
-	       !(current == '*' && peekNext() == '/')) {
+	while (position < src_length && (current != '*' || peekNext() != '/')) {
 		advance();
 	}
 
@@ -133,7 +132,8 @@ Token Lexer::number() {
 	advance();
 
 	if (std::isdigit(static_cast<unsigned char>(current)) == 0) {
-		errors.error("expected a digit after '.' in number literal '" + text + "'",
+		errors.error("expected a digit after '.' in number literal '" +
+				 text + "'",
 			     startLine, startColumn, ErrorPhase::LEXER);
 		return {TokenType::INVALID, text, startLine, startColumn};
 	}

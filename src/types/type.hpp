@@ -110,8 +110,8 @@ public:
 	[[nodiscard]] Type *getElementType() const { return elementType.get(); }
 	[[nodiscard]] size_t getSize() const { return size; }
 	bool equals(const Type *other) const override {
-		auto arr = dynamic_cast<const ArrayType *>(other);
-		if (!arr) {
+		const auto *arr = dynamic_cast<const ArrayType *>(other);
+		if (arr == nullptr) {
 			return false;
 		}
 		return size == arr->size &&
@@ -131,8 +131,8 @@ public:
 	}
 
 	bool equals(const Type *other) const override {
-		auto s = dynamic_cast<const StructType *>(other);
-		return s && s->name == name;
+		const auto *s = dynamic_cast<const StructType *>(other);
+		return (s != nullptr) && s->name == name;
 	}
 	[[nodiscard]] std::string_view getName() const { return name; }
 	[[nodiscard]] bool isPrimitive() const override { return false; }
@@ -152,7 +152,8 @@ public:
 	}
 
 	bool equals(const Type *other) const override {
-		if (auto *constType = dynamic_cast<const ConstType *>(other)) {
+		if (const auto *constType =
+			dynamic_cast<const ConstType *>(other)) {
 			return innerType->equals(constType->innerType.get());
 		}
 		return false;
@@ -172,7 +173,7 @@ public:
 	}
 
 	bool equals(const Type *other) const override {
-		if (auto *staticType =
+		if (const auto *staticType =
 			dynamic_cast<const StaticType *>(other)) {
 			return innerType->equals(staticType->innerType.get());
 		}

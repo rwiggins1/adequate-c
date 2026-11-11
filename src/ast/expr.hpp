@@ -16,7 +16,6 @@ public:
 	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 
-
 class DecimalLiteralAST : public ExprAST {
 	double value;
 	std::string lexeme;
@@ -24,7 +23,9 @@ class DecimalLiteralAST : public ExprAST {
 public:
 	DecimalLiteralAST(double val, std::string lexeme);
 	[[nodiscard]] double getValue() const noexcept { return value; }
-	[[nodiscard]] const std::string& getLexeme() const noexcept { return lexeme; }
+	[[nodiscard]] const std::string &getLexeme() const noexcept {
+		return lexeme;
+	}
 	void accept(ASTVisitor &v) override { v.visit(*this); }
 };
 

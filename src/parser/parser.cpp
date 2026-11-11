@@ -27,7 +27,7 @@ Parser::Parser(Lexer &lex, ErrorReporter &errors)
 
 void Parser::advance() { current = lexer.get(); }
 
-bool Parser::expect(TokenType type) {
+bool Parser::expect(TokenType type) const {
 	if (type != current.type) {
 		std::cerr << "Expected " << static_cast<int>(type)
 			  << " but got " << static_cast<int>(current.type)

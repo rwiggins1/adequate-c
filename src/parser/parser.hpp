@@ -26,13 +26,13 @@ public:
 
 	std::vector<std::unique_ptr<ast::ExprAST>> parseArgList();
 	std::vector<std::unique_ptr<ast::ExprAST>>
-	    parseArgListTail(std::unique_ptr<ast::ExprAST>);
+	    parseArgListTail(std::unique_ptr<ast::ExprAST> /*expr*/);
 
 	std::unique_ptr<ast::ExprAST> parseUnaryExpr();
 	std::unique_ptr<ast::ExprAST> parseVarExpr();
 	std::unique_ptr<ast::ExprAST> parsePostfixExpr();
-	std::unique_ptr<ast::ExprAST>
-	    parsePostfixExprTail(std::unique_ptr<ast::ExprAST>);
+	std::unique_ptr<ast::ExprAST> parsePostfixExprTail(
+	    std::unique_ptr<ast::ExprAST> /*primary_expr*/);
 
 	std::unique_ptr<ast::ExprAST> parsePrimaryExpr();
 
@@ -49,7 +49,7 @@ public:
 
 	std::unique_ptr<ast::ExprAST> parseExpression();
 	std::unique_ptr<ast::ExprAST>
-	    parseExpressionTail(std::unique_ptr<ast::ExprAST>);
+	    parseExpressionTail(std::unique_ptr<ast::ExprAST> /*lhs*/);
 
 	std::unique_ptr<ast::DeclAST> parseVarDecl();
 	std::unique_ptr<ast::StmtAST> parseContinueStmt();
@@ -91,6 +91,6 @@ private:
 	bool match(TokenType type);
 	static bool isType(TokenType type);
 	static bool isLiteral(TokenType type);
-	bool expect(TokenType type);
+	bool expect(TokenType type) const;
 };
 } // namespace frontend
