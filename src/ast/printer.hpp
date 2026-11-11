@@ -15,7 +15,8 @@ public:
 	void print(ASTNode &node) { node.accept(*this); }
 
 	// Expressions
-	void visit(NumberLiteralAST &node) override;
+	void visit(IntegerLiteralAST &node) override;
+	void visit(DecimalLiteralAST &node) override;
 	void visit(StringLiteralAST &node) override;
 	void visit(CharLiteralAST &node) override;
 	void visit(BoolLiteralAST &node) override;

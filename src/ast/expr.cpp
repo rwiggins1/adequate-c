@@ -3,7 +3,10 @@
 
 namespace frontend::ast {
 
-NumberLiteralAST::NumberLiteralAST(double val) : value(val) {}
+IntegerLiteralAST::IntegerLiteralAST(std::int32_t val) : value(val) {}
+
+DecimalLiteralAST::DecimalLiteralAST(double val, std::string lexeme)
+    : value(val), lexeme(std::move(lexeme)) {}
 
 StringLiteralAST::StringLiteralAST(std::string val) : value(std::move(val)) {}
 

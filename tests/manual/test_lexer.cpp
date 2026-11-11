@@ -86,7 +86,8 @@ const char* tokenTypeToString(TokenType type) {
 	case TokenType::RPAREN: return "RPAREN";
 	case TokenType::LBRACKET: return "LBRACKET";
 	case TokenType::RBRACKET: return "RBRACKET";
-	case TokenType::NUMBER_LIT: return "NUMBER_LIT";
+	case TokenType::INT_LIT: return "INT_LIT";
+	case TokenType::DECIMAL_LIT: return "DECIMAL_LIT";
 	case TokenType::STRING_LIT: return "STRING_LIT";
 	case TokenType::CHAR_LIT: return "CHAR_LIT";
 	case TokenType::IDENT: return "IDENT";

@@ -119,23 +119,30 @@ Token Lexer::number() {
 	text += current;
 	advance();
 
+	// Loops until the next character is not a digit
 	while (std::isdigit(static_cast<unsigned char>(current)) != 0) {
 		text += current;
 		advance();
 	}
 
-	// check for float or double
-	if (current == '.' &&
-	    std::isdigit(static_cast<unsigned char>(peekNext())) != 0) {
-		text += current;
-		advance();
-		while (std::isdigit(static_cast<unsigned char>(current)) != 0) {
-			text += current;
-			advance();
-		}
+	// check whether decimal
+	if (current != '.') {
+		return {TokenType::INT_LIT, text, startLine, startColumn};
+	}
+	text += current;
+	advance();
+
+	if (std::isdigit(static_cast<unsigned char>(current)) == 0) {
+		errors.error("expected a digit after '.' in number literal '" + text + "'",
+			     startLine, startColumn, ErrorPhase::LEXER);
+		return {TokenType::INVALID, text, startLine, startColumn};
 	}
 
-	return {TokenType::NUMBER_LIT, text, startLine, startColumn};
+	while (std::isdigit(static_cast<unsigned char>(current)) != 0) {
+		text += current;
+		advance();
+	}
+	return {TokenType::DECIMAL_LIT, text, startLine, startColumn};
 }
 
 // Determine char literal
