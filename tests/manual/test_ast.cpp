@@ -26,9 +26,9 @@ void testFile(const std::string &filename) {
 	Lexer lexer(source, error);
 	Parser parser(lexer, error);
 
-	auto varDecl = parser.parseVarDecl();
+	auto var_decl = parser.parseVarDecl();
 
-	if (varDecl) {
+	if (var_decl) {
 		std::cout << "Successfully parsed variable declaration!\n";
 	}
 	else {

@@ -9,7 +9,7 @@
 namespace frontend {
 Lexer::Lexer(std::string src, ErrorReporter &errors)
     : source(std::move(src)), errors(errors), src_length(source.length()),
-      position(0), line(1), column(1),
+
       current(source.empty() ? '\0' : source[0]) {}
 
 void Lexer::advance() noexcept {
@@ -56,8 +56,7 @@ void Lexer::skipMultiLineComment() {
 	advance(); // consume '/'
 	advance(); // consume '*'
 
-	while (position < src_length &&
-	       !(current == '*' && peekNext() == '/')) {
+	while (position < src_length && (current != '*' || peekNext() != '/')) {
 		advance();
 	}
 
@@ -90,8 +89,8 @@ void Lexer::skipTrivia() {
 
 // Determines identifier
 Token Lexer::identifier() {
-	size_t startLine = line;
-	size_t startColumn = column;
+	size_t start_line = line;
+	size_t start_column = column;
 
 	std::string text;
 	text += current;
@@ -105,15 +104,15 @@ Token Lexer::identifier() {
 
 	auto it = KEYWORDS.find(text);
 	if (it != KEYWORDS.end()) {
-		return {it->second, text, startLine, startColumn};
+		return {it->second, text, start_line, start_column};
 	}
-	return {TokenType::IDENT, text, startLine, startColumn};
+	return {TokenType::IDENT, text, start_line, start_column};
 }
 
 // Determines number
 Token Lexer::number() {
-	size_t startLine = line;
-	size_t startColumn = column;
+	size_t start_line = line;
+	size_t start_column = column;
 
 	std::string text;
 	text += current;
@@ -127,28 +126,29 @@ Token Lexer::number() {
 
 	// check whether decimal
 	if (current != '.') {
-		return {TokenType::INT_LIT, text, startLine, startColumn};
+		return {TokenType::INT_LIT, text, start_line, start_column};
 	}
 	text += current;
 	advance();
 
 	if (std::isdigit(static_cast<unsigned char>(current)) == 0) {
-		errors.error("expected a digit after '.' in number literal '" + text + "'",
-			     startLine, startColumn, ErrorPhase::LEXER);
-		return {TokenType::INVALID, text, startLine, startColumn};
+		errors.error("expected a digit after '.' in number literal '" +
+				 text + "'",
+			     start_line, start_column, ErrorPhase::LEXER);
+		return {TokenType::INVALID, text, start_line, start_column};
 	}
 
 	while (std::isdigit(static_cast<unsigned char>(current)) != 0) {
 		text += current;
 		advance();
 	}
-	return {TokenType::DECIMAL_LIT, text, startLine, startColumn};
+	return {TokenType::DECIMAL_LIT, text, start_line, start_column};
 }
 
 // Determine char literal
-Token Lexer::char_lit() {
-	size_t startLine = line;
-	size_t startColumn = column;
+Token Lexer::charLit() {
+	size_t start_line = line;
+	size_t start_column = column;
 
 	std::string text;
 	text += current; // Opening '
@@ -171,25 +171,26 @@ Token Lexer::char_lit() {
 			advance();
 			errors.error("character literal must contain exactly "
 				     "one character",
-				     startLine, startColumn, ErrorPhase::LEXER);
-			return {TokenType::INVALID, text, startLine,
-				startColumn};
+				     start_line, start_column,
+				     ErrorPhase::LEXER);
+			return {TokenType::INVALID, text, start_line,
+				start_column};
 		}
-		errors.error("unterminated char literal", startLine,
-			     startColumn, ErrorPhase::LEXER);
-		return {TokenType::INVALID, text, startLine, startColumn};
+		errors.error("unterminated char literal", start_line,
+			     start_column, ErrorPhase::LEXER);
+		return {TokenType::INVALID, text, start_line, start_column};
 	}
 
 	text += current; // Closing '
 	advance();
 
-	return {TokenType::CHAR_LIT, text, startLine, startColumn};
+	return {TokenType::CHAR_LIT, text, start_line, start_column};
 }
 
 // Determine string literal
-Token Lexer::string_lit() {
-	size_t startLine = line;
-	size_t startColumn = column;
+Token Lexer::stringLit() {
+	size_t start_line = line;
+	size_t start_column = column;
 
 	std::string text;
 	text += current; // add open qoutes
@@ -200,13 +201,13 @@ Token Lexer::string_lit() {
 		advance();
 	}
 	if (position >= src_length) {
-		errors.error("unterminated string literal", startLine,
-			     startColumn, ErrorPhase::LEXER);
-		return {TokenType::INVALID, text, startLine, startColumn};
+		errors.error("unterminated string literal", start_line,
+			     start_column, ErrorPhase::LEXER);
+		return {TokenType::INVALID, text, start_line, start_column};
 	}
 	text += current; // add closing qoutes
 	advance();
-	return {TokenType::STRING_LIT, text, startLine, startColumn};
+	return {TokenType::STRING_LIT, text, start_line, start_column};
 }
 
 // Constructs token
@@ -231,11 +232,11 @@ Token Lexer::tokenize() {
 	}
 
 	if (current == '\'') {
-		return char_lit();
+		return charLit();
 	}
 
 	if (current == '"') {
-		return string_lit();
+		return stringLit();
 	}
 
 	switch (current) {

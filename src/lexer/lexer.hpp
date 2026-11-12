@@ -12,9 +12,9 @@ private:
 	std::string source; // source code
 	ErrorReporter &errors;
 	size_t src_length;
-	size_t position;
-	size_t line;
-	size_t column;
+	size_t position{0};
+	size_t line{1};
+	size_t column{1};
 	char current;
 
 	// Initialize keyword map
@@ -63,8 +63,8 @@ private:
 
 	Token identifier();
 	Token number();
-	Token string_lit();
-	Token char_lit();
+	Token stringLit();
+	Token charLit();
 
 	Token makeToken(TokenType type, const std::string &lexme,
 			size_t start_column);

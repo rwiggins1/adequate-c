@@ -42,8 +42,9 @@ class SymbolTable {
 	Scope *global = nullptr;
 	Scope *current = nullptr;
 
-	[[nodiscard]] static const Symbol *searchScope(const Scope *,
-						       const std::string &);
+	[[nodiscard]] static const Symbol *
+	searchScope(const Scope * /*scope*/,
+		    const std::string & /*symbol_name*/);
 
 public:
 	SymbolTable();
@@ -51,10 +52,12 @@ public:
 	void enterScope();
 	void exitScope();
 
-	[[nodiscard]] bool declare(Symbol &);
+	[[nodiscard]] bool declare(Symbol & /*symbol*/);
 
-	[[nodiscard]] const Symbol *lookup(const std::string &) const;
-	[[nodiscard]] const Symbol *lookupLocal(const std::string &) const;
+	[[nodiscard]] const Symbol *
+	lookup(const std::string & /*symbol_name*/) const;
+	[[nodiscard]] const Symbol *
+	lookupLocal(const std::string & /*symbol_name*/) const;
 
 	[[nodiscard]] const Scope *getGlobalScope() const noexcept;
 	[[nodiscard]] const Scope *getCurrentScope() const noexcept;
