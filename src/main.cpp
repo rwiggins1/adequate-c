@@ -13,13 +13,13 @@ void printUsage() { std::cerr << "usage: adq [--dump-ast] <filename>\n"; }
 } // namespace
 
 int main(int argc, char **argv) {
-	bool dumpAst = false;
+	bool dump_ast = false;
 	const char *filename = nullptr;
 
 	for (int i = 1; i < argc; ++i) {
 		std::string arg = argv[i];
 		if (arg == "--dump-ast") {
-			dumpAst = true;
+			dump_ast = true;
 		}
 		else if (filename == nullptr) {
 			filename = argv[i];
@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
 		return 1;
 	}
 
-	if (dumpAst) {
+	if (dump_ast) {
 		frontend::ast::ASTPrinter printer(std::cout);
 		printer.print(*program);
 	}

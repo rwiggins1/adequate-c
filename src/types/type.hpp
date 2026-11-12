@@ -152,9 +152,9 @@ public:
 	}
 
 	bool equals(const Type *other) const override {
-		if (const auto *constType =
+		if (const auto *const_type =
 			dynamic_cast<const ConstType *>(other)) {
-			return innerType->equals(constType->innerType.get());
+			return innerType->equals(const_type->innerType.get());
 		}
 		return false;
 	}
@@ -173,9 +173,9 @@ public:
 	}
 
 	bool equals(const Type *other) const override {
-		if (const auto *staticType =
+		if (const auto *static_type =
 			dynamic_cast<const StaticType *>(other)) {
-			return innerType->equals(staticType->innerType.get());
+			return innerType->equals(static_type->innerType.get());
 		}
 		return false;
 	}

@@ -63,8 +63,8 @@ private:
 
 	Token identifier();
 	Token number();
-	Token string_lit();
-	Token char_lit();
+	Token stringLit();
+	Token charLit();
 
 	Token makeToken(TokenType type, const std::string &lexme,
 			size_t start_column);

@@ -52,9 +52,9 @@ TEST(astTest, UnaryExpr) {
 	ASSERT_EQ(unary->getOperator(), UnaryOp::NOT);
 
 	ExprAST *literal = unary->getOperand();
-	auto *boolLiteral = expectNode<BoolLiteralAST>(literal);
+	auto *bool_literal = expectNode<BoolLiteralAST>(literal);
 
-	ASSERT_EQ(boolLiteral->getValue(), true);
+	ASSERT_EQ(bool_literal->getValue(), true);
 }
 
 // 2 + 3
@@ -66,34 +66,35 @@ TEST(astTest, BinaryExpr) {
 	ASSERT_EQ(add->getOperator(), BinaryOp::ADD);
 
 	ExprAST *lhs = add->getLhs();
-	auto *lhsLiteral = expectNode<IntegerLiteralAST>(lhs);
-	ASSERT_EQ(lhsLiteral->getValue(), 2);
+	auto *lhs_literal = expectNode<IntegerLiteralAST>(lhs);
+	ASSERT_EQ(lhs_literal->getValue(), 2);
 
 	ExprAST *rhs = add->getRhs();
-	auto *rhsLiteral = expectNode<IntegerLiteralAST>(rhs);
+	auto *rhs_literal = expectNode<IntegerLiteralAST>(rhs);
 
-	ASSERT_EQ(rhsLiteral->getValue(), 3);
+	ASSERT_EQ(rhs_literal->getValue(), 3);
 }
 
 // someFunc(12, "test", true)
 TEST(astTest, FunctionCallExpr) {
 	auto callee = std::make_unique<VariableExprAST>("someFunc");
 	auto twelve = std::make_unique<IntegerLiteralAST>(12);
-	auto testStr = std::make_unique<StringLiteralAST>("test");
+	auto test_str = std::make_unique<StringLiteralAST>("test");
 	auto bool_lit = std::make_unique<BoolLiteralAST>(true);
 	std::vector<std::unique_ptr<ExprAST>> args;
 
 	args.push_back(std::move(twelve));
-	args.push_back(std::move(testStr));
+	args.push_back(std::move(test_str));
 	args.push_back(std::move(bool_lit));
 
-	auto funcCall =
+	auto func_call =
 	    std::make_unique<CallExprAST>(std::move(callee), std::move(args));
-	const auto &Args = funcCall->getArgs();
+	const auto &call_args = func_call->getArgs();
 
-	auto *TwelveLiteral = expectNode<IntegerLiteralAST>(Args[0].get());
+	auto *twelve_literal =
+	    expectNode<IntegerLiteralAST>(call_args[0].get());
 
-	ASSERT_EQ(TwelveLiteral->getValue(), 12);
+	ASSERT_EQ(twelve_literal->getValue(), 12);
 }
 
 // cond ? 1 : 2
