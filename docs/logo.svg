@@ -1,0 +1,26 @@
+<svg width="1299" height="340" viewBox="0 0 1299 340" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <path fill="#E8622C" d="M250 188 C300 182 352 150 392 104 C404 90 420 96 416 112 C406 150 374 196 318 214 C296 221 268 216 250 206 Z"/>
+    <path fill="#C24A1E" d="M392 104 C404 90 420 96 416 112 C412 128 402 146 388 162 C398 142 400 120 392 104 Z"/>
+    <path fill="#E8622C" d="M250 206 C210 224 160 220 132 192 C104 164 108 120 140 102 C162 90 190 94 210 112 C236 136 258 170 266 190 C262 198 256 202 250 206 Z"/>
+    <path fill="#F4A06B" d="M150 196 C128 176 128 144 148 128 C140 150 146 176 168 192 C162 196 156 197 150 196 Z"/>
+    <path fill="#E8622C" d="M150 108 C132 96 116 78 110 58 C108 50 114 44 122 46 C140 52 160 74 176 96 C170 104 160 110 150 108 Z"/>
+    <circle fill="#E8622C" cx="110" cy="66" r="40"/>
+    <path fill="#E8622C" d="M126 36 C130 18 140 10 150 14 C142 18 138 28 138 40 C150 26 162 24 168 32 C156 32 148 42 146 54 C140 44 132 38 126 36 Z"/>
+    <path fill="#E8622C" d="M74 60 C50 54 28 56 14 64 C30 68 52 70 74 72 Z"/>
+    <path fill="#C24A1E" d="M74 70 C52 70 30 70 16 68 C30 73 52 75 74 76 Z"/>
+    <path fill="#C24A1E" d="M118 50 C140 42 158 40 168 46 C156 50 140 56 126 64 C120 60 117 55 118 50 Z"/>
+    <circle cx="104" cy="62" r="15" fill="#FFF7F0"/>
+    <circle cx="108" cy="63" r="8" fill="#241009"/>
+    <circle cx="111" cy="60" r="2.6" fill="#FFFFFF"/>
+    <g fill="none" stroke="#E8622C" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M196 214 L206 282"/>
+      <path d="M206 282 L232 292 M206 282 L222 302 M206 282 L186 298" stroke-width="7"/>
+      <path d="M156 216 L132 282"/>
+      <path d="M132 282 L158 292 M132 282 L148 302 M132 282 L112 298" stroke-width="7"/>
+    </g>
+  </g><g font-family="DejaVu Sans,Verdana,sans-serif" font-weight="700">
+    <text x="470" y="196" fill="#EDEBE6" font-size="120">Adequate</text>
+    <text x="1121" y="196" fill="#E8622C" font-size="120">-C</text>
+    <text x="472" y="248" fill="#E8622C" font-family="DejaVu Sans Mono,monospace" font-weight="700" font-size="29" letter-spacing="3">EXPLICIT. SAFE. FAST.</text>
+  </g></svg>
